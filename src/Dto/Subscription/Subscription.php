@@ -4,32 +4,47 @@ declare(strict_types=1);
 
 namespace Creem\Dto\Subscription;
 
-use Creem\Dto\Common\ExpandableValue;
-use Creem\Dto\Common\StructuredList;
-use Creem\Dto\Common\StructuredObject;
+use Creem\Dto\Common\ExpandableResource;
+use Creem\Dto\Customer\Customer;
+use Creem\Dto\Product\Product;
+use Creem\Dto\Transaction\Transaction;
+use Creem\Enum\ApiMode;
+use Creem\Enum\SubscriptionCollectionMethod;
+use Creem\Enum\SubscriptionStatus;
+use Creem\Exception\HydrationException;
 use Creem\Internal\Hydration\Payload;
+use DateTimeImmutable;
+
+use function array_is_list;
+use function is_array;
 
 final class Subscription
 {
+    /**
+     * @param  ExpandableResource<Product>|null  $product
+     * @param  ExpandableResource<Customer>|null  $customer
+     * @param  list<SubscriptionItem>  $items
+     * @param  array<string, mixed>|null  $discount
+     */
     public function __construct(
         public readonly ?string $id,
-        public readonly ?string $mode,
+        public readonly ?ApiMode $mode,
         public readonly ?string $object,
-        public readonly ?ExpandableValue $product,
-        public readonly ?ExpandableValue $customer,
-        public readonly StructuredList $items,
-        public readonly ?string $collectionMethod,
-        public readonly ?string $status,
+        public readonly ?ExpandableResource $product,
+        public readonly ?ExpandableResource $customer,
+        public readonly array $items,
+        public readonly ?SubscriptionCollectionMethod $collectionMethod,
+        public readonly ?SubscriptionStatus $status,
         public readonly ?string $lastTransactionId,
-        public readonly ?StructuredObject $lastTransaction,
-        public readonly ?string $lastTransactionDate,
-        public readonly ?string $nextTransactionDate,
-        public readonly ?string $currentPeriodStartDate,
-        public readonly ?string $currentPeriodEndDate,
-        public readonly ?string $canceledAt,
-        public readonly ?string $createdAt,
-        public readonly ?string $updatedAt,
-        public readonly ?StructuredObject $discount,
+        public readonly ?Transaction $lastTransaction,
+        public readonly ?DateTimeImmutable $lastTransactionDate,
+        public readonly ?DateTimeImmutable $nextTransactionDate,
+        public readonly ?DateTimeImmutable $currentPeriodStartDate,
+        public readonly ?DateTimeImmutable $currentPeriodEndDate,
+        public readonly ?DateTimeImmutable $canceledAt,
+        public readonly ?DateTimeImmutable $createdAt,
+        public readonly ?DateTimeImmutable $updatedAt,
+        public readonly ?array $discount,
     ) {}
 
     /**
@@ -38,24 +53,53 @@ final class Subscription
     public static function fromPayload(array $payload): self
     {
         return new self(
-            Payload::string($payload, 'id'),
-            Payload::string($payload, 'mode'),
-            Payload::string($payload, 'object'),
-            Payload::expandable($payload, 'product'),
-            Payload::expandable($payload, 'customer'),
-            Payload::list($payload, 'items'),
-            Payload::string($payload, 'collection_method'),
-            Payload::string($payload, 'status'),
-            Payload::string($payload, 'last_transaction_id'),
-            Payload::object($payload, 'last_transaction'),
-            Payload::string($payload, 'last_transaction_date'),
-            Payload::string($payload, 'next_transaction_date'),
-            Payload::string($payload, 'current_period_start_date'),
-            Payload::string($payload, 'current_period_end_date'),
-            Payload::string($payload, 'canceled_at'),
-            Payload::string($payload, 'created_at'),
-            Payload::string($payload, 'updated_at'),
-            Payload::object($payload, 'discount'),
+            Payload::string($payload, 'id', self::class, true),
+            Payload::enum($payload, 'mode', self::class, ApiMode::class, true),
+            Payload::string($payload, 'object', self::class, true),
+            Payload::expandableResource(
+                $payload,
+                'product',
+                self::class,
+                static fn (array $value): Product => Product::fromPayload($value),
+                true,
+            ),
+            Payload::expandableResource(
+                $payload,
+                'customer',
+                self::class,
+                static fn (array $value): Customer => Customer::fromPayload($value),
+                true,
+            ),
+            Payload::typedList(
+                $payload,
+                'items',
+                self::class,
+                static function (mixed $item): SubscriptionItem {
+                    if (! is_array($item) || array_is_list($item)) {
+                        throw HydrationException::invalidField(self::class, 'items', 'object', $item);
+                    }
+
+                    /** @var array<string, mixed> $item */
+                    return SubscriptionItem::fromPayload($item);
+                },
+            ),
+            Payload::enum($payload, 'collection_method', self::class, SubscriptionCollectionMethod::class, true),
+            Payload::enum($payload, 'status', self::class, SubscriptionStatus::class, true),
+            Payload::string($payload, 'last_transaction_id', self::class),
+            Payload::typedObject(
+                $payload,
+                'last_transaction',
+                self::class,
+                static fn (array $value): Transaction => Transaction::fromPayload($value),
+            ),
+            Payload::dateTime($payload, 'last_transaction_date', self::class),
+            Payload::dateTime($payload, 'next_transaction_date', self::class),
+            Payload::dateTime($payload, 'current_period_start_date', self::class),
+            Payload::dateTime($payload, 'current_period_end_date', self::class),
+            Payload::dateTime($payload, 'canceled_at', self::class),
+            Payload::dateTime($payload, 'created_at', self::class, true),
+            Payload::dateTime($payload, 'updated_at', self::class, true),
+            Payload::arrayObject($payload, 'discount', self::class),
         );
     }
 }

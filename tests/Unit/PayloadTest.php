@@ -34,14 +34,18 @@ final class PayloadTest extends TestCase
         $payload = [
             'currency' => 'USD',
             'created_at' => '2026-03-03T10:15:00+00:00',
+            'timestamp' => 1700000000000,
         ];
 
         $currency = Payload::enum($payload, 'currency', 'StatsSummary', CurrencyCode::class, true);
         $createdAt = Payload::dateTime($payload, 'created_at', 'Product', true);
+        $timestamp = Payload::millisecondsDateTime($payload, 'timestamp', 'StatsPeriod', true);
 
         self::assertSame(CurrencyCode::USD, $currency);
         self::assertInstanceOf(DateTimeImmutable::class, $createdAt);
         self::assertSame('2026-03-03T10:15:00+00:00', $createdAt?->format(DATE_ATOM));
+        self::assertInstanceOf(DateTimeImmutable::class, $timestamp);
+        self::assertSame('2023-11-14T22:13:20+00:00', $timestamp?->format(DATE_ATOM));
     }
 
     public function test_it_maps_typed_objects_lists_and_expandable_resources(): void
@@ -54,6 +58,7 @@ final class PayloadTest extends TestCase
             ],
             'product' => ['id' => 'prod_123', 'name' => 'Starter'],
             'customer' => 'cus_123',
+            'metadata' => ['source' => 'sdk-test'],
         ];
 
         $totals = Payload::typedObject(
@@ -83,6 +88,7 @@ final class PayloadTest extends TestCase
             'Checkout',
             static fn (array $value): StructuredObject => StructuredObject::fromArray($value),
         );
+        $metadata = Payload::arrayObject($payload, 'metadata', 'Checkout', true);
 
         self::assertInstanceOf(StructuredObject::class, $totals);
         self::assertSame(2, $totals?->get('total_products'));
@@ -93,6 +99,7 @@ final class PayloadTest extends TestCase
         self::assertInstanceOf(StructuredObject::class, $product?->resource());
         self::assertSame('cus_123', $customer?->id());
         self::assertFalse($customer?->isExpanded() ?? true);
+        self::assertSame(['source' => 'sdk-test'], $metadata);
     }
 
     public function test_it_throws_contextual_hydration_exceptions_for_invalid_required_fields(): void
@@ -109,5 +116,13 @@ final class PayloadTest extends TestCase
         $this->expectExceptionMessage('Hydration failed for Product.created_at: field is required.');
 
         Payload::dateTime([], 'created_at', 'Product', true);
+    }
+
+    public function test_it_throws_contextual_hydration_exceptions_for_invalid_enum_values(): void
+    {
+        $this->expectException(HydrationException::class);
+        $this->expectExceptionMessage('Hydration failed for StatsSummary.currency: expected valid Creem\Enum\CurrencyCode, got string.');
+
+        Payload::enum(['currency' => 'usd'], 'currency', 'StatsSummary', CurrencyCode::class, true);
     }
 }

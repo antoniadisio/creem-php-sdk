@@ -14,10 +14,11 @@ use Creem\Dto\Common\StructuredObject;
 use Creem\Exception\HydrationException;
 use DateTimeImmutable;
 use DateTimeInterface;
+use DateTimeZone;
 
-use function array_filter;
 use function array_is_list;
 use function array_key_exists;
+use function intdiv;
 use function is_array;
 use function is_bool;
 use function is_float;
@@ -156,6 +157,26 @@ final class Payload
 
     /**
      * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>|null
+     */
+    public static function arrayObject(array $payload, string $key, string $dto, bool $required = false): ?array
+    {
+        $value = self::value($payload, $key, $dto, $required);
+
+        if ($value === null) {
+            return null;
+        }
+
+        if (! is_array($value) || array_is_list($value)) {
+            throw HydrationException::invalidField($dto, $key, 'object', $value);
+        }
+
+        /** @var array<string, mixed> $value */
+        return $value;
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
      */
     public static function integer(array $payload, string $key, string $dto, bool $required = false): ?int
     {
@@ -251,6 +272,40 @@ final class Payload
         } catch (\Exception) {
             throw HydrationException::forField($dto, $key, 'expected a valid date-time string', $value);
         }
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    public static function millisecondsDateTime(
+        array $payload,
+        string $key,
+        string $dto,
+        bool $required = false,
+    ): ?DateTimeImmutable {
+        $value = self::value($payload, $key, $dto, $required);
+
+        if ($value === null) {
+            return null;
+        }
+
+        if (! is_int($value)) {
+            throw HydrationException::invalidField($dto, $key, 'int millisecond timestamp', $value);
+        }
+
+        $seconds = intdiv($value, 1000);
+        $microseconds = ($value % 1000) * 1000;
+        $timestamp = DateTimeImmutable::createFromFormat(
+            'U.u',
+            sprintf('%d.%06d', $seconds, $microseconds),
+            new DateTimeZone('UTC'),
+        );
+
+        if ($timestamp === false) {
+            throw HydrationException::forField($dto, $key, 'expected a valid millisecond timestamp', $value);
+        }
+
+        return $timestamp;
     }
 
     /**
@@ -359,51 +414,47 @@ final class Payload
      */
     public static function page(array $payload, callable $mapper): Page
     {
-        $items = $payload['items'] ?? [];
-        $mapped = [];
-
-        if (is_array($items)) {
-            foreach ($items as $item) {
-                if (! is_array($item)) {
-                    continue;
+        $items = self::typedList(
+            $payload,
+            'items',
+            Page::class,
+            static function (mixed $item) use ($mapper): mixed {
+                if (! is_array($item) || array_is_list($item)) {
+                    throw HydrationException::invalidField(Page::class, 'items', 'object', $item);
                 }
 
                 /** @var array<string, mixed> $item */
-                $mapped[] = $mapper($item);
-            }
-        }
+                return $mapper($item);
+            },
+            true,
+        );
 
-        return new Page($mapped, self::pagination($payload));
+        return new Page($items, self::pagination($payload, true));
     }
 
     /**
      * @param  array<string, mixed>  $payload
      */
-    public static function pagination(array $payload): ?Pagination
+    public static function pagination(array $payload, bool $required = false): ?Pagination
     {
-        $pagination = self::typedObject(
-            $payload,
-            'pagination',
-            Pagination::class,
-            static fn (array $value): StructuredObject => StructuredObject::fromArray($value),
-        );
+        $value = self::arrayObject($payload, 'pagination', Pagination::class, $required);
 
-        if (! $pagination instanceof StructuredObject) {
+        if ($value === null) {
             return null;
         }
 
-        $values = array_filter(
-            $pagination->all(),
-            static fn (mixed $value): bool => true,
-        );
+        foreach (['total_records', 'total_pages', 'current_page', 'next_page', 'prev_page'] as $field) {
+            if (! array_key_exists($field, $value)) {
+                throw HydrationException::missingField(Pagination::class, $field);
+            }
+        }
 
-        /** @var array<string, mixed> $values */
         return new Pagination(
-            self::integer($values, 'total_records', Pagination::class),
-            self::integer($values, 'total_pages', Pagination::class),
-            self::integer($values, 'current_page', Pagination::class),
-            self::integer($values, 'next_page', Pagination::class),
-            self::integer($values, 'prev_page', Pagination::class),
+            self::integer($value, 'total_records', Pagination::class, true),
+            self::integer($value, 'total_pages', Pagination::class, true),
+            self::integer($value, 'current_page', Pagination::class, true),
+            self::integer($value, 'next_page', Pagination::class),
+            self::integer($value, 'prev_page', Pagination::class),
         );
     }
 

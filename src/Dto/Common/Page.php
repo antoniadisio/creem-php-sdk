@@ -37,6 +37,9 @@ final class Page implements IteratorAggregate
         return count($this->items);
     }
 
+    /**
+     * @return TItem|null
+     */
     public function get(int $index): mixed
     {
         return $this->items[$index] ?? null;

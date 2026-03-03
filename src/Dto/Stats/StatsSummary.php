@@ -4,15 +4,20 @@ declare(strict_types=1);
 
 namespace Creem\Dto\Stats;
 
-use Creem\Dto\Common\StructuredList;
-use Creem\Dto\Common\StructuredObject;
+use Creem\Exception\HydrationException;
 use Creem\Internal\Hydration\Payload;
+
+use function array_is_list;
+use function is_array;
 
 final class StatsSummary
 {
+    /**
+     * @param  list<StatsPeriod>  $periods
+     */
     public function __construct(
-        public readonly ?StructuredObject $totals,
-        public readonly StructuredList $periods,
+        public readonly ?StatsTotals $totals,
+        public readonly array $periods,
     ) {}
 
     /**
@@ -21,8 +26,26 @@ final class StatsSummary
     public static function fromPayload(array $payload): self
     {
         return new self(
-            Payload::object($payload, 'totals'),
-            Payload::list($payload, 'periods'),
+            Payload::typedObject(
+                $payload,
+                'totals',
+                self::class,
+                static fn (array $value): StatsTotals => StatsTotals::fromPayload($value),
+                true,
+            ),
+            Payload::typedList(
+                $payload,
+                'periods',
+                self::class,
+                static function (mixed $item): StatsPeriod {
+                    if (! is_array($item) || array_is_list($item)) {
+                        throw HydrationException::invalidField(self::class, 'periods', 'object', $item);
+                    }
+
+                    /** @var array<string, mixed> $item */
+                    return StatsPeriod::fromPayload($item);
+                },
+            ),
         );
     }
 }

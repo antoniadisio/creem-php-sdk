@@ -4,17 +4,23 @@
     "object": "product",
     "name": "Starter",
     "description": "Starter plan",
+    "image_url": "https://example.com/starter.png",
     "features": [
         {
             "id": "feat_1",
-            "description": "Feature"
+            "type": "licenseKey",
+            "description": "License access"
         }
     ],
     "price": 1900,
-    "currency": "usd",
+    "currency": "USD",
     "billing_type": "recurring",
-    "billing_period": "month",
+    "billing_period": "every-month",
     "status": "active",
+    "tax_mode": "inclusive",
+    "tax_category": "saas",
+    "product_url": "https://creem.io/product/prod_123",
+    "default_success_url": "https://example.com/success",
     "created_at": "2026-01-01T00:00:00Z",
     "updated_at": "2026-01-02T00:00:00Z"
 }

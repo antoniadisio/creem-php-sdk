@@ -4,28 +4,37 @@ declare(strict_types=1);
 
 namespace Creem\Dto\Discount;
 
-use Creem\Dto\Common\StructuredList;
+use Creem\Enum\ApiMode;
+use Creem\Enum\CurrencyCode;
+use Creem\Enum\DiscountDuration;
+use Creem\Enum\DiscountStatus;
+use Creem\Enum\DiscountType;
+use Creem\Exception\HydrationException;
 use Creem\Internal\Hydration\Payload;
+use DateTimeImmutable;
 
 final class Discount
 {
+    /**
+     * @param  list<string>  $appliesToProducts
+     */
     public function __construct(
         public readonly ?string $id,
-        public readonly ?string $mode,
+        public readonly ?ApiMode $mode,
         public readonly ?string $object,
-        public readonly ?string $status,
+        public readonly ?DiscountStatus $status,
         public readonly ?string $name,
         public readonly ?string $code,
-        public readonly ?string $type,
-        public readonly int|float|null $amount,
-        public readonly ?string $currency,
-        public readonly int|float|null $percentage,
-        public readonly ?string $expiryDate,
-        public readonly int|float|null $maxRedemptions,
-        public readonly ?string $duration,
-        public readonly int|float|null $durationInMonths,
-        public readonly StructuredList $appliesToProducts,
-        public readonly int|float|null $redeemCount,
+        public readonly ?DiscountType $type,
+        public readonly ?int $amount,
+        public readonly ?CurrencyCode $currency,
+        public readonly ?int $percentage,
+        public readonly ?DateTimeImmutable $expiryDate,
+        public readonly ?int $maxRedemptions,
+        public readonly ?DiscountDuration $duration,
+        public readonly ?int $durationInMonths,
+        public readonly array $appliesToProducts,
+        public readonly ?int $redeemCount,
     ) {}
 
     /**
@@ -34,22 +43,33 @@ final class Discount
     public static function fromPayload(array $payload): self
     {
         return new self(
-            Payload::string($payload, 'id'),
-            Payload::string($payload, 'mode'),
-            Payload::string($payload, 'object'),
-            Payload::string($payload, 'status'),
-            Payload::string($payload, 'name'),
-            Payload::string($payload, 'code'),
-            Payload::string($payload, 'type'),
-            Payload::number($payload, 'amount'),
-            Payload::string($payload, 'currency'),
-            Payload::number($payload, 'percentage'),
-            Payload::string($payload, 'expiry_date'),
-            Payload::number($payload, 'max_redemptions'),
-            Payload::string($payload, 'duration'),
-            Payload::number($payload, 'duration_in_months'),
-            Payload::list($payload, 'applies_to_products'),
-            Payload::number($payload, 'redeem_count'),
+            Payload::string($payload, 'id', self::class, true),
+            Payload::enum($payload, 'mode', self::class, ApiMode::class, true),
+            Payload::string($payload, 'object', self::class, true),
+            Payload::enum($payload, 'status', self::class, DiscountStatus::class, true),
+            Payload::string($payload, 'name', self::class, true),
+            Payload::string($payload, 'code', self::class, true),
+            Payload::enum($payload, 'type', self::class, DiscountType::class, true),
+            Payload::integer($payload, 'amount', self::class),
+            Payload::enum($payload, 'currency', self::class, CurrencyCode::class),
+            Payload::integer($payload, 'percentage', self::class),
+            Payload::dateTime($payload, 'expiry_date', self::class),
+            Payload::integer($payload, 'max_redemptions', self::class),
+            Payload::enum($payload, 'duration', self::class, DiscountDuration::class),
+            Payload::integer($payload, 'duration_in_months', self::class),
+            Payload::typedList(
+                $payload,
+                'applies_to_products',
+                self::class,
+                static function (mixed $item): string {
+                    if (! is_string($item)) {
+                        throw HydrationException::invalidField(self::class, 'applies_to_products', 'string', $item);
+                    }
+
+                    return $item;
+                },
+            ),
+            Payload::integer($payload, 'redeem_count', self::class),
         );
     }
 }

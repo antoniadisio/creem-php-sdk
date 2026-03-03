@@ -2,23 +2,22 @@
 
 declare(strict_types=1);
 
-namespace Creem\Dto\Customer;
+namespace Creem\Dto\License;
 
 use Creem\Enum\ApiMode;
+use Creem\Enum\LicenseInstanceStatus;
 use Creem\Internal\Hydration\Payload;
 use DateTimeImmutable;
 
-final class Customer
+final class LicenseInstance
 {
     public function __construct(
         public readonly ?string $id,
         public readonly ?ApiMode $mode,
         public readonly ?string $object,
-        public readonly ?string $email,
         public readonly ?string $name,
-        public readonly ?string $country,
+        public readonly ?LicenseInstanceStatus $status,
         public readonly ?DateTimeImmutable $createdAt,
-        public readonly ?DateTimeImmutable $updatedAt,
     ) {}
 
     /**
@@ -30,11 +29,9 @@ final class Customer
             Payload::string($payload, 'id', self::class, true),
             Payload::enum($payload, 'mode', self::class, ApiMode::class, true),
             Payload::string($payload, 'object', self::class, true),
-            Payload::string($payload, 'email', self::class, true),
-            Payload::string($payload, 'name', self::class),
-            Payload::string($payload, 'country', self::class, true),
+            Payload::string($payload, 'name', self::class, true),
+            Payload::enum($payload, 'status', self::class, LicenseInstanceStatus::class, true),
             Payload::dateTime($payload, 'created_at', self::class, true),
-            Payload::dateTime($payload, 'updated_at', self::class, true),
         );
     }
 }

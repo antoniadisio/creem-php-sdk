@@ -10,6 +10,10 @@
     "created_at": "2026-01-01T00:00:00Z",
     "instance": {
         "id": "ins_123",
-        "name": "macbook"
+        "mode": "test",
+        "object": "license-instance",
+        "name": "macbook",
+        "status": "active",
+        "created_at": "2026-01-01T00:00:00Z"
     }
 }

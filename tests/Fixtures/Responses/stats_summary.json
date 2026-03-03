@@ -1,11 +1,18 @@
 {
     "totals": {
         "totalProducts": 2,
-        "totalRevenue": 12000
+        "totalSubscriptions": 3,
+        "totalCustomers": 4,
+        "totalPayments": 5,
+        "activeSubscriptions": 2,
+        "totalRevenue": 12000,
+        "totalNetRevenue": 11500,
+        "netMonthlyRecurringRevenue": 9000,
+        "monthlyRecurringRevenue": 9500
     },
     "periods": [
         {
-            "timestamp": 1700000000,
+            "timestamp": 1700000000000,
             "grossRevenue": 12000,
             "netRevenue": 11500
         }

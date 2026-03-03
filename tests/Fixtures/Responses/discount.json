@@ -7,7 +7,9 @@
     "code": "LAUNCH",
     "type": "fixed",
     "amount": 1000,
-    "currency": "usd",
+    "currency": "USD",
+    "expiry_date": "2026-12-31T23:59:59Z",
+    "max_redemptions": 100,
     "duration": "once",
     "applies_to_products": [
         "prod_123"

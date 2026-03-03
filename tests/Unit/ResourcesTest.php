@@ -6,32 +6,45 @@ namespace Creem\Tests\Unit;
 
 use Creem\Config;
 use Creem\Dto\Checkout\CreateCheckoutRequest;
-use Creem\Dto\Common\StructuredObject;
+use Creem\Dto\Common\CustomField;
+use Creem\Dto\Common\Order;
+use Creem\Dto\Common\ProductFeature;
 use Creem\Dto\Customer\CreateCustomerBillingPortalLinkRequest;
 use Creem\Dto\Customer\Customer;
 use Creem\Dto\Customer\ListCustomersRequest;
 use Creem\Dto\Discount\CreateDiscountRequest;
 use Creem\Dto\License\ActivateLicenseRequest;
 use Creem\Dto\License\DeactivateLicenseRequest;
+use Creem\Dto\License\LicenseInstance;
 use Creem\Dto\License\ValidateLicenseRequest;
 use Creem\Dto\Product\CreateProductRequest;
 use Creem\Dto\Product\Product;
 use Creem\Dto\Product\SearchProductsRequest;
 use Creem\Dto\Stats\GetStatsSummaryRequest;
+use Creem\Dto\Stats\StatsPeriod;
 use Creem\Dto\Subscription\CancelSubscriptionRequest;
+use Creem\Dto\Subscription\SubscriptionItem;
 use Creem\Dto\Subscription\UpdateSubscriptionRequest;
 use Creem\Dto\Subscription\UpgradeSubscriptionRequest;
 use Creem\Dto\Subscription\UpsertSubscriptionItem;
 use Creem\Dto\Transaction\SearchTransactionsRequest;
 use Creem\Dto\Transaction\Transaction;
+use Creem\Enum\ApiMode;
+use Creem\Enum\BillingPeriod;
 use Creem\Enum\BillingType;
+use Creem\Enum\CheckoutStatus;
 use Creem\Enum\CurrencyCode;
 use Creem\Enum\DiscountDuration;
+use Creem\Enum\DiscountStatus;
 use Creem\Enum\DiscountType;
+use Creem\Enum\LicenseStatus;
+use Creem\Enum\ProductFeatureType;
 use Creem\Enum\StatsInterval;
 use Creem\Enum\SubscriptionCancellationAction;
 use Creem\Enum\SubscriptionCancellationMode;
+use Creem\Enum\SubscriptionStatus;
 use Creem\Enum\SubscriptionUpdateBehavior;
+use Creem\Enum\TransactionStatus;
 use Creem\Internal\Http\CreemConnector;
 use Creem\Resource\CheckoutsResource;
 use Creem\Resource\CustomersResource;
@@ -69,9 +82,12 @@ final class ResourcesTest extends TestCase
 
         $product = $resource->get('prod_123');
         self::assertSame('prod_123', $product->id);
-        $feature = $product->features->get(0);
-        self::assertInstanceOf(StructuredObject::class, $feature);
-        self::assertSame('feat_1', $feature->get('id'));
+        self::assertSame(ApiMode::Test, $product->mode);
+        self::assertSame(CurrencyCode::USD, $product->currency);
+        self::assertSame(BillingPeriod::EveryMonth, $product->billingPeriod);
+        $feature = $product->features[0] ?? null;
+        self::assertInstanceOf(ProductFeature::class, $feature);
+        self::assertSame(ProductFeatureType::LicenseKey, $feature?->type);
         $this->assertRequest($mockClient, Method::GET, '/v1/products', ['product_id' => 'prod_123']);
 
         $created = $resource->create(new CreateProductRequest('Enterprise', 4900, CurrencyCode::USD, BillingType::OneTime, description: 'Scale plan'));
@@ -91,6 +107,7 @@ final class ResourcesTest extends TestCase
         $item = $page->get(0);
         self::assertInstanceOf(Product::class, $item);
         self::assertSame('prod_123', $item->id);
+        self::assertSame(CurrencyCode::USD, $item->currency);
         $this->assertRequest($mockClient, Method::GET, '/v1/products/search', ['page_number' => '2', 'page_size' => '50']);
     }
 
@@ -111,6 +128,8 @@ final class ResourcesTest extends TestCase
 
         $customer = $resource->get('cus_123');
         self::assertSame('cus_123', $customer->id);
+        self::assertSame(ApiMode::Test, $customer->mode);
+        self::assertInstanceOf(DateTimeImmutable::class, $customer->createdAt);
         $this->assertRequest($mockClient, Method::GET, '/v1/customers', ['customer_id' => 'cus_123']);
 
         $customerByEmail = $resource->findByEmail('billing@example.com');
@@ -127,7 +146,14 @@ final class ResourcesTest extends TestCase
         $mockClient = new MockClient([
             MockResponse::make($this->responseFixture('subscription.json')),
             MockResponse::make($this->responseFixture('subscription.json', ['status' => 'canceled'])),
-            MockResponse::make($this->responseFixture('subscription.json', ['status' => 'active', 'items' => [['id' => 'item_2', 'units' => 4]]])),
+            MockResponse::make($this->responseFixture('subscription.json', ['status' => 'active', 'items' => [[
+                'id' => 'item_2',
+                'mode' => 'test',
+                'object' => 'subscription-item',
+                'product_id' => 'prod_123',
+                'price_id' => 'price_123',
+                'units' => 4,
+            ]]])),
             MockResponse::make($this->responseFixture('subscription.json', ['status' => 'active', 'product' => 'prod_999'])),
             MockResponse::make($this->responseFixture('subscription.json', ['status' => 'paused'])),
             MockResponse::make($this->responseFixture('subscription.json', ['status' => 'active'])),
@@ -136,11 +162,13 @@ final class ResourcesTest extends TestCase
 
         $subscription = $resource->get('sub_123');
         self::assertSame('prod_123', $subscription->product?->id());
+        self::assertTrue($subscription->product?->isExpanded() ?? false);
         self::assertFalse($subscription->customer?->isExpanded() ?? true);
+        self::assertSame(SubscriptionStatus::Active, $subscription->status);
         $this->assertRequest($mockClient, Method::GET, '/v1/subscriptions', ['subscription_id' => 'sub_123']);
 
         $canceled = $resource->cancel('sub_123', new CancelSubscriptionRequest(SubscriptionCancellationMode::Immediate, SubscriptionCancellationAction::Cancel));
-        self::assertSame('canceled', $canceled->status);
+        self::assertSame(SubscriptionStatus::Canceled, $canceled->status);
         $this->assertRequest($mockClient, Method::POST, '/v1/subscriptions/sub_123/cancel', [], ['mode' => 'immediate', 'onExecute' => 'cancel']);
 
         $updated = $resource->update(
@@ -150,7 +178,8 @@ final class ResourcesTest extends TestCase
                 SubscriptionUpdateBehavior::ProrationCharge,
             ),
         );
-        self::assertSame(1, $updated->items->count());
+        self::assertCount(1, $updated->items);
+        self::assertInstanceOf(SubscriptionItem::class, $updated->items[0] ?? null);
         $this->assertRequest(
             $mockClient,
             Method::POST,
@@ -170,11 +199,11 @@ final class ResourcesTest extends TestCase
         );
 
         $paused = $resource->pause('sub_123');
-        self::assertSame('paused', $paused->status);
+        self::assertSame(SubscriptionStatus::Paused, $paused->status);
         $this->assertRequest($mockClient, Method::POST, '/v1/subscriptions/sub_123/pause');
 
         $resumed = $resource->resume('sub_123');
-        self::assertSame('active', $resumed->status);
+        self::assertSame(SubscriptionStatus::Active, $resumed->status);
         $this->assertRequest($mockClient, Method::POST, '/v1/subscriptions/sub_123/resume');
     }
 
@@ -188,7 +217,12 @@ final class ResourcesTest extends TestCase
 
         $checkout = $resource->get('chk_123');
         self::assertSame('chk_123', $checkout->id);
+        self::assertSame(CheckoutStatus::Pending, $checkout->status);
         self::assertTrue($checkout->product?->isExpanded());
+        self::assertInstanceOf(Order::class, $checkout->order);
+        self::assertInstanceOf(CustomField::class, $checkout->customFields[0] ?? null);
+        self::assertInstanceOf(ProductFeature::class, $checkout->feature[0] ?? null);
+        self::assertSame('sdk-test', $checkout->metadata['source'] ?? null);
         $this->assertRequest($mockClient, Method::GET, '/v1/checkouts', ['checkout_id' => 'chk_123']);
 
         $created = $resource->create(new CreateCheckoutRequest('prod_123', requestId: 'req_1', units: 2, successUrl: 'https://example.com/success'));
@@ -213,11 +247,13 @@ final class ResourcesTest extends TestCase
 
         $activated = $resource->activate(new ActivateLicenseRequest('lic_key', 'macbook'));
         self::assertSame('lic_123', $activated->id);
-        self::assertSame('ins_123', $activated->instance?->get('id'));
+        self::assertSame(LicenseStatus::Active, $activated->status);
+        self::assertInstanceOf(LicenseInstance::class, $activated->instance);
+        self::assertSame('ins_123', $activated->instance?->id);
         $this->assertRequest($mockClient, Method::POST, '/v1/licenses/activate', [], ['key' => 'lic_key', 'instance_name' => 'macbook']);
 
         $deactivated = $resource->deactivate(new DeactivateLicenseRequest('lic_key', 'ins_123'));
-        self::assertSame('inactive', $deactivated->status);
+        self::assertSame(LicenseStatus::Inactive, $deactivated->status);
         $this->assertRequest($mockClient, Method::POST, '/v1/licenses/deactivate', [], ['key' => 'lic_key', 'instance_id' => 'ins_123']);
 
         $validated = $resource->validate(new ValidateLicenseRequest('lic_key', 'ins_123'));
@@ -231,12 +267,13 @@ final class ResourcesTest extends TestCase
             MockResponse::make($this->responseFixture('discount.json')),
             MockResponse::make($this->responseFixture('discount.json', ['code' => 'WELCOME10'])),
             MockResponse::make($this->responseFixture('discount.json', ['id' => 'disc_456'])),
-            MockResponse::make($this->responseFixture('discount.json', ['status' => 'deleted'])),
+            MockResponse::make($this->responseFixture('discount.json', ['status' => 'expired'])),
         ]);
         $resource = new DiscountsResource($this->connector($mockClient));
 
         $discount = $resource->get('disc_123');
         self::assertSame('disc_123', $discount->id);
+        self::assertSame(DiscountStatus::Active, $discount->status);
         $this->assertRequest($mockClient, Method::GET, '/v1/discounts', ['discount_id' => 'disc_123']);
 
         $byCode = $resource->getByCode('WELCOME10');
@@ -254,7 +291,7 @@ final class ResourcesTest extends TestCase
         );
 
         $deleted = $resource->delete('disc_123');
-        self::assertSame('deleted', $deleted->status);
+        self::assertSame(DiscountStatus::Expired, $deleted->status);
         $this->assertRequest($mockClient, Method::DELETE, '/v1/discounts/disc_123/delete');
     }
 
@@ -268,6 +305,8 @@ final class ResourcesTest extends TestCase
 
         $transaction = $resource->get('txn_123');
         self::assertSame('txn_123', $transaction->id);
+        self::assertSame(CurrencyCode::USD, $transaction->currency);
+        self::assertSame(TransactionStatus::Paid, $transaction->status);
         $this->assertRequest($mockClient, Method::GET, '/v1/transactions', ['transaction_id' => 'txn_123']);
 
         $page = $resource->search(new SearchTransactionsRequest(customerId: 'cus_123', pageNumber: 3, pageSize: 25));
@@ -275,6 +314,7 @@ final class ResourcesTest extends TestCase
         self::assertSame(3, $page->pagination?->currentPage);
         self::assertNull($page->pagination?->nextPage);
         self::assertInstanceOf(Transaction::class, $page->get(0));
+        self::assertSame(TransactionStatus::Paid, $page->get(0)?->status);
         $this->assertRequest(
             $mockClient,
             Method::GET,
@@ -298,8 +338,10 @@ final class ResourcesTest extends TestCase
                 StatsInterval::Day,
             ),
         );
-        self::assertSame(2, $summary->totals?->get('totalProducts'));
-        self::assertSame(1, $summary->periods->count());
+        self::assertSame(2, $summary->totals?->totalProducts);
+        self::assertCount(1, $summary->periods);
+        self::assertInstanceOf(StatsPeriod::class, $summary->periods[0] ?? null);
+        self::assertSame('2023-11-14T22:13:20+00:00', $summary->periods[0]?->timestamp?->format(DATE_ATOM));
         $this->assertRequest(
             $mockClient,
             Method::GET,

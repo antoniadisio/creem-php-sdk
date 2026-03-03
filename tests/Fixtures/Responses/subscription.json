@@ -4,13 +4,28 @@
     "object": "subscription",
     "product": {
         "id": "prod_123",
-        "name": "Starter"
+        "mode": "test",
+        "object": "product",
+        "name": "Starter",
+        "description": "Starter plan",
+        "price": 1900,
+        "currency": "USD",
+        "billing_type": "recurring",
+        "billing_period": "every-month",
+        "status": "active",
+        "tax_mode": "inclusive",
+        "tax_category": "saas",
+        "created_at": "2026-01-01T00:00:00Z",
+        "updated_at": "2026-01-02T00:00:00Z"
     },
     "customer": "cus_123",
     "items": [
         {
             "id": "item_1",
+            "mode": "test",
+            "object": "subscription-item",
             "product_id": "prod_123",
+            "price_id": "price_123",
             "units": 2
         }
     ],
@@ -19,10 +34,23 @@
     "last_transaction_id": "txn_123",
     "last_transaction": {
         "id": "txn_123",
-        "amount": 1900
+        "mode": "test",
+        "object": "transaction",
+        "amount": 1900,
+        "currency": "USD",
+        "type": "payment",
+        "status": "paid",
+        "created_at": 1700000000
     },
+    "last_transaction_date": "2026-01-01T12:00:00Z",
+    "next_transaction_date": "2026-02-01T12:00:00Z",
     "current_period_start_date": "2026-01-01T00:00:00Z",
     "current_period_end_date": "2026-02-01T00:00:00Z",
+    "canceled_at": null,
     "created_at": "2026-01-01T00:00:00Z",
-    "updated_at": "2026-01-02T00:00:00Z"
+    "updated_at": "2026-01-02T00:00:00Z",
+    "discount": {
+        "code": "LAUNCH",
+        "amount": 1000
+    }
 }
