@@ -1,0 +1,26 @@
+{
+    "items": [
+        {
+            "id": "txn_123",
+            "mode": "test",
+            "object": "transaction",
+            "amount": 1900,
+            "amount_paid": 1900,
+            "discount_amount": 0,
+            "currency": "usd",
+            "type": "payment",
+            "status": "succeeded",
+            "order": "ord_123",
+            "subscription": "sub_123",
+            "customer": "cus_123",
+            "created_at": 1700000000
+        }
+    ],
+    "pagination": {
+        "total_records": 1,
+        "total_pages": 1,
+        "current_page": 3,
+        "next_page": null,
+        "prev_page": 2
+    }
+}

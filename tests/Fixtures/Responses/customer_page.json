@@ -1,0 +1,21 @@
+{
+    "items": [
+        {
+            "id": "cus_123",
+            "mode": "test",
+            "object": "customer",
+            "email": "hello@example.com",
+            "name": "Taylor",
+            "country": "US",
+            "created_at": "2026-01-01T00:00:00Z",
+            "updated_at": "2026-01-02T00:00:00Z"
+        }
+    ],
+    "pagination": {
+        "total_records": 1,
+        "total_pages": 1,
+        "current_page": 1,
+        "next_page": null,
+        "prev_page": null
+    }
+}

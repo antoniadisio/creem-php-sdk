@@ -1,0 +1,16 @@
+{
+    "id": "disc_123",
+    "mode": "test",
+    "object": "discount",
+    "status": "active",
+    "name": "Launch",
+    "code": "LAUNCH",
+    "type": "fixed",
+    "amount": 1000,
+    "currency": "usd",
+    "duration": "once",
+    "applies_to_products": [
+        "prod_123"
+    ],
+    "redeem_count": 1
+}

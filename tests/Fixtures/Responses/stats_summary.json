@@ -1,0 +1,13 @@
+{
+    "totals": {
+        "totalProducts": 2,
+        "totalRevenue": 12000
+    },
+    "periods": [
+        {
+            "timestamp": 1700000000,
+            "grossRevenue": 12000,
+            "netRevenue": 11500
+        }
+    ]
+}

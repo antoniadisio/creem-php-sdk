@@ -1,0 +1,20 @@
+{
+    "id": "prod_123",
+    "mode": "test",
+    "object": "product",
+    "name": "Starter",
+    "description": "Starter plan",
+    "features": [
+        {
+            "id": "feat_1",
+            "description": "Feature"
+        }
+    ],
+    "price": 1900,
+    "currency": "usd",
+    "billing_type": "recurring",
+    "billing_period": "month",
+    "status": "active",
+    "created_at": "2026-01-01T00:00:00Z",
+    "updated_at": "2026-01-02T00:00:00Z"
+}

@@ -308,22 +308,22 @@ Some low-risk foundation tests were pulled into Phase 3 so the core SDK pieces c
 
 ### Tasks
 
-- [ ] Replace the temporary contract-layout smoke test with behavior-focused coverage
+- [x] Replace the temporary contract-layout smoke test with behavior-focused coverage
 - [x] Add unit tests for `Environment`
 - [x] Add unit tests for `Config`
 - [x] Add unit tests for exception mapping
 - [x] Add tests for user-agent and auth header behavior
 - [x] Add request/response tests for each resource method
-- [ ] Add response fixtures under `tests/Fixtures/Responses/`
-- [ ] Add contract tests that parse `spec/creem-openapi.json`
-- [ ] Add contract tests that verify every OpenAPI operation is mapped to SDK coverage
-- [ ] Fail tests when the spec changes without corresponding SDK coverage updates
+- [x] Add response fixtures under `tests/Fixtures/Responses/`
+- [x] Add contract tests that parse `spec/creem-openapi.json`
+- [x] Add contract tests that verify every OpenAPI operation is mapped to SDK coverage
+- [x] Fail tests when the spec changes without corresponding SDK coverage updates
 
 ### Acceptance Criteria
 
-- [ ] Test coverage protects the public contract, not just file existence
-- [ ] The spec is validated by PHP-side tests
-- [ ] SDK coverage gaps are caught automatically when the spec changes
+- [x] Test coverage protects the public contract, not just file existence
+- [x] The spec is validated by PHP-side tests
+- [x] SDK coverage gaps are caught automatically when the spec changes
 
 ## Phase 6 - Final Documentation And Release Readiness
 

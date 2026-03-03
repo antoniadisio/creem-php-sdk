@@ -1,0 +1,30 @@
+{
+    "id": "chk_123",
+    "mode": "test",
+    "object": "checkout",
+    "status": "open",
+    "request_id": "req_1",
+    "product": {
+        "id": "prod_123",
+        "name": "Starter"
+    },
+    "units": 2,
+    "order": {
+        "id": "ord_123",
+        "amount": 3800
+    },
+    "subscription": "sub_123",
+    "customer": "cus_123",
+    "custom_fields": [
+        {
+            "key": "company",
+            "value": "Creem"
+        }
+    ],
+    "checkout_url": "https://checkout.creem.io/session",
+    "success_url": "https://example.com/success",
+    "feature": [],
+    "metadata": {
+        "source": "sdk-test"
+    }
+}

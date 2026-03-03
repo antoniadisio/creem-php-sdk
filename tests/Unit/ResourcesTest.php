@@ -39,6 +39,9 @@ use Saloon\Enums\Method;
 use Saloon\Http\Faking\MockClient;
 use Saloon\Http\Faking\MockResponse;
 
+use function array_replace;
+use function dirname;
+use function file_get_contents;
 use function json_decode;
 use function parse_str;
 use function parse_url;
@@ -48,9 +51,9 @@ final class ResourcesTest extends TestCase
     public function test_products_resource_builds_requests_and_hydrates_responses(): void
     {
         $mockClient = new MockClient([
-            MockResponse::make($this->productPayload()),
-            MockResponse::make($this->productPayload(['id' => 'prod_456', 'name' => 'Enterprise'])),
-            MockResponse::make($this->productPagePayload()),
+            MockResponse::make($this->responseFixture('product.json')),
+            MockResponse::make($this->responseFixture('product.json', ['id' => 'prod_456', 'name' => 'Enterprise'])),
+            MockResponse::make($this->responseFixture('product_page.json')),
         ]);
         $resource = new ProductsResource($this->connector($mockClient));
 
@@ -84,10 +87,10 @@ final class ResourcesTest extends TestCase
     public function test_customers_resource_supports_listing_retrieval_and_billing_links(): void
     {
         $mockClient = new MockClient([
-            MockResponse::make($this->customerPagePayload()),
-            MockResponse::make($this->customerPayload()),
-            MockResponse::make($this->customerPayload(['id' => 'cus_email', 'email' => 'billing@example.com'])),
-            MockResponse::make(['customer_portal_link' => 'https://billing.creem.io/session']),
+            MockResponse::make($this->responseFixture('customer_page.json')),
+            MockResponse::make($this->responseFixture('customer.json')),
+            MockResponse::make($this->responseFixture('customer.json', ['id' => 'cus_email', 'email' => 'billing@example.com'])),
+            MockResponse::make($this->responseFixture('customer_links.json')),
         ]);
         $resource = new CustomersResource($this->connector($mockClient));
 
@@ -112,12 +115,12 @@ final class ResourcesTest extends TestCase
     public function test_subscriptions_resource_maps_each_action_endpoint(): void
     {
         $mockClient = new MockClient([
-            MockResponse::make($this->subscriptionPayload()),
-            MockResponse::make($this->subscriptionPayload(['status' => 'canceled'])),
-            MockResponse::make($this->subscriptionPayload(['status' => 'active', 'items' => [['id' => 'item_2', 'units' => 4]]])),
-            MockResponse::make($this->subscriptionPayload(['status' => 'active', 'product' => 'prod_999'])),
-            MockResponse::make($this->subscriptionPayload(['status' => 'paused'])),
-            MockResponse::make($this->subscriptionPayload(['status' => 'active'])),
+            MockResponse::make($this->responseFixture('subscription.json')),
+            MockResponse::make($this->responseFixture('subscription.json', ['status' => 'canceled'])),
+            MockResponse::make($this->responseFixture('subscription.json', ['status' => 'active', 'items' => [['id' => 'item_2', 'units' => 4]]])),
+            MockResponse::make($this->responseFixture('subscription.json', ['status' => 'active', 'product' => 'prod_999'])),
+            MockResponse::make($this->responseFixture('subscription.json', ['status' => 'paused'])),
+            MockResponse::make($this->responseFixture('subscription.json', ['status' => 'active'])),
         ]);
         $resource = new SubscriptionsResource($this->connector($mockClient));
 
@@ -162,8 +165,8 @@ final class ResourcesTest extends TestCase
     public function test_checkouts_resource_handles_get_and_create(): void
     {
         $mockClient = new MockClient([
-            MockResponse::make($this->checkoutPayload()),
-            MockResponse::make($this->checkoutPayload(['id' => 'chk_456'])),
+            MockResponse::make($this->responseFixture('checkout.json')),
+            MockResponse::make($this->responseFixture('checkout.json', ['id' => 'chk_456'])),
         ]);
         $resource = new CheckoutsResource($this->connector($mockClient));
 
@@ -186,9 +189,9 @@ final class ResourcesTest extends TestCase
     public function test_licenses_resource_maps_activation_validation_and_deactivation(): void
     {
         $mockClient = new MockClient([
-            MockResponse::make($this->licensePayload()),
-            MockResponse::make($this->licensePayload(['status' => 'inactive'])),
-            MockResponse::make($this->licensePayload(['activation' => 1])),
+            MockResponse::make($this->responseFixture('license.json')),
+            MockResponse::make($this->responseFixture('license.json', ['status' => 'inactive'])),
+            MockResponse::make($this->responseFixture('license.json', ['activation' => 1])),
         ]);
         $resource = new LicensesResource($this->connector($mockClient));
 
@@ -209,10 +212,10 @@ final class ResourcesTest extends TestCase
     public function test_discounts_resource_normalizes_lookup_and_delete_operations(): void
     {
         $mockClient = new MockClient([
-            MockResponse::make($this->discountPayload()),
-            MockResponse::make($this->discountPayload(['code' => 'WELCOME10'])),
-            MockResponse::make($this->discountPayload(['id' => 'disc_456'])),
-            MockResponse::make($this->discountPayload(['status' => 'deleted'])),
+            MockResponse::make($this->responseFixture('discount.json')),
+            MockResponse::make($this->responseFixture('discount.json', ['code' => 'WELCOME10'])),
+            MockResponse::make($this->responseFixture('discount.json', ['id' => 'disc_456'])),
+            MockResponse::make($this->responseFixture('discount.json', ['status' => 'deleted'])),
         ]);
         $resource = new DiscountsResource($this->connector($mockClient));
 
@@ -242,8 +245,8 @@ final class ResourcesTest extends TestCase
     public function test_transactions_resource_supports_get_and_search(): void
     {
         $mockClient = new MockClient([
-            MockResponse::make($this->transactionPayload()),
-            MockResponse::make($this->transactionPagePayload()),
+            MockResponse::make($this->responseFixture('transaction.json')),
+            MockResponse::make($this->responseFixture('transaction_page.json')),
         ]);
         $resource = new TransactionsResource($this->connector($mockClient));
 
@@ -267,19 +270,7 @@ final class ResourcesTest extends TestCase
     public function test_stats_resource_returns_typed_summary_data(): void
     {
         $mockClient = new MockClient([
-            MockResponse::make([
-                'totals' => [
-                    'totalProducts' => 2,
-                    'totalRevenue' => 12000,
-                ],
-                'periods' => [
-                    [
-                        'timestamp' => 1700000000,
-                        'grossRevenue' => 12000,
-                        'netRevenue' => 11500,
-                    ],
-                ],
-            ]),
+            MockResponse::make($this->responseFixture('stats_summary.json')),
         ]);
         $resource = new StatsResource($this->connector($mockClient));
 
@@ -361,221 +352,19 @@ final class ResourcesTest extends TestCase
     }
 
     /**
-     * @param  array<string, mixed>  $overrides
      * @return array<string, mixed>
+     *
+     * @throws JsonException
      */
-    private function productPayload(array $overrides = []): array
+    private function responseFixture(string $fixture, array $overrides = []): array
     {
-        return [
-            'id' => 'prod_123',
-            'mode' => 'test',
-            'object' => 'product',
-            'name' => 'Starter',
-            'description' => 'Starter plan',
-            'features' => [
-                ['id' => 'feat_1', 'description' => 'Feature'],
-            ],
-            'price' => 1900,
-            'currency' => 'usd',
-            'billing_type' => 'recurring',
-            'billing_period' => 'month',
-            'status' => 'active',
-            'created_at' => '2026-01-01T00:00:00Z',
-            'updated_at' => '2026-01-02T00:00:00Z',
-            ...$overrides,
-        ];
-    }
+        $contents = file_get_contents(dirname(__DIR__).'/Fixtures/Responses/'.$fixture);
 
-    /**
-     * @return array<string, mixed>
-     */
-    private function productPagePayload(): array
-    {
-        return [
-            'items' => [$this->productPayload()],
-            'pagination' => [
-                'total_records' => 1,
-                'total_pages' => 1,
-                'current_page' => 2,
-                'next_page' => null,
-                'prev_page' => 1,
-            ],
-        ];
-    }
+        self::assertNotFalse($contents, sprintf('Fixture %s could not be read.', $fixture));
 
-    /**
-     * @param  array<string, mixed>  $overrides
-     * @return array<string, mixed>
-     */
-    private function customerPayload(array $overrides = []): array
-    {
-        return [
-            'id' => 'cus_123',
-            'mode' => 'test',
-            'object' => 'customer',
-            'email' => 'hello@example.com',
-            'name' => 'Taylor',
-            'country' => 'US',
-            'created_at' => '2026-01-01T00:00:00Z',
-            'updated_at' => '2026-01-02T00:00:00Z',
-            ...$overrides,
-        ];
-    }
+        /** @var array<string, mixed> $payload */
+        $payload = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
 
-    /**
-     * @return array<string, mixed>
-     */
-    private function customerPagePayload(): array
-    {
-        return [
-            'items' => [$this->customerPayload()],
-            'pagination' => [
-                'total_records' => 1,
-                'total_pages' => 1,
-                'current_page' => 1,
-                'next_page' => null,
-                'prev_page' => null,
-            ],
-        ];
-    }
-
-    /**
-     * @param  array<string, mixed>  $overrides
-     * @return array<string, mixed>
-     */
-    private function subscriptionPayload(array $overrides = []): array
-    {
-        return [
-            'id' => 'sub_123',
-            'mode' => 'test',
-            'object' => 'subscription',
-            'product' => ['id' => 'prod_123', 'name' => 'Starter'],
-            'customer' => 'cus_123',
-            'items' => [
-                ['id' => 'item_1', 'product_id' => 'prod_123', 'units' => 2],
-            ],
-            'collection_method' => 'charge_automatically',
-            'status' => 'active',
-            'last_transaction_id' => 'txn_123',
-            'last_transaction' => ['id' => 'txn_123', 'amount' => 1900],
-            'current_period_start_date' => '2026-01-01T00:00:00Z',
-            'current_period_end_date' => '2026-02-01T00:00:00Z',
-            'created_at' => '2026-01-01T00:00:00Z',
-            'updated_at' => '2026-01-02T00:00:00Z',
-            ...$overrides,
-        ];
-    }
-
-    /**
-     * @param  array<string, mixed>  $overrides
-     * @return array<string, mixed>
-     */
-    private function checkoutPayload(array $overrides = []): array
-    {
-        return [
-            'id' => 'chk_123',
-            'mode' => 'test',
-            'object' => 'checkout',
-            'status' => 'open',
-            'request_id' => 'req_1',
-            'product' => ['id' => 'prod_123', 'name' => 'Starter'],
-            'units' => 2,
-            'order' => ['id' => 'ord_123', 'amount' => 3800],
-            'subscription' => 'sub_123',
-            'customer' => 'cus_123',
-            'custom_fields' => [
-                ['key' => 'company', 'value' => 'Creem'],
-            ],
-            'checkout_url' => 'https://checkout.creem.io/session',
-            'success_url' => 'https://example.com/success',
-            'feature' => [],
-            'metadata' => ['source' => 'sdk-test'],
-            ...$overrides,
-        ];
-    }
-
-    /**
-     * @param  array<string, mixed>  $overrides
-     * @return array<string, mixed>
-     */
-    private function licensePayload(array $overrides = []): array
-    {
-        return [
-            'id' => 'lic_123',
-            'mode' => 'test',
-            'object' => 'license',
-            'status' => 'active',
-            'key' => 'lic_key',
-            'activation' => 2,
-            'activation_limit' => 3,
-            'expires_at' => '2027-01-01T00:00:00Z',
-            'created_at' => '2026-01-01T00:00:00Z',
-            'instance' => ['id' => 'ins_123', 'name' => 'macbook'],
-            ...$overrides,
-        ];
-    }
-
-    /**
-     * @param  array<string, mixed>  $overrides
-     * @return array<string, mixed>
-     */
-    private function discountPayload(array $overrides = []): array
-    {
-        return [
-            'id' => 'disc_123',
-            'mode' => 'test',
-            'object' => 'discount',
-            'status' => 'active',
-            'name' => 'Launch',
-            'code' => 'LAUNCH',
-            'type' => 'fixed',
-            'amount' => 1000,
-            'currency' => 'usd',
-            'duration' => 'once',
-            'applies_to_products' => ['prod_123'],
-            'redeem_count' => 1,
-            ...$overrides,
-        ];
-    }
-
-    /**
-     * @param  array<string, mixed>  $overrides
-     * @return array<string, mixed>
-     */
-    private function transactionPayload(array $overrides = []): array
-    {
-        return [
-            'id' => 'txn_123',
-            'mode' => 'test',
-            'object' => 'transaction',
-            'amount' => 1900,
-            'amount_paid' => 1900,
-            'discount_amount' => 0,
-            'currency' => 'usd',
-            'type' => 'payment',
-            'status' => 'succeeded',
-            'order' => 'ord_123',
-            'subscription' => 'sub_123',
-            'customer' => 'cus_123',
-            'created_at' => 1700000000,
-            ...$overrides,
-        ];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function transactionPagePayload(): array
-    {
-        return [
-            'items' => [$this->transactionPayload()],
-            'pagination' => [
-                'total_records' => 1,
-                'total_pages' => 1,
-                'current_page' => 3,
-                'next_page' => null,
-                'prev_page' => 2,
-            ],
-        ];
+        return array_replace($payload, $overrides);
     }
 }
