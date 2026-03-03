@@ -4,11 +4,20 @@ declare(strict_types=1);
 
 namespace Creem\Resource;
 
-use Creem\Internal\Http\CreemConnector;
+use Creem\Dto\Checkout\Checkout;
+use Creem\Dto\Checkout\CreateCheckoutRequest;
+use Creem\Internal\Http\Requests\Checkouts\CreateCheckoutRequest as CreateCheckoutOperation;
+use Creem\Internal\Http\Requests\Checkouts\RetrieveCheckoutRequest;
 
-final class CheckoutsResource
+final class CheckoutsResource extends Resource
 {
-    public function __construct(
-        private readonly CreemConnector $connector,
-    ) {}
+    public function get(string $id): Checkout
+    {
+        return Checkout::fromPayload($this->send(new RetrieveCheckoutRequest($id)));
+    }
+
+    public function create(CreateCheckoutRequest $request): Checkout
+    {
+        return Checkout::fromPayload($this->send(new CreateCheckoutOperation($request->toArray())));
+    }
 }

@@ -280,21 +280,21 @@ Implement each API domain with a stable public surface and full typed mapping.
 
 ### Tasks Per Resource
 
-- [ ] Add internal Saloon request classes for every operation in the domain
-- [ ] Add public resource methods with clean SDK naming
-- [ ] Add public request DTOs for create, update, and search flows
-- [ ] Add public response DTOs for single-entity responses
-- [ ] Add public page DTOs for list and search responses
-- [ ] Add hydration logic from decoded payloads into DTOs
-- [ ] Normalize awkward upstream paths into consistent SDK methods
+- [x] Add internal Saloon request classes for every operation in the domain
+- [x] Add public resource methods with clean SDK naming
+- [x] Add public request DTOs for create, update, and search flows
+- [x] Add public response DTOs for single-entity responses
+- [x] Add public page DTOs for list and search responses
+- [x] Add hydration logic from decoded payloads into DTOs
+- [x] Normalize awkward upstream paths into consistent SDK methods
 
 ### Global Acceptance Criteria
 
-- [ ] All 23 current API operations are represented by internal request classes
-- [ ] All public methods return typed DTOs or typed page DTOs
-- [ ] Query-parameter retrieval endpoints still present clean `get($id)` methods
-- [ ] Action-style delete endpoints still present clean `delete($id)` methods
-- [ ] Nullable and union-like payloads are handled without exposing raw arrays
+- [x] All 23 current API operations are represented by internal request classes
+- [x] All public methods return typed DTOs or typed page DTOs
+- [x] Query-parameter retrieval endpoints still present clean `get($id)` methods
+- [x] Action-style delete endpoints still present clean `delete($id)` methods
+- [x] Nullable and union-like payloads are handled without exposing raw arrays
 
 ## Phase 5 - Add Contract Tests And Guardrails
 
@@ -313,7 +313,7 @@ Some low-risk foundation tests were pulled into Phase 3 so the core SDK pieces c
 - [x] Add unit tests for `Config`
 - [x] Add unit tests for exception mapping
 - [x] Add tests for user-agent and auth header behavior
-- [ ] Add request/response tests for each resource method
+- [x] Add request/response tests for each resource method
 - [ ] Add response fixtures under `tests/Fixtures/Responses/`
 - [ ] Add contract tests that parse `spec/creem-openapi.json`
 - [ ] Add contract tests that verify every OpenAPI operation is mapped to SDK coverage
@@ -357,13 +357,13 @@ These scenarios must be covered before the restart is considered complete:
 - [x] `Config` applies overrides correctly
 - [x] The connector sends the `x-api-key` header
 - [x] The connector sends the SDK user agent
-- [ ] Each resource method builds the correct path, method, query string, and body
+- [x] Each resource method builds the correct path, method, query string, and body
 - [x] `401`, `403`, `404`, `422`, `429`, and `5xx` responses map to the correct exception types
 - [x] Network and timeout failures map to `TransportException`
-- [ ] Nullable payload fields hydrate correctly
-- [ ] Pagination payloads hydrate into shared page and pagination DTOs
-- [ ] Union-like nested payloads are normalized into stable DTO representations
-- [ ] Every documented OpenAPI operation has both internal request coverage and public method coverage
+- [x] Nullable payload fields hydrate correctly
+- [x] Pagination payloads hydrate into shared page and pagination DTOs
+- [x] Union-like nested payloads are normalized into stable DTO representations
+- [x] Every documented OpenAPI operation has both internal request coverage and public method coverage
 
 ## Explicit Assumptions
 
