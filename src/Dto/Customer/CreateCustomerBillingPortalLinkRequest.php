@@ -6,10 +6,10 @@ namespace Creem\Dto\Customer;
 
 use Creem\Internal\Serialization\RequestValueNormalizer;
 
-final class CreateCustomerBillingPortalLinkRequest
+final readonly class CreateCustomerBillingPortalLinkRequest
 {
     public function __construct(
-        public readonly string $customerId,
+        public string $customerId,
     ) {}
 
     /**

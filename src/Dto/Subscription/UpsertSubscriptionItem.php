@@ -6,13 +6,13 @@ namespace Creem\Dto\Subscription;
 
 use Creem\Internal\Serialization\RequestValueNormalizer;
 
-final class UpsertSubscriptionItem
+final readonly class UpsertSubscriptionItem
 {
     public function __construct(
-        public readonly ?string $id = null,
-        public readonly ?string $productId = null,
-        public readonly ?string $priceId = null,
-        public readonly ?int $units = null,
+        public ?string $id = null,
+        public ?string $productId = null,
+        public ?string $priceId = null,
+        public ?int $units = null,
     ) {}
 
     /**

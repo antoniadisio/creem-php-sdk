@@ -6,11 +6,11 @@ namespace Creem\Dto\Product;
 
 use Creem\Internal\Serialization\RequestValueNormalizer;
 
-final class SearchProductsRequest
+final readonly class SearchProductsRequest
 {
     public function __construct(
-        public readonly ?int $pageNumber = null,
-        public readonly ?int $pageSize = null,
+        public ?int $pageNumber = null,
+        public ?int $pageSize = null,
     ) {}
 
     /**

@@ -10,23 +10,23 @@ use Creem\Enum\DiscountType;
 use Creem\Internal\Serialization\RequestValueNormalizer;
 use DateTimeImmutable;
 
-final class CreateDiscountRequest
+final readonly class CreateDiscountRequest
 {
     /**
      * @param  list<string>  $appliesToProducts
      */
     public function __construct(
-        public readonly string $name,
-        public readonly DiscountType $type,
-        public readonly DiscountDuration $duration,
-        public readonly array $appliesToProducts,
-        public readonly ?string $code = null,
-        public readonly ?int $amount = null,
-        public readonly ?CurrencyCode $currency = null,
-        public readonly ?int $percentage = null,
-        public readonly ?DateTimeImmutable $expiryDate = null,
-        public readonly ?int $maxRedemptions = null,
-        public readonly ?int $durationInMonths = null,
+        public string $name,
+        public DiscountType $type,
+        public DiscountDuration $duration,
+        public array $appliesToProducts,
+        public ?string $code = null,
+        public ?int $amount = null,
+        public ?CurrencyCode $currency = null,
+        public ?int $percentage = null,
+        public ?DateTimeImmutable $expiryDate = null,
+        public ?int $maxRedemptions = null,
+        public ?int $durationInMonths = null,
     ) {}
 
     /**

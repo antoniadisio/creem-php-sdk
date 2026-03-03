@@ -6,11 +6,11 @@ namespace Creem\Dto\Common;
 
 use Creem\Internal\Serialization\RequestValueNormalizer;
 
-final class TextFieldConfigInput
+final readonly class TextFieldConfigInput
 {
     public function __construct(
-        public readonly ?int $maxLength = null,
-        public readonly ?int $minLength = null,
+        public ?int $maxLength = null,
+        public ?int $minLength = null,
     ) {}
 
     /**

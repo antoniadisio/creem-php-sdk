@@ -9,13 +9,13 @@ use Creem\Enum\StatsInterval;
 use Creem\Internal\Serialization\RequestValueNormalizer;
 use DateTimeImmutable;
 
-final class GetStatsSummaryRequest
+final readonly class GetStatsSummaryRequest
 {
     public function __construct(
-        public readonly CurrencyCode $currency,
-        public readonly ?DateTimeImmutable $startDate = null,
-        public readonly ?DateTimeImmutable $endDate = null,
-        public readonly ?StatsInterval $interval = null,
+        public CurrencyCode $currency,
+        public ?DateTimeImmutable $startDate = null,
+        public ?DateTimeImmutable $endDate = null,
+        public ?StatsInterval $interval = null,
     ) {}
 
     /**

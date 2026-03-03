@@ -14,14 +14,14 @@ use function count;
  *
  * @implements IteratorAggregate<int, TItem>
  */
-final class Page implements IteratorAggregate
+final readonly class Page implements IteratorAggregate
 {
     /**
      * @param  list<TItem>  $items
      */
     public function __construct(
-        private readonly array $items,
-        public readonly ?Pagination $pagination,
+        private array $items,
+        public ?Pagination $pagination,
     ) {}
 
     /**

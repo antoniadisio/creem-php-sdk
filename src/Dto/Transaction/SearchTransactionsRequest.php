@@ -6,14 +6,14 @@ namespace Creem\Dto\Transaction;
 
 use Creem\Internal\Serialization\RequestValueNormalizer;
 
-final class SearchTransactionsRequest
+final readonly class SearchTransactionsRequest
 {
     public function __construct(
-        public readonly ?string $customerId = null,
-        public readonly ?string $orderId = null,
-        public readonly ?string $productId = null,
-        public readonly ?int $pageNumber = null,
-        public readonly ?int $pageSize = null,
+        public ?string $customerId = null,
+        public ?string $orderId = null,
+        public ?string $productId = null,
+        public ?int $pageNumber = null,
+        public ?int $pageSize = null,
     ) {}
 
     /**

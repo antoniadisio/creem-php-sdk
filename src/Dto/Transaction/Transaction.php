@@ -10,28 +10,28 @@ use Creem\Enum\TransactionStatus;
 use Creem\Enum\TransactionType;
 use Creem\Internal\Hydration\Payload;
 
-final class Transaction
+final readonly class Transaction
 {
     public function __construct(
-        public readonly ?string $id,
-        public readonly ?ApiMode $mode,
-        public readonly ?string $object,
-        public readonly ?int $amount,
-        public readonly ?int $amountPaid,
-        public readonly ?int $discountAmount,
-        public readonly ?CurrencyCode $currency,
-        public readonly ?TransactionType $type,
-        public readonly ?string $taxCountry,
-        public readonly ?int $taxAmount,
-        public readonly ?TransactionStatus $status,
-        public readonly ?int $refundedAmount,
-        public readonly ?string $order,
-        public readonly ?string $subscription,
-        public readonly ?string $customer,
-        public readonly ?string $description,
-        public readonly ?int $periodStart,
-        public readonly ?int $periodEnd,
-        public readonly ?int $createdAt,
+        public ?string $id,
+        public ?ApiMode $mode,
+        public ?string $object,
+        public ?int $amount,
+        public ?int $amountPaid,
+        public ?int $discountAmount,
+        public ?CurrencyCode $currency,
+        public ?TransactionType $type,
+        public ?string $taxCountry,
+        public ?int $taxAmount,
+        public ?TransactionStatus $status,
+        public ?int $refundedAmount,
+        public ?string $order,
+        public ?string $subscription,
+        public ?string $customer,
+        public ?string $description,
+        public ?int $periodStart,
+        public ?int $periodEnd,
+        public ?int $createdAt,
     ) {}
 
     /**

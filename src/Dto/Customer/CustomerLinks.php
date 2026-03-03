@@ -6,10 +6,10 @@ namespace Creem\Dto\Customer;
 
 use Creem\Internal\Hydration\Payload;
 
-final class CustomerLinks
+final readonly class CustomerLinks
 {
     public function __construct(
-        public readonly ?string $customerPortalLink,
+        public ?string $customerPortalLink,
     ) {}
 
     /**

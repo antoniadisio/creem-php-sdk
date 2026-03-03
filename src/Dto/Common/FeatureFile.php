@@ -6,14 +6,14 @@ namespace Creem\Dto\Common;
 
 use Creem\Internal\Hydration\Payload;
 
-final class FeatureFile
+final readonly class FeatureFile
 {
     public function __construct(
-        public readonly ?string $id,
-        public readonly ?string $fileName,
-        public readonly ?string $url,
-        public readonly ?string $type,
-        public readonly ?int $size,
+        public ?string $id,
+        public ?string $fileName,
+        public ?string $url,
+        public ?string $type,
+        public ?int $size,
     ) {}
 
     /**

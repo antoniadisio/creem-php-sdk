@@ -6,11 +6,11 @@ namespace Creem\Dto\Checkout;
 
 use Creem\Internal\Serialization\RequestValueNormalizer;
 
-final class CheckoutCustomerInput
+final readonly class CheckoutCustomerInput
 {
     public function __construct(
-        public readonly ?string $id = null,
-        public readonly ?string $email = null,
+        public ?string $id = null,
+        public ?string $email = null,
     ) {}
 
     /**

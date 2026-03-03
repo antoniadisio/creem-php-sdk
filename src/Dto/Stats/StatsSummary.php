@@ -10,14 +10,14 @@ use Creem\Internal\Hydration\Payload;
 use function array_is_list;
 use function is_array;
 
-final class StatsSummary
+final readonly class StatsSummary
 {
     /**
      * @param  list<StatsPeriod>  $periods
      */
     public function __construct(
-        public readonly ?StatsTotals $totals,
-        public readonly array $periods,
+        public ?StatsTotals $totals,
+        public array $periods,
     ) {}
 
     /**

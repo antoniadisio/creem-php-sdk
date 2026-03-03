@@ -7,15 +7,15 @@ namespace Creem\Dto\Common;
 use Creem\Enum\CustomFieldType;
 use Creem\Internal\Hydration\Payload;
 
-final class CustomField
+final readonly class CustomField
 {
     public function __construct(
-        public readonly ?CustomFieldType $type,
-        public readonly ?string $key,
-        public readonly ?string $label,
-        public readonly ?bool $optional,
-        public readonly ?CustomFieldText $text,
-        public readonly ?CustomFieldCheckbox $checkbox,
+        public ?CustomFieldType $type,
+        public ?string $key,
+        public ?string $label,
+        public ?bool $optional,
+        public ?CustomFieldText $text,
+        public ?CustomFieldCheckbox $checkbox,
     ) {}
 
     /**

@@ -6,12 +6,12 @@ namespace Creem\Dto\Common;
 
 use Creem\Internal\Hydration\Payload;
 
-final class CustomFieldText
+final readonly class CustomFieldText
 {
     public function __construct(
-        public readonly ?int $maxLength,
-        public readonly ?int $minimumLength,
-        public readonly ?string $value,
+        public ?int $maxLength,
+        public ?int $minimumLength,
+        public ?string $value,
     ) {}
 
     /**

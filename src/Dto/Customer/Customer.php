@@ -8,17 +8,17 @@ use Creem\Enum\ApiMode;
 use Creem\Internal\Hydration\Payload;
 use DateTimeImmutable;
 
-final class Customer
+final readonly class Customer
 {
     public function __construct(
-        public readonly ?string $id,
-        public readonly ?ApiMode $mode,
-        public readonly ?string $object,
-        public readonly ?string $email,
-        public readonly ?string $name,
-        public readonly ?string $country,
-        public readonly ?DateTimeImmutable $createdAt,
-        public readonly ?DateTimeImmutable $updatedAt,
+        public ?string $id,
+        public ?ApiMode $mode,
+        public ?string $object,
+        public ?string $email,
+        public ?string $name,
+        public ?string $country,
+        public ?DateTimeImmutable $createdAt,
+        public ?DateTimeImmutable $updatedAt,
     ) {}
 
     /**

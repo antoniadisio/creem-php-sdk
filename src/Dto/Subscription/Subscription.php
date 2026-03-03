@@ -18,7 +18,7 @@ use DateTimeImmutable;
 use function array_is_list;
 use function is_array;
 
-final class Subscription
+final readonly class Subscription
 {
     /**
      * @param  ExpandableResource<Product>|null  $product
@@ -27,24 +27,24 @@ final class Subscription
      * @param  array<string, mixed>|null  $discount
      */
     public function __construct(
-        public readonly ?string $id,
-        public readonly ?ApiMode $mode,
-        public readonly ?string $object,
-        public readonly ?ExpandableResource $product,
-        public readonly ?ExpandableResource $customer,
-        public readonly array $items,
-        public readonly ?SubscriptionCollectionMethod $collectionMethod,
-        public readonly ?SubscriptionStatus $status,
-        public readonly ?string $lastTransactionId,
-        public readonly ?Transaction $lastTransaction,
-        public readonly ?DateTimeImmutable $lastTransactionDate,
-        public readonly ?DateTimeImmutable $nextTransactionDate,
-        public readonly ?DateTimeImmutable $currentPeriodStartDate,
-        public readonly ?DateTimeImmutable $currentPeriodEndDate,
-        public readonly ?DateTimeImmutable $canceledAt,
-        public readonly ?DateTimeImmutable $createdAt,
-        public readonly ?DateTimeImmutable $updatedAt,
-        public readonly ?array $discount,
+        public ?string $id,
+        public ?ApiMode $mode,
+        public ?string $object,
+        public ?ExpandableResource $product,
+        public ?ExpandableResource $customer,
+        public array $items,
+        public ?SubscriptionCollectionMethod $collectionMethod,
+        public ?SubscriptionStatus $status,
+        public ?string $lastTransactionId,
+        public ?Transaction $lastTransaction,
+        public ?DateTimeImmutable $lastTransactionDate,
+        public ?DateTimeImmutable $nextTransactionDate,
+        public ?DateTimeImmutable $currentPeriodStartDate,
+        public ?DateTimeImmutable $currentPeriodEndDate,
+        public ?DateTimeImmutable $canceledAt,
+        public ?DateTimeImmutable $createdAt,
+        public ?DateTimeImmutable $updatedAt,
+        public ?array $discount,
     ) {}
 
     /**

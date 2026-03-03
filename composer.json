@@ -26,7 +26,8 @@
     "require-dev": {
         "laravel/pint": "^1.27",
         "phpstan/phpstan": "^2.1",
-        "phpunit/phpunit": "^11.5"
+        "phpunit/phpunit": "^11.5",
+        "rector/rector": "^2.3"
     },
     "autoload": {
         "psr-4": {
@@ -39,10 +40,24 @@
         }
     },
     "scripts": {
+        "rector": "rector process",
+        "rector:check": "rector process --dry-run",
         "test": "phpunit",
         "cs": "pint --test",
         "cs:fix": "pint",
-        "stan": "phpstan analyse --configuration=phpstan.neon.dist --memory-limit=512M"
+        "stan": "phpstan analyse --configuration=phpstan.neon.dist --memory-limit=512M",
+        "qa": [
+            "@rector",
+            "@cs:fix",
+            "@stan",
+            "@test"
+        ],
+        "qa:check": [
+            "@rector:check",
+            "@cs",
+            "@stan",
+            "@test"
+        ]
     },
     "config": {
         "platform": {

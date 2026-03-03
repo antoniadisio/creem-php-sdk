@@ -8,11 +8,11 @@ use Creem\Enum\SubscriptionCancellationAction;
 use Creem\Enum\SubscriptionCancellationMode;
 use Creem\Internal\Serialization\RequestValueNormalizer;
 
-final class CancelSubscriptionRequest
+final readonly class CancelSubscriptionRequest
 {
     public function __construct(
-        public readonly ?SubscriptionCancellationMode $mode = null,
-        public readonly ?SubscriptionCancellationAction $onExecute = null,
+        public ?SubscriptionCancellationMode $mode = null,
+        public ?SubscriptionCancellationAction $onExecute = null,
     ) {}
 
     /**

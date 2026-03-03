@@ -7,15 +7,15 @@ namespace Creem\Dto\Subscription;
 use Creem\Enum\ApiMode;
 use Creem\Internal\Hydration\Payload;
 
-final class SubscriptionItem
+final readonly class SubscriptionItem
 {
     public function __construct(
-        public readonly ?string $id,
-        public readonly ?ApiMode $mode,
-        public readonly ?string $object,
-        public readonly ?string $productId,
-        public readonly ?string $priceId,
-        public readonly ?int $units,
+        public ?string $id,
+        public ?ApiMode $mode,
+        public ?string $object,
+        public ?string $productId,
+        public ?string $priceId,
+        public ?int $units,
     ) {}
 
     /**

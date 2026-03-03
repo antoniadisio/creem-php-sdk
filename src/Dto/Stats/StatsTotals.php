@@ -6,18 +6,18 @@ namespace Creem\Dto\Stats;
 
 use Creem\Internal\Hydration\Payload;
 
-final class StatsTotals
+final readonly class StatsTotals
 {
     public function __construct(
-        public readonly ?int $totalProducts,
-        public readonly ?int $totalSubscriptions,
-        public readonly ?int $totalCustomers,
-        public readonly ?int $totalPayments,
-        public readonly ?int $activeSubscriptions,
-        public readonly ?int $totalRevenue,
-        public readonly ?int $totalNetRevenue,
-        public readonly ?int $netMonthlyRecurringRevenue,
-        public readonly ?int $monthlyRecurringRevenue,
+        public ?int $totalProducts,
+        public ?int $totalSubscriptions,
+        public ?int $totalCustomers,
+        public ?int $totalPayments,
+        public ?int $activeSubscriptions,
+        public ?int $totalRevenue,
+        public ?int $totalNetRevenue,
+        public ?int $netMonthlyRecurringRevenue,
+        public ?int $monthlyRecurringRevenue,
     ) {}
 
     /**

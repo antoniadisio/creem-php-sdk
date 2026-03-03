@@ -11,11 +11,11 @@ use function is_string;
 /**
  * @deprecated Use ExpandableResource<TResource> for new typed payload mappings.
  */
-final class ExpandableValue
+final readonly class ExpandableValue
 {
     private function __construct(
-        private readonly ?string $id,
-        private readonly ?StructuredObject $resource,
+        private ?string $id,
+        private ?StructuredObject $resource,
     ) {}
 
     public static function fromValue(mixed $value): ?self
@@ -46,6 +46,6 @@ final class ExpandableValue
 
     public function isExpanded(): bool
     {
-        return $this->resource !== null;
+        return $this->resource instanceof \Creem\Dto\Common\StructuredObject;
     }
 }

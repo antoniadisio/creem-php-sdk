@@ -84,7 +84,7 @@ final class OpenApiContractTest extends TestCase
 
         $expectedFixtures = array_values(array_unique($expectedFixtures));
         $actualFixtures = array_map(
-            static fn (string $path): string => basename($path),
+            basename(...),
             glob($this->fixturesDirectory().'/*.json') ?: [],
         );
 

@@ -7,22 +7,12 @@ namespace Creem\Dto\Common;
 /**
  * @template TResource of object
  */
-final class ExpandableResource
+final readonly class ExpandableResource
 {
-    /**
-     * @var TResource|null
-     */
-    private readonly ?object $resource;
-
     /**
      * @param  TResource|null  $resource
      */
-    private function __construct(
-        private readonly string $id,
-        ?object $resource,
-    ) {
-        $this->resource = $resource;
-    }
+    private function __construct(private string $id, private ?object $resource) {}
 
     /**
      * @return self<TResource>

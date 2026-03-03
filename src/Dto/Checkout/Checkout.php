@@ -19,7 +19,7 @@ use Creem\Internal\Hydration\Payload;
 use function array_is_list;
 use function is_array;
 
-final class Checkout
+final readonly class Checkout
 {
     /**
      * @param  ExpandableResource<Product>|null  $product
@@ -30,21 +30,21 @@ final class Checkout
      * @param  array<string, mixed>|null  $metadata
      */
     public function __construct(
-        public readonly ?string $id,
-        public readonly ?ApiMode $mode,
-        public readonly ?string $object,
-        public readonly ?CheckoutStatus $status,
-        public readonly ?string $requestId,
-        public readonly ?ExpandableResource $product,
-        public readonly ?int $units,
-        public readonly ?Order $order,
-        public readonly ?ExpandableResource $subscription,
-        public readonly ?ExpandableResource $customer,
-        public readonly array $customFields,
-        public readonly ?string $checkoutUrl,
-        public readonly ?string $successUrl,
-        public readonly array $feature,
-        public readonly ?array $metadata,
+        public ?string $id,
+        public ?ApiMode $mode,
+        public ?string $object,
+        public ?CheckoutStatus $status,
+        public ?string $requestId,
+        public ?ExpandableResource $product,
+        public ?int $units,
+        public ?Order $order,
+        public ?ExpandableResource $subscription,
+        public ?ExpandableResource $customer,
+        public array $customFields,
+        public ?string $checkoutUrl,
+        public ?string $successUrl,
+        public array $feature,
+        public ?array $metadata,
     ) {}
 
     /**

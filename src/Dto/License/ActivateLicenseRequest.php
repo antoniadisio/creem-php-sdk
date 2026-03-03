@@ -6,11 +6,11 @@ namespace Creem\Dto\License;
 
 use Creem\Internal\Serialization\RequestValueNormalizer;
 
-final class ActivateLicenseRequest
+final readonly class ActivateLicenseRequest
 {
     public function __construct(
-        public readonly string $key,
-        public readonly string $instanceName,
+        public string $key,
+        public string $instanceName,
     ) {}
 
     /**

@@ -8,16 +8,16 @@ use Creem\Dto\License\License;
 use Creem\Enum\ProductFeatureType;
 use Creem\Internal\Hydration\Payload;
 
-final class ProductFeature
+final readonly class ProductFeature
 {
     public function __construct(
-        public readonly ?string $id,
-        public readonly ?string $description,
-        public readonly ?ProductFeatureType $type,
-        public readonly ?string $privateNote,
-        public readonly ?FileFeature $file,
-        public readonly ?License $licenseKey,
-        public readonly ?License $license,
+        public ?string $id,
+        public ?string $description,
+        public ?ProductFeatureType $type,
+        public ?string $privateNote,
+        public ?FileFeature $file,
+        public ?License $licenseKey,
+        public ?License $license,
     ) {}
 
     /**

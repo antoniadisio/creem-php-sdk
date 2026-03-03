@@ -7,11 +7,11 @@ namespace Creem\Dto\Subscription;
 use Creem\Enum\SubscriptionUpdateBehavior;
 use Creem\Internal\Serialization\RequestValueNormalizer;
 
-final class UpgradeSubscriptionRequest
+final readonly class UpgradeSubscriptionRequest
 {
     public function __construct(
-        public readonly string $productId,
-        public readonly ?SubscriptionUpdateBehavior $updateBehavior = null,
+        public string $productId,
+        public ?SubscriptionUpdateBehavior $updateBehavior = null,
     ) {}
 
     /**

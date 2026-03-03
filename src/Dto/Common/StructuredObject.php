@@ -8,13 +8,13 @@ use Creem\Internal\Hydration\StructuredValueNormalizer;
 
 use function array_key_exists;
 
-final class StructuredObject
+final readonly class StructuredObject
 {
     /**
      * @param  array<string, mixed>  $values
      */
     private function __construct(
-        private readonly array $values,
+        private array $values,
     ) {}
 
     /**

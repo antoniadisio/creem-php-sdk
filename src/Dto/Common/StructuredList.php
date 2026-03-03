@@ -14,13 +14,13 @@ use function count;
 /**
  * @implements IteratorAggregate<int, mixed>
  */
-final class StructuredList implements IteratorAggregate
+final readonly class StructuredList implements IteratorAggregate
 {
     /**
      * @param  list<mixed>  $items
      */
     private function __construct(
-        private readonly array $items,
+        private array $items,
     ) {}
 
     /**
@@ -30,7 +30,7 @@ final class StructuredList implements IteratorAggregate
     {
         /** @var list<mixed> $normalized */
         $normalized = array_map(
-            static fn (mixed $item): mixed => StructuredValueNormalizer::normalize($item),
+            StructuredValueNormalizer::normalize(...),
             $items,
         );
 

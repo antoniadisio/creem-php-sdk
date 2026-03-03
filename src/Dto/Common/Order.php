@@ -11,31 +11,31 @@ use Creem\Enum\OrderType;
 use Creem\Internal\Hydration\Payload;
 use DateTimeImmutable;
 
-final class Order
+final readonly class Order
 {
     public function __construct(
-        public readonly ?string $id,
-        public readonly ?ApiMode $mode,
-        public readonly ?string $object,
-        public readonly ?string $customer,
-        public readonly ?string $product,
-        public readonly ?string $transaction,
-        public readonly ?string $discount,
-        public readonly ?int $amount,
-        public readonly ?int $subTotal,
-        public readonly ?int $taxAmount,
-        public readonly ?int $discountAmount,
-        public readonly ?int $amountDue,
-        public readonly ?int $amountPaid,
-        public readonly ?CurrencyCode $currency,
-        public readonly ?float $fxAmount,
-        public readonly ?CurrencyCode $fxCurrency,
-        public readonly ?float $fxRate,
-        public readonly ?OrderStatus $status,
-        public readonly ?OrderType $type,
-        public readonly ?string $affiliate,
-        public readonly ?DateTimeImmutable $createdAt,
-        public readonly ?DateTimeImmutable $updatedAt,
+        public ?string $id,
+        public ?ApiMode $mode,
+        public ?string $object,
+        public ?string $customer,
+        public ?string $product,
+        public ?string $transaction,
+        public ?string $discount,
+        public ?int $amount,
+        public ?int $subTotal,
+        public ?int $taxAmount,
+        public ?int $discountAmount,
+        public ?int $amountDue,
+        public ?int $amountPaid,
+        public ?CurrencyCode $currency,
+        public ?float $fxAmount,
+        public ?CurrencyCode $fxCurrency,
+        public ?float $fxRate,
+        public ?OrderStatus $status,
+        public ?OrderType $type,
+        public ?string $affiliate,
+        public ?DateTimeImmutable $createdAt,
+        public ?DateTimeImmutable $updatedAt,
     ) {}
 
     /**

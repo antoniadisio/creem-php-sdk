@@ -6,11 +6,11 @@ namespace Creem\Dto\Common;
 
 use Creem\Internal\Hydration\Payload;
 
-final class CustomFieldCheckbox
+final readonly class CustomFieldCheckbox
 {
     public function __construct(
-        public readonly ?string $label,
-        public readonly ?bool $value,
+        public ?string $label,
+        public ?bool $value,
     ) {}
 
     /**

@@ -7,12 +7,12 @@ namespace Creem\Dto\Stats;
 use Creem\Internal\Hydration\Payload;
 use DateTimeImmutable;
 
-final class StatsPeriod
+final readonly class StatsPeriod
 {
     public function __construct(
-        public readonly ?DateTimeImmutable $timestamp,
-        public readonly ?int $grossRevenue,
-        public readonly ?int $netRevenue,
+        public ?DateTimeImmutable $timestamp,
+        public ?int $grossRevenue,
+        public ?int $netRevenue,
     ) {}
 
     /**

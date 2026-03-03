@@ -7,21 +7,21 @@ namespace Creem\Dto\Checkout;
 use Creem\Dto\Common\CustomFieldInput;
 use Creem\Internal\Serialization\RequestValueNormalizer;
 
-final class CreateCheckoutRequest
+final readonly class CreateCheckoutRequest
 {
     /**
      * @param  list<CustomFieldInput>  $customFields
      * @param  array<string, mixed>|null  $metadata
      */
     public function __construct(
-        public readonly string $productId,
-        public readonly ?string $requestId = null,
-        public readonly ?int $units = null,
-        public readonly ?string $discountCode = null,
-        public readonly ?CheckoutCustomerInput $customer = null,
-        public readonly array $customFields = [],
-        public readonly ?string $successUrl = null,
-        public readonly ?array $metadata = null,
+        public string $productId,
+        public ?string $requestId = null,
+        public ?int $units = null,
+        public ?string $discountCode = null,
+        public ?CheckoutCustomerInput $customer = null,
+        public array $customFields = [],
+        public ?string $successUrl = null,
+        public ?array $metadata = null,
     ) {}
 
     /**

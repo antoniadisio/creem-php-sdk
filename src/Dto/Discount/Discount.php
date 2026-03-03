@@ -13,28 +13,28 @@ use Creem\Exception\HydrationException;
 use Creem\Internal\Hydration\Payload;
 use DateTimeImmutable;
 
-final class Discount
+final readonly class Discount
 {
     /**
      * @param  list<string>  $appliesToProducts
      */
     public function __construct(
-        public readonly ?string $id,
-        public readonly ?ApiMode $mode,
-        public readonly ?string $object,
-        public readonly ?DiscountStatus $status,
-        public readonly ?string $name,
-        public readonly ?string $code,
-        public readonly ?DiscountType $type,
-        public readonly ?int $amount,
-        public readonly ?CurrencyCode $currency,
-        public readonly ?int $percentage,
-        public readonly ?DateTimeImmutable $expiryDate,
-        public readonly ?int $maxRedemptions,
-        public readonly ?DiscountDuration $duration,
-        public readonly ?int $durationInMonths,
-        public readonly array $appliesToProducts,
-        public readonly ?int $redeemCount,
+        public ?string $id,
+        public ?ApiMode $mode,
+        public ?string $object,
+        public ?DiscountStatus $status,
+        public ?string $name,
+        public ?string $code,
+        public ?DiscountType $type,
+        public ?int $amount,
+        public ?CurrencyCode $currency,
+        public ?int $percentage,
+        public ?DateTimeImmutable $expiryDate,
+        public ?int $maxRedemptions,
+        public ?DiscountDuration $duration,
+        public ?int $durationInMonths,
+        public array $appliesToProducts,
+        public ?int $redeemCount,
     ) {}
 
     /**

@@ -3,4 +3,6 @@ parameters:
     paths:
         - src
         - tests
+    parallel:
+        maximumNumberOfProcesses: 0
     tmpDir: .phpstan/cache

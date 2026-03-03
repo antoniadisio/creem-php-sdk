@@ -9,15 +9,15 @@ use Creem\Enum\LicenseInstanceStatus;
 use Creem\Internal\Hydration\Payload;
 use DateTimeImmutable;
 
-final class LicenseInstance
+final readonly class LicenseInstance
 {
     public function __construct(
-        public readonly ?string $id,
-        public readonly ?ApiMode $mode,
-        public readonly ?string $object,
-        public readonly ?string $name,
-        public readonly ?LicenseInstanceStatus $status,
-        public readonly ?DateTimeImmutable $createdAt,
+        public ?string $id,
+        public ?ApiMode $mode,
+        public ?string $object,
+        public ?string $name,
+        public ?LicenseInstanceStatus $status,
+        public ?DateTimeImmutable $createdAt,
     ) {}
 
     /**

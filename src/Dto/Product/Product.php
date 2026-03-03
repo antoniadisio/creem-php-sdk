@@ -19,30 +19,30 @@ use DateTimeImmutable;
 use function array_is_list;
 use function is_array;
 
-final class Product
+final readonly class Product
 {
     /**
      * @param  list<ProductFeature>  $features
      */
     public function __construct(
-        public readonly ?string $id,
-        public readonly ?ApiMode $mode,
-        public readonly ?string $object,
-        public readonly ?string $name,
-        public readonly ?string $description,
-        public readonly ?string $imageUrl,
-        public readonly array $features,
-        public readonly ?int $price,
-        public readonly ?CurrencyCode $currency,
-        public readonly ?BillingType $billingType,
-        public readonly ?BillingPeriod $billingPeriod,
-        public readonly ?ProductStatus $status,
-        public readonly ?TaxMode $taxMode,
-        public readonly ?TaxCategory $taxCategory,
-        public readonly ?string $productUrl,
-        public readonly ?string $defaultSuccessUrl,
-        public readonly ?DateTimeImmutable $createdAt,
-        public readonly ?DateTimeImmutable $updatedAt,
+        public ?string $id,
+        public ?ApiMode $mode,
+        public ?string $object,
+        public ?string $name,
+        public ?string $description,
+        public ?string $imageUrl,
+        public array $features,
+        public ?int $price,
+        public ?CurrencyCode $currency,
+        public ?BillingType $billingType,
+        public ?BillingPeriod $billingPeriod,
+        public ?ProductStatus $status,
+        public ?TaxMode $taxMode,
+        public ?TaxCategory $taxCategory,
+        public ?string $productUrl,
+        public ?string $defaultSuccessUrl,
+        public ?DateTimeImmutable $createdAt,
+        public ?DateTimeImmutable $updatedAt,
     ) {}
 
     /**

@@ -6,10 +6,10 @@ namespace Creem\Dto\Common;
 
 use Creem\Internal\Serialization\RequestValueNormalizer;
 
-final class CheckboxFieldConfigInput
+final readonly class CheckboxFieldConfigInput
 {
     public function __construct(
-        public readonly ?string $label = null,
+        public ?string $label = null,
     ) {}
 
     /**

@@ -7,21 +7,19 @@ namespace Creem;
 use Creem\Internal\Http\UserAgent;
 use InvalidArgumentException;
 
-final class Config
+final readonly class Config
 {
-    private readonly string $apiKey;
+    private string $apiKey;
 
-    private readonly Environment $environment;
+    private ?string $baseUrl;
 
-    private readonly ?string $baseUrl;
+    private ?float $timeout;
 
-    private readonly ?float $timeout;
-
-    private readonly ?string $userAgentSuffix;
+    private ?string $userAgentSuffix;
 
     public function __construct(
         string $apiKey,
-        Environment $environment = Environment::Production,
+        private Environment $environment = Environment::Production,
         ?string $baseUrl = null,
         int|float|null $timeout = null,
         ?string $userAgentSuffix = null,
@@ -49,7 +47,6 @@ final class Config
         }
 
         $this->apiKey = $apiKey;
-        $this->environment = $environment;
         $this->baseUrl = $normalizedBaseUrl;
         $this->timeout = $timeout === null ? null : (float) $timeout;
         $this->userAgentSuffix = $normalizedSuffix;

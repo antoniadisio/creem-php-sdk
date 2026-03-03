@@ -7,15 +7,15 @@ namespace Creem\Dto\Common;
 use Creem\Enum\CustomFieldType;
 use Creem\Internal\Serialization\RequestValueNormalizer;
 
-final class CustomFieldInput
+final readonly class CustomFieldInput
 {
     public function __construct(
-        public readonly CustomFieldType $type,
-        public readonly string $key,
-        public readonly string $label,
-        public readonly ?bool $optional = null,
-        public readonly ?TextFieldConfigInput $text = null,
-        public readonly ?CheckboxFieldConfigInput $checkbox = null,
+        public CustomFieldType $type,
+        public string $key,
+        public string $label,
+        public ?bool $optional = null,
+        public ?TextFieldConfigInput $text = null,
+        public ?CheckboxFieldConfigInput $checkbox = null,
     ) {}
 
     /**

@@ -12,24 +12,24 @@ use Creem\Enum\TaxCategory;
 use Creem\Enum\TaxMode;
 use Creem\Internal\Serialization\RequestValueNormalizer;
 
-final class CreateProductRequest
+final readonly class CreateProductRequest
 {
     /**
      * @param  list<CustomFieldInput>  $customFields
      */
     public function __construct(
-        public readonly string $name,
-        public readonly int $price,
-        public readonly CurrencyCode $currency,
-        public readonly BillingType $billingType,
-        public readonly ?string $description = null,
-        public readonly ?string $imageUrl = null,
-        public readonly ?BillingPeriod $billingPeriod = null,
-        public readonly ?TaxMode $taxMode = null,
-        public readonly ?TaxCategory $taxCategory = null,
-        public readonly ?string $defaultSuccessUrl = null,
-        public readonly array $customFields = [],
-        public readonly ?bool $abandonedCartRecoveryEnabled = null,
+        public string $name,
+        public int $price,
+        public CurrencyCode $currency,
+        public BillingType $billingType,
+        public ?string $description = null,
+        public ?string $imageUrl = null,
+        public ?BillingPeriod $billingPeriod = null,
+        public ?TaxMode $taxMode = null,
+        public ?TaxCategory $taxCategory = null,
+        public ?string $defaultSuccessUrl = null,
+        public array $customFields = [],
+        public ?bool $abandonedCartRecoveryEnabled = null,
     ) {}
 
     /**

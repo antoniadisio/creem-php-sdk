@@ -7,14 +7,14 @@ namespace Creem\Dto\Subscription;
 use Creem\Enum\SubscriptionUpdateBehavior;
 use Creem\Internal\Serialization\RequestValueNormalizer;
 
-final class UpdateSubscriptionRequest
+final readonly class UpdateSubscriptionRequest
 {
     /**
      * @param  list<UpsertSubscriptionItem>  $items
      */
     public function __construct(
-        public readonly array $items = [],
-        public readonly ?SubscriptionUpdateBehavior $updateBehavior = null,
+        public array $items = [],
+        public ?SubscriptionUpdateBehavior $updateBehavior = null,
     ) {}
 
     /**

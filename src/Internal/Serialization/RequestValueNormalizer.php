@@ -41,7 +41,7 @@ final class RequestValueNormalizer
 
     public static function unixMilliseconds(?DateTimeInterface $value): ?int
     {
-        if ($value === null) {
+        if (! $value instanceof \DateTimeInterface) {
             return null;
         }
 

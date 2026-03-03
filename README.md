@@ -17,11 +17,10 @@ Requires PHP 8.2 or newer.
 For local development, run the repository checks before shipping changes:
 
 ```bash
-composer test
-composer cs
-composer stan
+composer qa
 ```
 
+`composer qa` runs the fix-first local QA flow in this order: Rector, Pint fixes, PHPStan, then PHPUnit. When you want a non-mutating verification pass (for example before opening a pull request), run `composer qa:check`.
 `composer stan` uses the committed `phpstan.neon.dist` project configuration and the repository-defined memory limit, so local analysis and CI run the same PHPStan setup.
 `composer install` and `composer update` also use the committed Composer platform pin (`php: 8.2.0`), which keeps the lockfile aligned with the PHP 8.2 CI target even when dependency updates are run on newer local PHP versions.
 

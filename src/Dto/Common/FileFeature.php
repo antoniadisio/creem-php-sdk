@@ -10,13 +10,13 @@ use Creem\Internal\Hydration\Payload;
 use function array_is_list;
 use function is_array;
 
-final class FileFeature
+final readonly class FileFeature
 {
     /**
      * @param  list<FeatureFile>  $files
      */
     public function __construct(
-        public readonly array $files,
+        public array $files,
     ) {}
 
     /**
