@@ -102,8 +102,10 @@ final class ResourcesTest extends TestCase
 
         $page = $resource->search(new SearchProductsRequest(2, 50));
         self::assertSame(1, $page->count());
-        self::assertSame(2, $page->pagination->currentPage);
-        self::assertNull($page->pagination->nextPage);
+        $pagination = $page->pagination;
+        self::assertNotNull($pagination);
+        self::assertSame(2, $pagination->currentPage);
+        self::assertNull($pagination->nextPage);
         $item = $page->get(0);
         self::assertInstanceOf(Product::class, $item);
         self::assertSame('prod_123', $item->id);
@@ -311,8 +313,10 @@ final class ResourcesTest extends TestCase
 
         $page = $resource->search(new SearchTransactionsRequest(customerId: 'cus_123', pageNumber: 3, pageSize: 25));
         self::assertSame(1, $page->count());
-        self::assertSame(3, $page->pagination->currentPage);
-        self::assertNull($page->pagination->nextPage);
+        $pagination = $page->pagination;
+        self::assertNotNull($pagination);
+        self::assertSame(3, $pagination->currentPage);
+        self::assertNull($pagination->nextPage);
         self::assertInstanceOf(Transaction::class, $page->get(0));
         self::assertSame(TransactionStatus::Paid, $page->get(0)->status);
         $this->assertRequest(
@@ -417,6 +421,7 @@ final class ResourcesTest extends TestCase
     }
 
     /**
+     * @param  array<string, mixed>  $overrides
      * @return array<string, mixed>
      *
      * @throws JsonException

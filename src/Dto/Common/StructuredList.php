@@ -11,6 +11,9 @@ use Traversable;
 use function array_map;
 use function count;
 
+/**
+ * @implements IteratorAggregate<int, mixed>
+ */
 final class StructuredList implements IteratorAggregate
 {
     /**
@@ -52,6 +55,9 @@ final class StructuredList implements IteratorAggregate
         return $this->items[$index] ?? null;
     }
 
+    /**
+     * @return Traversable<int, mixed>
+     */
     public function getIterator(): Traversable
     {
         yield from $this->items;

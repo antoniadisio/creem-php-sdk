@@ -41,6 +41,9 @@ final class CreemConnectorTest extends TestCase
         self::assertSame(12.5, $pendingRequest->config()->all()['timeout']);
     }
 
+    /**
+     * @param  class-string<\Throwable>  $expectedException
+     */
     #[DataProvider('responseFailureMappings')]
     public function test_http_failures_are_mapped_to_typed_exceptions(
         MockResponse $response,
@@ -53,6 +56,9 @@ final class CreemConnectorTest extends TestCase
         $connector->send($this->request(), new MockClient([$response]));
     }
 
+    /**
+     * @return array<string, array{0: MockResponse, 1: class-string<\Throwable>}>
+     */
     public static function responseFailureMappings(): array
     {
         return [
