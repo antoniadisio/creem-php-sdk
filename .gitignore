@@ -1,0 +1,25 @@
+vendor/
+node_modules/
+
+# Fern local state and generated cache
+.fern/
+fern/.fern/
+fern/tmp/
+fern/cache/
+
+# Local npm cache created when HOME is pointed at the repo
+.npm/
+
+# Test and analysis caches
+.phpunit.result.cache
+.php-cs-fixer.cache
+.phpstan/
+
+# Local environment files
+.env
+
+# IDE and system files
+.DS_Store
+.idea/
+.vscode/
+*.code-workspace

@@ -1,0 +1,13 @@
+{
+    "name": "creem-php-sdk-tools",
+    "private": true,
+    "description": "Local Fern tooling for the Creem PHP SDK repository.",
+    "scripts": {
+        "fern": "fern",
+        "fern:check": "fern check",
+        "fern:generate": "fern generate"
+    },
+    "devDependencies": {
+        "fern-api": "0.75.3"
+    }
+}

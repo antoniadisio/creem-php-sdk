@@ -1,0 +1,48 @@
+{
+    "name": "antoniadisio/creem-php-sdk",
+    "description": "PHP SDK for the Creem API generated with Fern and wrapped by a stable handwritten facade.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "creem",
+        "sdk",
+        "api",
+        "payments"
+    ],
+    "homepage": "https://github.com/antoniadisio/creem-php-sdk",
+    "support": {
+        "issues": "https://github.com/antoniadisio/creem-php-sdk/issues",
+        "source": "https://github.com/antoniadisio/creem-php-sdk"
+    },
+    "authors": [
+        {
+            "name": "Pantelis Antoniadis"
+        }
+    ],
+    "require": {
+        "php": "^8.1"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.18",
+        "phpstan/phpstan": "^1.12",
+        "phpunit/phpunit": "^10.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Creem\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Creem\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "cs": "pint --test",
+        "cs:fix": "pint",
+        "stan": "phpstan analyse"
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
