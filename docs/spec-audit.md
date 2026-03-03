@@ -1,12 +1,12 @@
 # Creem OpenAPI Spec Audit
 
-This audit captures the current shape of the Fern-managed OpenAPI source at `fern/definition/openapi/creem-openapi.json` and the known issues that matter before SDK generation is treated as stable.
+This audit captures the current shape of the committed OpenAPI contract and the known issues that matter while the handwritten PHP SDK is being built. The contract file layout will be normalized in the next phase; this document focuses on the API surface and the risks that affect the SDK design.
 
-## Current Import Status
+## Current Contract Status
 
-- `npm run fern:check` validates the current Fern workspace locally.
-- `npm run fern:definition` deterministically writes the derived Fern definition into `fern/.definition/`.
-- The OpenAPI `servers` entries now include `x-fern-server-name` values (`production`, `test`) so Fern preserves both environments during import.
+- The spec defines both production and test server URLs.
+- API authentication is modeled through the `x-api-key` header.
+- The `servers` entries already distinguish the production and test environments through vendor metadata, and those labels should be preserved when the contract is relocated.
 
 ## Structure That Needs Ongoing Attention
 
@@ -15,7 +15,7 @@ This audit captures the current shape of the Fern-managed OpenAPI source at `fer
 - `oneOf` is present in nested relationship fields.
   Examples: `SubscriptionEntity.product`, `SubscriptionEntity.customer`, `CheckoutEntity.product`, `CheckoutEntity.customer`, `CheckoutEntity.subscription`.
 - Nullable fields are common.
-  The spec currently contains 40 `nullable: true` properties, which Fern maps into `optional<nullable<...>>` shapes where the field is also not required.
+  The spec currently contains 40 `nullable: true` properties, so the SDK needs explicit handling for both nullable and missing values.
 
 ## API Shape Risks
 
@@ -32,7 +32,7 @@ This audit captures the current shape of the Fern-managed OpenAPI source at `fer
 
 - Some schema names are generic enough that they may be awkward as long-lived consumer DTO names.
   Examples: `Text`, `Checkbox`, `CustomField`, `FeatureEntity`.
-- Some related schema names are close enough to be easy to confuse in generated PHP code.
+- Some related schema names are close enough to be easy to confuse in a handwritten PHP API surface.
   Examples: `FeatureFileEntity`, `FileFeatureEntity`, `ProductFeatureEntity`.
 - Current operation IDs are usable, but a few are semantically misleading because they imply canonical resource retrieval on non-resource paths.
   Examples: `retrieveProduct`, `retrieveCustomer`, `retrieveSubscription`, `retrieveCheckout`, `retrieveDiscount`.

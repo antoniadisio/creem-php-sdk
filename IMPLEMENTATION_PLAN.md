@@ -2,11 +2,18 @@
 
 ## Summary
 
-Build a production-grade PHP SDK for `creem.io` from `creem-openapi.json`, using Fern as the primary generator for both SDK code and API-reference docs, while staying compatible with Fern's free-tier constraints.
+Restart the SDK implementation as a handwritten, Saloon-based PHP package and remove the current Fern-first generation workflow before more code is built on top of it.
 
-This repository currently contains only the OpenAPI spec and is not yet initialized as a local Git repository. The implementation must therefore begin by initializing Git locally, connecting to `https://github.com/antoniadisio/creem-php-sdk`, and then establishing a repeatable generation workflow.
+This restart keeps the OpenAPI contract as the source of truth, but the SDK itself becomes a curated PHP codebase with:
 
-### Scope Boundary
+- a stable public `Creem\Client` facade
+- typed handwritten DTOs
+- typed handwritten exceptions
+- Saloon used internally for HTTP transport only
+
+The current repository already has the baseline package scaffold in place, but the actual SDK has not been implemented yet. That makes this the right time to pivot without carrying forward a generator-first architecture.
+
+## Scope Boundary
 
 This SDK is responsible for:
 
@@ -14,491 +21,357 @@ This SDK is responsible for:
 - sending requests to Creem
 - deserializing API responses into typed PHP objects
 - exposing a stable, framework-agnostic PHP API for downstream package authors
-- normalizing transport and API errors into typed exceptions
-- providing generated API reference documentation through Fern
+- normalizing API and transport failures into typed exceptions
+- keeping the committed OpenAPI document aligned with the implemented SDK surface
 
 This SDK is explicitly not responsible for:
 
-- receiving inbound webhooks from Creem
+- receiving inbound webhooks
 - verifying webhook signatures
 - parsing framework request objects
-- implementing Laravel/Symfony/controller middleware concerns
+- shipping framework-specific middleware
+- generating hosted API docs as part of the first implementation pass
 
-Webhook handling belongs in downstream integration packages (for example, a Laravel package) because that logic is inbound HTTP and framework-adjacent, not part of the core outbound API client. Since the current OpenAPI spec does not include webhooks, Fern will not generate webhook support.
+## Current State
 
-The plan below assumes:
+These tasks are already complete and should remain complete after the restart:
 
-- distribution target: Git tags and Packagist readiness now
-- docs mode: Fern local-first only
-- minimum PHP version: `8.1`
-- SDK license: `MIT`
-- webhooks: out of scope for this SDK
+- [x] Local Git repository is initialized
+- [x] `origin` points to `https://github.com/antoniadisio/creem-php-sdk`
+- [x] Root package metadata exists in `composer.json`
+- [x] `composer validate --no-check-publish` passes
+- [x] Baseline tooling includes PHPUnit, Pint, and PHPStan
+- [x] `README.md`, `LICENSE`, and `phpunit.xml.dist` are present
 
-The current OpenAPI spec describes:
+These items exist now but are part of the old direction and must be removed or replaced:
 
-- OpenAPI `3.0.0`
-- 20 paths
-- 23 operations
-- 61 schemas
-- API key auth via `x-api-key`
-- two server URLs: production and test
+- [ ] Fern workspace and derived definition files
+- [ ] Node-based Fern scripts and package manifests
+- [ ] Fern-specific smoke tests
+- [x] Fern-first documentation and planning language
 
-## Public APIs, Interfaces, and Package Defaults
+## Public API And Package Defaults
 
-The implementation should standardize on these public package decisions:
+The SDK should standardize on these public package decisions:
 
-- Composer package name: `antoniadisio/creem-php-sdk`
-- root PHP namespace: `Creem\\`
-- stable handwritten entrypoint: `Creem\Client`
-- stable handwritten configuration value object: `Creem\Config`
-- stable handwritten environment enum/value object: `Creem\Environment`
-- stable handwritten exception hierarchy rooted at `Creem\Exception\CreemException`
+- Composer package: `antoniadisio/creem-php-sdk`
+- Minimum PHP version: `^8.1`
+- Root namespace: `Creem\\`
+- Stable entrypoint: `Creem\Client`
+- Stable configuration object: `Creem\Config`
+- Stable environment enum: `Creem\Environment`
+- Stable exception root: `Creem\Exception\CreemException`
 
-The generated Fern SDK should remain the canonical transport/model layer, but consumers should interact through the stable handwritten facade so regeneration does not become a breaking-change surface.
+### Public API Rules
+
+- Consumers use `Creem\Client` as the only documented SDK entrypoint.
+- Consumers should not instantiate Saloon requests directly.
+- Saloon classes are internal implementation details and are not part of the public contract.
+- Public methods return typed handwritten DTOs or typed page DTOs, not raw arrays.
+
+### Resource Accessors
 
 `Creem\Client` should expose:
 
-- constructor accepting `apiKey`, `environment`, and optional transport/config overrides
-- named constructors for production and test environments if practical
-- accessors or service properties for each API domain:
-  - products
-  - customers
-  - subscriptions
-  - checkouts
-  - licenses
-  - discounts
-  - transactions
-  - stats
+- `products()`
+- `customers()`
+- `subscriptions()`
+- `checkouts()`
+- `licenses()`
+- `discounts()`
+- `transactions()`
+- `stats()`
+
+### Method Naming Rules
+
+- Retrieval by ID uses `get(string $id)`, even if the upstream API uses query parameters.
+- Collection endpoints use `list(...)`.
+- Filtered collection endpoints use `search(...)`.
+- Mutations use `create(...)`, `update(...)`, and `delete(...)`.
+- Delete methods return `void` unless the API returns meaningful structured data that must be preserved.
+
+## Internal Architecture
+
+### Saloon Usage
+
+Use `saloonphp/saloon` as the internal HTTP foundation.
+
+- One internal connector at `src/Internal/Http/CreemConnector.php`
+- Internal Saloon request classes under `src/Internal/Http/Requests/`
+- Public resource classes under `src/Resource/`
+- DTO hydration under `src/Internal/Hydration/`
+
+### Configuration Rules
 
 `Creem\Config` should carry:
 
 - API key
-- environment (`production` => `https://api.creem.io`, `test` => `https://test-api.creem.io`)
+- environment (`production` or `test`)
 - optional base URL override
-- optional timeout/retry knobs if Fern output supports transport customization
-- optional user-agent suffix for downstream packages
+- optional request timeout
+- optional user-agent suffix
 
-The stable exception layer should normalize:
+Base URLs:
 
-- authentication failures
-- validation/client errors
-- not found errors
-- rate-limit/server errors
-- transport failures
+- production: `https://api.creem.io`
+- test: `https://test-api.creem.io`
 
-### DTO Strategy
+### Exception Rules
 
-Response and request DTOs are part of the PHP SDK.
+Implement this exception hierarchy:
 
-- Preferred path: use Fern-generated model classes as the SDK DTO layer if Fern generates clean, typed, consumer-usable PHP models.
-- Fallback path: if Fern does not generate DTOs, or generates weak/awkward models, add handwritten DTOs under `src/Dto/` and map generated or raw responses into those DTOs before returning them from the stable client API.
+- `Creem\Exception\CreemException`
+- `Creem\Exception\AuthenticationException`
+- `Creem\Exception\ValidationException`
+- `Creem\Exception\NotFoundException`
+- `Creem\Exception\RateLimitException`
+- `Creem\Exception\ServerException`
+- `Creem\Exception\TransportException`
 
-Do not duplicate every DTO by default. Only add handwritten DTOs when the generated type surface is missing or not acceptable as a stable consumer-facing contract.
+Map failures as follows:
 
-## Repository Layout to Create
+- `401` and `403` -> `AuthenticationException`
+- `404` -> `NotFoundException`
+- `422` and validation-style client payloads -> `ValidationException`
+- `429` -> `RateLimitException`
+- `5xx` -> `ServerException`
+- network failures, timeouts, and decode failures -> `TransportException`
 
-Use a single-repo layout that keeps Fern config, the source OpenAPI spec, generated code, handwritten wrappers, and docs sources together:
+## Repository Layout
 
-- `fern/`
-- `fern/.definition/`
-- `fern/definition/`
-- `fern/definition/openapi/`
-- `fern/definition/openapi/creem-openapi.json`
-- `fern/fern.config.json`
-- `fern/generators.yml`
-- `src/`
+Target layout after the restart:
+
+- `spec/creem-openapi.json`
+- `docs/openapi-audit.md`
 - `src/Client.php`
 - `src/Config.php`
 - `src/Environment.php`
+- `src/Resource/`
 - `src/Dto/`
 - `src/Exception/`
-- `generated/`
-- `generated/php-sdk/`
-- `tests/`
+- `src/Internal/Http/CreemConnector.php`
+- `src/Internal/Http/Requests/`
+- `src/Internal/Hydration/`
 - `tests/Unit/`
-- `tests/Integration/`
-- `tests/Fixtures/`
-- `docs/`
-- `docs/README.md`
-- `.github/workflows/`
-- `IMPLEMENTATION_PLAN.md`
+- `tests/Contract/`
+- `tests/Fixtures/Responses/`
 
-Keep generated Fern PHP output under `generated/php-sdk/` and all handwritten code under `src/`. Root `composer.json` should autoload both `src/` and the generated SDK namespace/path as needed.
+## Model Guidance By Phase
 
-## Phase 1 - Initialize the Local Repository and Baseline Tooling
+Use these model settings per phase so you can switch sessions cleanly:
 
-### Goal
+- Phase 1: `GPT-5.3-Codex` with `xhigh`
+- Phase 2: `GPT-5.3-Codex` with `xhigh`
+- Phase 3: `GPT-5.3-Codex` with `xhigh`
+- Phase 4: `GPT-5.3-Codex` with `high`
+- Phase 5: `GPT-5.3-Codex` with `high`
+- Phase 6: `gpt-5` or `GPT-5.3-Codex` with `medium`
 
-Turn the current folder into the real local working copy for the GitHub repository and establish baseline PHP/Node tooling.
+Reasoning defaults:
 
-### Actions
+- use `xhigh` for architecture, repo resets, cross-cutting abstractions, and spec-to-code mapping
+- use `high` for steady implementation across many request/resource/DTO files
+- use `medium` for documentation cleanup and low-risk polish
 
-1. Initialize Git locally in the current directory.
-2. Add `origin` pointing to `https://github.com/antoniadisio/creem-php-sdk`.
-3. Fetch the remote and align with the default branch if the remote already has commits.
-4. If the remote is empty, create the default branch locally (`main`), then make the first commit only after initial scaffolding exists.
-5. Add a root `.gitignore` covering:
-   - `vendor/`
-   - `node_modules/`
-   - Fern local build/cache output if generated
-   - IDE/system files
-6. Create a root `README.md` with a temporary project description and explicit "generated with Fern + handwritten wrapper" positioning.
-7. Create `LICENSE` as MIT.
-8. Create root `composer.json` with:
-   - package name `antoniadisio/creem-php-sdk`
-   - `php:^8.1`
-   - PSR-4 autoload for `Creem\\`
-   - PSR-4 autoload-dev for tests
-   - metadata for Packagist readiness
-9. Add dev dependencies for:
-   - PHPUnit
-   - a coding-standard tool
-   - a static-analysis tool
-10. Add `package.json` only for Fern CLI management and helper scripts.
-11. Install Fern CLI locally as a dev dependency instead of relying on a global install, because `fern` is not currently installed.
+## Phase 1 - Replace The Fern-First Baseline
 
-### Acceptance Criteria
-
-- `git status` works in this directory
-- `origin` is configured
-- `composer validate` passes
-- Fern CLI is runnable via local package scripts
-- root metadata is present and publishable
-
-## Phase 2 - Bring the OpenAPI Spec Under Fern Control
+**Recommended model:** `GPT-5.3-Codex` with `xhigh`
 
 ### Goal
 
-Convert the existing `creem-openapi.json` into a Fern-managed API definition without losing the original source.
+Replace the existing plan and tooling assumptions so the repository is clearly Saloon-first.
 
-### Actions
+### Tasks
 
-1. Move or copy the current root spec into `fern/definition/openapi/creem-openapi.json`.
-2. Keep the original root spec only if needed during migration; otherwise make the Fern copy the single source of truth to avoid drift.
-3. Initialize Fern config in `fern/`.
-4. Configure Fern to import or generate from the OpenAPI file into its definition structure.
-5. Commit the generated Fern definition files that are intended to be source-controlled.
-6. Wrap Fern CLI execution through a repository script that sets a repo-local `HOME` and disables telemetry/version redirection so local `npm run fern:*` commands work reliably in restricted environments.
-7. Document the regeneration command in both `README.md` and package scripts.
-8. Add a validation script that fails if the OpenAPI source and derived Fern definition are out of sync.
-
-### Spec Audit Tasks
-
-Before treating generation as stable, explicitly audit the imported definition for:
-
-- `allOf` merges
-- `oneOf` unions
-- nullable/optional fields
-- path parameter naming consistency
-- operation IDs that are awkward or misleading
-- schema names that would create poor PHP type names
-- pagination parameter typing (`number` vs integer-like semantics)
-- endpoints that use query IDs where path IDs might have been expected
-
-The current spec already contains `allOf` and `oneOf`, so this audit is mandatory.
+- [x] Confirm the repo baseline still relevant to the restart (`git`, `origin`, Composer package metadata)
+- [x] Confirm `composer validate --no-check-publish` passes before the reset
+- [x] Reassess the existing architecture and decide to pivot before PHP SDK code exists
+- [x] Replace `IMPLEMENTATION_PLAN.md` with a Saloon-first implementation plan
+- [x] Rewrite `README.md` so it no longer describes a Fern-generated architecture
+- [x] Remove Fern-specific language from package descriptions and project docs
+- [x] Add `saloonphp/saloon` to the implementation dependency plan in `composer.json`
 
 ### Acceptance Criteria
 
-- Fern can validate the imported API definition locally
-- the imported definition is deterministic and committed (under Fern's current local output path, `fern/.definition/`)
-- known spec issues are captured in `docs/spec-audit.md` or explicit TODOs
+- [x] The implementation plan reflects a Saloon-first restart
+- [x] The repository no longer documents Fern as the target architecture
+- [x] The package metadata clearly aligns with the Saloon-first direction
 
-## Phase 3 - Configure Fern PHP Generation for a Repo-Friendly Output
+## Phase 2 - Preserve The OpenAPI Contract And Remove Fern
+
+**Recommended model:** `GPT-5.3-Codex` with `xhigh`
 
 ### Goal
 
-Make Fern generate PHP SDK code into a stable location inside this repository, without assuming paid Fern publishing features.
+Keep the OpenAPI file as the source of truth, but remove Fern and Node from the active workflow.
 
-### Actions
+### Tasks
 
-1. Add `fern/generators.yml` with a PHP SDK generator using Fern's PHP generator.
-2. Configure the output target to a local filesystem path under `generated/php-sdk/`.
-3. Avoid any hosted registry or publish settings that require a paid tier.
-4. Set package metadata in the Fern generator config only where it does not conflict with the root Composer package.
-5. If Fern emits its own `composer.json`, lock one approach and keep it fixed:
-   - Preferred: treat the Fern output as a generated subpackage under `generated/php-sdk/` and have the root package wrap it
-   - Fallback: if Fern can emit source only, emit source only and let the root `composer.json` be authoritative
-6. Add repeatable scripts:
-   - `npm run fern:generate`
-   - `npm run fern:check`
-7. Add a guardrail script/test that detects uncommitted generated diffs after regeneration.
-8. Inspect the generated output specifically for request and response model classes:
-   - if Fern generates complete, typed, usable PHP models, treat them as the DTO layer
-   - if Fern does not generate usable DTOs, mark manual DTO implementation as required in Phase 4
-
-### Important Constraint
-
-Do not make consumers depend directly on the raw generated package layout. The root package must present the stable public API, even if the generated code changes shape.
+- [ ] Move `fern/definition/openapi/creem-openapi.json` to `spec/creem-openapi.json`
+- [ ] Create the `spec/` directory as the canonical contract location
+- [ ] Rename or rewrite `docs/spec-audit.md` to `docs/openapi-audit.md`
+- [ ] Update the audit document to point at `spec/creem-openapi.json`
+- [ ] Remove `.fern/`
+- [ ] Remove `fern/`
+- [ ] Remove `package.json`
+- [ ] Remove `package-lock.json`
+- [ ] Remove `scripts/run-fern.mjs`
+- [ ] Remove `scripts/check-fern-definition-sync.mjs`
+- [ ] Remove any remaining Fern references from `README.md`, tests, and docs
 
 ### Acceptance Criteria
 
-- Running the local Fern generate command produces PHP SDK output under `generated/php-sdk/`
-- regeneration is deterministic
-- the root package can autoload the generated code
-- the project has a documented decision on whether Fern-generated models are sufficient as the DTO layer
+- [ ] The OpenAPI source of truth lives at `spec/creem-openapi.json`
+- [ ] No active build or test workflow depends on Fern
+- [ ] No active build or test workflow depends on Node
+- [ ] The audit document still captures the spec risks that affect the PHP SDK
 
-## Phase 4 - Add the Stable Handwritten PHP Facade
+## Phase 3 - Build The Core SDK Foundation
+
+**Recommended model:** `GPT-5.3-Codex` with `xhigh`
 
 ### Goal
 
-Wrap the generated SDK in a consumer-friendly, production-grade API surface suitable for downstream package authors.
+Implement the reusable cross-cutting SDK foundation before building endpoint coverage.
 
-### Actions
+### Tasks
 
-1. Implement `Creem\Environment` as a small enum or immutable value object for `production` and `test`.
-2. Implement `Creem\Config` as the normalized configuration holder.
-3. Implement `Creem\Client` as the stable facade over the generated Fern client.
-4. Expose service group accessors for:
-   - products
-   - customers
-   - subscriptions
-   - checkouts
-   - licenses
-   - discounts
-   - transactions
-   - stats
-5. Normalize configuration so consumers do not need to know Fern internals.
-6. Add consistent user-agent construction, including:
-   - SDK name/version
-   - optional consumer suffix
-7. Add exception translation from generated/transport exceptions into the stable `Creem\Exception\*` hierarchy.
-8. Document how downstream packages can inject their own HTTP client or configuration if the generated layer supports it.
-9. Keep all handwritten code regeneration-safe by ensuring it lives outside the generated folder.
-10. If Fern-generated DTOs are missing or not acceptable, implement handwritten request/response DTOs in `src/Dto/`.
-11. If handwritten DTOs are added, map generated objects or raw decoded payloads into the stable DTOs before returning values from `Creem\Client`.
-
-### Behavioral Rules
-
-- Default environment must be `production`
-- `test` must target `https://test-api.creem.io`
-- API key must be required for any client instantiation
-- errors should fail loudly and predictably with typed exceptions
-- no live network calls should be required for unit tests
+- [x] Add `saloonphp/saloon` as a runtime dependency
+- [ ] Implement `Creem\Environment` as a backed enum
+- [ ] Implement `Creem\Config` as an immutable configuration object
+- [ ] Implement `Creem\Exception\CreemException`
+- [ ] Implement the full public exception hierarchy
+- [ ] Implement `src/Internal/Http/CreemConnector.php`
+- [ ] Configure default JSON headers
+- [ ] Configure `x-api-key` authentication
+- [ ] Configure environment-specific base URLs with override support
+- [ ] Add stable SDK user-agent construction
+- [ ] Implement a shared response decoder
+- [ ] Implement a shared exception mapper
+- [ ] Implement `Creem\Client` as the stable public facade
+- [ ] Add public resource accessor methods on `Creem\Client`
 
 ### Acceptance Criteria
 
-- Consumers can instantiate a single stable client without touching generated classes
-- generated internals are hidden behind stable wrappers
-- regeneration does not overwrite handwritten code
-- consumers receive typed request/response objects either from Fern-generated models or handwritten DTOs
+- [ ] Consumers can instantiate `Creem\Client`
+- [ ] The connector uses the correct base URL and authentication header
+- [ ] HTTP failures map to typed exceptions
+- [ ] Saloon remains internal to the implementation
 
-## Phase 5 - Testing Strategy and Test Implementation
+## Phase 4 - Implement Resources, Requests, And DTOs
+
+**Recommended model:** `GPT-5.3-Codex` with `high`
 
 ### Goal
 
-Provide production-grade confidence without making CI depend on live Creem credentials.
+Implement each API domain with a stable public surface and full typed mapping.
 
-### Test Framework and Standards
+### Resource Order
 
-Use:
+1. Products
+2. Customers
+3. Checkouts
+4. Subscriptions
+5. Licenses
+6. Discounts
+7. Transactions
+8. Stats
 
-- `PHPUnit` as the test runner
-- static analysis at a strict-but-practical baseline
-- coding standards in CI
-- mutation testing only later if the base suite is stable
+### Tasks Per Resource
 
-### Required Test Layers
+- [ ] Add internal Saloon request classes for every operation in the domain
+- [ ] Add public resource methods with clean SDK naming
+- [ ] Add public request DTOs for create, update, and search flows
+- [ ] Add public response DTOs for single-entity responses
+- [ ] Add public page DTOs for list and search responses
+- [ ] Add hydration logic from decoded payloads into DTOs
+- [ ] Normalize awkward upstream paths into consistent SDK methods
 
-1. Unit tests for stable handwritten API:
-   - `Config` validation
-   - environment resolution
-   - API key enforcement
-   - base URL selection
-   - exception mapping
-   - user-agent formatting
+### Global Acceptance Criteria
 
-2. Wrapper behavior tests:
-   - service accessor wiring
-   - forwarding of parameters to generated operations
-   - translation of generated responses into expected return types
-   - translation of generated exceptions into stable exceptions
+- [ ] All 23 current API operations are represented by internal request classes
+- [ ] All public methods return typed DTOs or typed page DTOs
+- [ ] Query-parameter retrieval endpoints still present clean `get($id)` methods
+- [ ] Action-style delete endpoints still present clean `delete($id)` methods
+- [ ] Nullable and union-like payloads are handled without exposing raw arrays
 
-3. DTO tests:
-   - if using Fern-generated models, smoke-test their construction, hydration, and serialization
-   - if using handwritten DTOs, verify mapping from generated/raw payloads into DTOs
-   - verify optional, nullable, and union-like fields from the OpenAPI spec are represented correctly
+## Phase 5 - Add Contract Tests And Guardrails
 
-4. Generated code smoke tests:
-   - generated classes autoload
-   - selected model hydration/serialization works
-   - representative operations can be instantiated/called through mocks
-
-5. Fixture-driven HTTP contract tests:
-   - use stored JSON fixtures under `tests/Fixtures/`
-   - mock HTTP responses for key endpoints across all major service groups
-   - include success and failure cases
-   - cover pagination/search endpoints
-   - cover mutation endpoints with representative payloads
-
-6. Optional opt-in live integration tests:
-   - disabled by default
-   - only run when explicit environment variables are present
-   - use test-environment keys against `test-api.creem.io`
-   - never required for default CI
-
-### Minimum Endpoint Coverage
-
-At least one happy-path test per domain:
-
-- products
-- customers
-- subscriptions
-- checkouts
-- licenses
-- discounts
-- transactions
-- stats
-
-At least one error-path test for:
-
-- 401 unauthorized
-- 404 not found
-- generic 4xx validation failure
-- generic 5xx server failure
-
-### Acceptance Criteria
-
-- Full local test suite passes without external credentials
-- CI can run tests deterministically
-- live integration tests are clearly isolated and non-blocking by default
-
-## Phase 6 - Fern Docs Setup (Local-First)
+**Recommended model:** `GPT-5.3-Codex` with `high`
 
 ### Goal
 
-Generate and maintain docs with Fern while staying within a free-tier-safe workflow.
+Replace generation drift checks with explicit spec coverage and behavioral tests.
 
-### Actions
+### Tasks
 
-1. Add Fern docs configuration in the `fern/` workspace.
-2. Use Fern docs generation for local preview and committed source configuration only.
-3. Do not assume paid hosted docs publishing is available.
-4. Add local docs scripts:
-   - `npm run fern:docs:dev`
-   - `npm run fern:docs:check`
-5. Create a short landing page in `docs/README.md` that explains:
-   - what the SDK is
-   - how to install it
-   - how to authenticate
-   - how to switch environments
-   - where generated API reference comes from
-6. Ensure docs content points to the stable `Creem\Client` API first, then generated API reference second.
-7. If Fern supports example snippets for PHP from the imported definition, include representative examples for:
-   - client construction
-   - retrieving a product
-   - creating a checkout
-   - retrieving a subscription
-8. Keep docs source in git so future hosted publishing is a config-only change.
+- [ ] Remove the existing Fern-specific smoke test
+- [ ] Add unit tests for `Environment`
+- [ ] Add unit tests for `Config`
+- [ ] Add unit tests for exception mapping
+- [ ] Add tests for user-agent and auth header behavior
+- [ ] Add request/response tests for each resource method
+- [ ] Add response fixtures under `tests/Fixtures/Responses/`
+- [ ] Add contract tests that parse `spec/creem-openapi.json`
+- [ ] Add contract tests that verify every OpenAPI operation is mapped to SDK coverage
+- [ ] Fail tests when the spec changes without corresponding SDK coverage updates
 
 ### Acceptance Criteria
 
-- Docs can be previewed locally with Fern
-- docs source is committed
-- no phase depends on paid Fern hosting
+- [ ] Test coverage protects the public contract, not just file existence
+- [ ] The spec is validated by PHP-side tests
+- [ ] SDK coverage gaps are caught automatically when the spec changes
 
-## Phase 7 - CI, Release Flow, and Packagist Readiness
+## Phase 6 - Final Documentation And Release Readiness
+
+**Recommended model:** `gpt-5` or `GPT-5.3-Codex` with `medium`
 
 ### Goal
 
-Make the repo safe to publish and easy to maintain.
+Document the finished SDK and prepare it for normal package release flow.
 
-### Actions
+### Tasks
 
-1. Add GitHub Actions workflows for:
-   - dependency install
-   - Fern validation
-   - Fern generation drift check
-   - PHPUnit
-   - static analysis
-   - coding standards
-2. Add a PHP version matrix that includes:
-   - 8.1
-   - latest supported current version
-3. Keep docs preview checks local-only unless Fern offers a free CI-safe validation command that does not require hosted publishing.
-4. Define release rules:
-   - SemVer tags from GitHub
-   - generate code before tagging
-   - fail release if generated artifacts are stale
-5. Prepare Packagist readiness:
-   - valid Composer metadata
-   - stable default branch
-   - tagged releases
-   - no path-based assumptions that break consumer installs
-6. If Packagist auto-update is desired later, treat webhook registration with Packagist as a manual post-setup task, not a blocker for code delivery.
+- [ ] Rewrite `README.md` with Saloon-based installation and usage examples
+- [ ] Document configuration, environments, and error handling
+- [ ] Document one representative example per major resource group
+- [ ] Document how the OpenAPI contract is maintained in `spec/`
+- [ ] Remove stale references to Fern, generated docs, and Node scripts
+- [ ] Verify the package is Packagist-ready
+- [ ] Add release notes guidance for future spec-driven SDK updates
 
 ### Acceptance Criteria
 
-- CI validates source, generation, and tests on every PR
-- a tagged release can be consumed by Composer
-- no release step depends on paid Fern infrastructure
+- [ ] The README describes the actual SDK architecture
+- [ ] The docs match the final public API
+- [ ] No release step depends on Fern or Node tooling
 
-## Phase 8 - Documentation for Contributors and Regeneration Workflow
+## Test Scenarios
 
-### Goal
+These scenarios must be covered before the restart is considered complete:
 
-Make the repo maintainable for repeated regeneration and future spec updates.
+- [ ] `Environment` resolves production and test URLs correctly
+- [ ] `Config` applies overrides correctly
+- [ ] The connector sends the `x-api-key` header
+- [ ] The connector sends the SDK user agent
+- [ ] Each resource method builds the correct path, method, query string, and body
+- [ ] `401`, `403`, `404`, `422`, `429`, and `5xx` responses map to the correct exception types
+- [ ] Network and timeout failures map to `TransportException`
+- [ ] Nullable payload fields hydrate correctly
+- [ ] Pagination payloads hydrate into shared page and pagination DTOs
+- [ ] Union-like nested payloads are normalized into stable DTO representations
+- [ ] Every documented OpenAPI operation has both internal request coverage and public method coverage
 
-### Actions
+## Explicit Assumptions
 
-1. Expand `README.md` to include:
-   - project purpose
-   - install instructions
-   - quickstart usage
-   - environments
-   - test commands
-   - regeneration commands
-2. Add `CONTRIBUTING.md` with:
-   - how to update the OpenAPI spec
-   - how to re-import/regenerate via Fern
-   - where handwritten code must live
-   - how to run the test suite
-3. Add a "do not edit generated files manually" note.
-4. Add a changelog strategy:
-   - maintain `CHANGELOG.md` manually or with conventional releases
-   - document that spec-driven breaking changes require SemVer major bumps
-5. Add a short maintainers' note describing which custom layer is considered the stable public API.
+These defaults are fixed for the current implementation pass:
 
-### Acceptance Criteria
-
-- A new contributor can regenerate the SDK without guesswork
-- the boundary between generated and handwritten code is explicit
-- future spec updates have a documented path
-
-## Test Cases and Scenarios
-
-The implementation must include, at minimum, these scenarios:
-
-- Create client with valid production config
-- create client with valid test config
-- reject client creation with empty API key
-- confirm production/test base URL selection
-- confirm `x-api-key` auth is attached
-- retrieve a product through the stable client
-- search products with pagination parameters
-- retrieve a customer
-- generate customer billing links
-- retrieve and update a subscription
-- cancel, pause, resume, and upgrade a subscription
-- create and retrieve a checkout
-- activate, deactivate, and validate a license
-- create, retrieve, and delete a discount
-- retrieve a transaction and search transactions
-- retrieve stats summary
-- map 401/404/4xx/5xx responses into stable exceptions
-- verify regeneration drift detection fails when generated code is stale
-- verify docs config validates locally
-- verify the chosen DTO strategy is covered by tests
-
-## Explicit Assumptions and Defaults
-
-- Use Fern locally via a project dev dependency, not a global install.
-- Use Fern for both SDK generation and docs configuration, but keep docs local-first to avoid free-tier limits.
-- Treat hosted Fern publishing as out of scope for the first implementation pass.
-- Use a stable handwritten facade because the raw generated surface is not a safe long-term public API.
-- Keep generated code committed so consumers and CI do not need Fern to install the package.
-- Make live API integration tests opt-in only.
-- Use `MIT`.
-- Use `PHPUnit`.
-- If Fern's PHP generator emits a conflicting package scaffold, the root repository package remains authoritative and the generated SDK is treated as an internal implementation dependency.
-- Webhooks are intentionally out of scope for this SDK because inbound webhook handling belongs in downstream integration packages, not the core API client.
-- DTOs are part of the SDK contract. Prefer Fern-generated models, but implement handwritten DTOs if Fern does not generate usable ones.
+- OpenAPI remains authoritative and committed
+- The current OpenAPI file should be moved, not re-imported
+- Saloon is an internal implementation detail
+- The public SDK surface is `Creem\Client` plus typed DTOs and exceptions
+- The first implementation pass is synchronous only
+- Automatic retry behavior is out of scope for v1
+- Automatic paginator iterators are out of scope for v1
+- Webhook handling is out of scope for this package
+- Hosted/generated API docs are out of scope for the restart

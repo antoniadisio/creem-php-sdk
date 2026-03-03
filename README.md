@@ -1,34 +1,37 @@
 # Creem PHP SDK
 
-Production-focused PHP SDK for the `creem.io` API.
+Handwritten PHP SDK for the `creem.io` API.
 
-This repository is being structured around a generated transport and model layer produced with Fern, with a stable handwritten PHP wrapper on top so downstream consumers interact with a predictable public API.
+This repository is being reset around a curated SDK implementation with Saloon used only as the internal HTTP transport layer. The target public API is a stable `Creem\Client` facade backed by handwritten configuration, exceptions, resources, and DTOs, while the committed OpenAPI contract remains the source of truth.
 
-Current status:
+## Current Status
 
-- the OpenAPI source of truth lives at `fern/definition/openapi/creem-openapi.json`
-- the committed Fern definition is generated into `fern/.definition/`
-- repository scaffolding and local generation tooling are being established
-- PHP source generation and handwritten wrapper implementation will follow in subsequent phases
+- baseline package scaffolding is in place
+- Saloon is installed as the runtime transport dependency
+- the OpenAPI contract will be normalized into `spec/` in the next phase
+- the public client, resources, and DTOs are not implemented yet
 
-Planned architecture:
+## Planned Architecture
 
-- generated SDK output managed with Fern
-- handwritten public entrypoints under the `Creem\\` namespace
-- package metadata suitable for Git tags and Packagist distribution
+- `Creem\Client` as the stable SDK entrypoint
+- `Creem\Config` and `Creem\Environment` as the public configuration surface
+- typed DTOs under `src/Dto`
+- typed exceptions under `src/Exception`
+- internal HTTP connector and request classes under `src/Internal/Http`
 
 ## Tooling
 
 - PHP `^8.1`
-- Composer for PHP dependency management and validation
-- a local `fern-api` CLI install managed through `npm`
+- Composer for dependency management and validation
+- PHPUnit for tests
+- Laravel Pint for code style
+- PHPStan for static analysis
 
 ## Local Commands
 
 ```bash
-composer validate
-npm run fern -- --version
-npm run fern:check
-npm run fern:definition
-npm run fern:definition:check
+composer validate --no-check-publish
+composer test
+composer cs
+composer stan
 ```
