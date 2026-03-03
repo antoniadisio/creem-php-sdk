@@ -21,15 +21,15 @@ final class ConfigTest extends TestCase
             '  integration-suite  ',
         );
 
-        self::assertSame('sk_test_123', $config->apiKey());
-        self::assertSame(Environment::Test, $config->environment());
-        self::assertSame('https://example.test', $config->baseUrl());
-        self::assertSame('https://example.test', $config->resolveBaseUrl());
-        self::assertSame(15.0, $config->timeout());
-        self::assertSame('integration-suite', $config->userAgentSuffix());
-        self::assertStringStartsWith('creem-php-sdk/', $config->userAgent());
-        self::assertStringContainsString('php/'.PHP_VERSION, $config->userAgent());
-        self::assertStringEndsWith('integration-suite', $config->userAgent());
+        $this->assertSame('sk_test_123', $config->apiKey());
+        $this->assertSame(Environment::Test, $config->environment());
+        $this->assertSame('https://example.test', $config->baseUrl());
+        $this->assertSame('https://example.test', $config->resolveBaseUrl());
+        $this->assertEqualsWithDelta(15.0, $config->timeout(), PHP_FLOAT_EPSILON);
+        $this->assertSame('integration-suite', $config->userAgentSuffix());
+        $this->assertStringStartsWith('creem-php-sdk/', $config->userAgent());
+        $this->assertStringContainsString('php/'.PHP_VERSION, $config->userAgent());
+        $this->assertStringEndsWith('integration-suite', $config->userAgent());
     }
 
     public function test_config_rejects_invalid_values(): void

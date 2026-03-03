@@ -21,6 +21,7 @@ composer qa
 ```
 
 `composer qa` runs the fix-first local QA flow in this order: Rector, Pint fixes, PHPStan, then PHPUnit. When you want a non-mutating verification pass (for example before opening a pull request), run `composer qa:check`.
+The committed Rector config applies PHP 8.2, code-quality, and type-declaration refactors across internal code and tests, but it intentionally skips automatic type-declaration inference on `Creem\Client`, `Creem\Config`, and the `Creem\Resource\*` surface so public signatures stay under manual review.
 `composer stan` uses the committed `phpstan.neon.dist` project configuration and the repository-defined memory limit, so local analysis and CI run the same PHPStan setup.
 `composer install` and `composer update` also use the committed Composer platform pin (`php: 8.2.0`), which keeps the lockfile aligned with the PHP 8.2 CI target even when dependency updates are run on newer local PHP versions.
 

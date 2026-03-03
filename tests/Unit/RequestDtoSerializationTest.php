@@ -42,21 +42,21 @@ final class RequestDtoSerializationTest extends TestCase
 {
     public function test_basic_request_dtos_serialize_through_the_shared_normalizer(): void
     {
-        self::assertSame([
+        $this->assertSame([
             'customer_id' => 'cus_123',
         ], (new CreateCustomerBillingPortalLinkRequest('cus_123'))->toArray());
 
-        self::assertSame([
+        $this->assertSame([
             'key' => 'lic_key',
             'instance_name' => 'macbook',
         ], (new ActivateLicenseRequest('lic_key', 'macbook'))->toArray());
 
-        self::assertSame([
+        $this->assertSame([
             'key' => 'lic_key',
             'instance_id' => 'ins_123',
         ], (new DeactivateLicenseRequest('lic_key', 'ins_123'))->toArray());
 
-        self::assertSame([
+        $this->assertSame([
             'key' => 'lic_key',
             'instance_id' => 'ins_456',
         ], (new ValidateLicenseRequest('lic_key', 'ins_456'))->toArray());
@@ -64,17 +64,17 @@ final class RequestDtoSerializationTest extends TestCase
 
     public function test_query_request_dtos_serialize_integer_pagination(): void
     {
-        self::assertSame([
+        $this->assertSame([
             'page_number' => 2,
             'page_size' => 50,
         ], (new SearchProductsRequest(2, 50))->toQuery());
 
-        self::assertSame([
+        $this->assertSame([
             'page_number' => 1,
             'page_size' => 20,
         ], (new ListCustomersRequest(1, 20))->toQuery());
 
-        self::assertSame([
+        $this->assertSame([
             'customer_id' => 'cus_123',
             'order_id' => 'ord_123',
             'product_id' => 'prod_123',
@@ -114,7 +114,7 @@ final class RequestDtoSerializationTest extends TestCase
             abandonedCartRecoveryEnabled: true,
         );
 
-        self::assertSame([
+        $this->assertSame([
             'name' => 'Enterprise',
             'description' => 'Scale plan',
             'image_url' => 'https://example.com/product.png',
@@ -148,7 +148,7 @@ final class RequestDtoSerializationTest extends TestCase
             'abandoned_cart_recovery_enabled' => true,
         ], $request->toArray());
 
-        self::assertArrayNotHasKey('custom_field', $request->toArray());
+        $this->assertArrayNotHasKey('custom_field', $request->toArray());
     }
 
     public function test_create_discount_request_serializes_enums_and_rfc3339_dates(): void
@@ -166,7 +166,7 @@ final class RequestDtoSerializationTest extends TestCase
             durationInMonths: 6,
         );
 
-        self::assertSame([
+        $this->assertSame([
             'name' => 'Launch',
             'code' => 'LAUNCH20',
             'type' => 'fixed',
@@ -200,7 +200,7 @@ final class RequestDtoSerializationTest extends TestCase
             metadata: ['source' => 'email'],
         );
 
-        self::assertSame([
+        $this->assertSame([
             'request_id' => 'req_123',
             'product_id' => 'prod_123',
             'units' => 2,
@@ -221,13 +221,13 @@ final class RequestDtoSerializationTest extends TestCase
             'success_url' => 'https://example.com/success',
             'metadata' => ['source' => 'email'],
         ], $checkoutRequest->toArray());
-        self::assertArrayNotHasKey('custom_field', $checkoutRequest->toArray());
+        $this->assertArrayNotHasKey('custom_field', $checkoutRequest->toArray());
 
         $cancelRequest = new CancelSubscriptionRequest(
             SubscriptionCancellationMode::Scheduled,
             SubscriptionCancellationAction::Pause,
         );
-        self::assertSame([
+        $this->assertSame([
             'mode' => 'scheduled',
             'onExecute' => 'pause',
         ], $cancelRequest->toArray());
@@ -238,7 +238,7 @@ final class RequestDtoSerializationTest extends TestCase
             ],
             SubscriptionUpdateBehavior::ProrationNone,
         );
-        self::assertSame([
+        $this->assertSame([
             'items' => [
                 [
                     'id' => 'item_123',
@@ -254,7 +254,7 @@ final class RequestDtoSerializationTest extends TestCase
             'prod_999',
             SubscriptionUpdateBehavior::ProrationChargeImmediately,
         );
-        self::assertSame([
+        $this->assertSame([
             'product_id' => 'prod_999',
             'update_behavior' => 'proration-charge-immediately',
         ], $upgradeRequest->toArray());
@@ -269,7 +269,7 @@ final class RequestDtoSerializationTest extends TestCase
             StatsInterval::Week,
         );
 
-        self::assertSame([
+        $this->assertSame([
             'startDate' => 1700000000123,
             'endDate' => 1700086400456,
             'interval' => 'week',

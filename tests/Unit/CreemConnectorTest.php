@@ -32,13 +32,13 @@ final class CreemConnectorTest extends TestCase
         $pendingRequest = $connector->createPendingRequest($this->request());
         $psrRequest = $pendingRequest->createPsrRequest();
 
-        self::assertSame('https://test-api.creem.io/v1/ping', (string) $psrRequest->getUri());
-        self::assertSame('application/json', $psrRequest->getHeaderLine('Accept'));
-        self::assertSame('application/json', $psrRequest->getHeaderLine('Content-Type'));
-        self::assertSame('sk_test_123', $psrRequest->getHeaderLine('x-api-key'));
-        self::assertStringStartsWith('creem-php-sdk/', $psrRequest->getHeaderLine('User-Agent'));
-        self::assertStringContainsString('integration-suite', $psrRequest->getHeaderLine('User-Agent'));
-        self::assertSame(12.5, $pendingRequest->config()->all()['timeout']);
+        $this->assertSame('https://test-api.creem.io/v1/ping', (string) $psrRequest->getUri());
+        $this->assertSame('application/json', $psrRequest->getHeaderLine('Accept'));
+        $this->assertSame('application/json', $psrRequest->getHeaderLine('Content-Type'));
+        $this->assertSame('sk_test_123', $psrRequest->getHeaderLine('x-api-key'));
+        $this->assertStringStartsWith('creem-php-sdk/', $psrRequest->getHeaderLine('User-Agent'));
+        $this->assertStringContainsString('integration-suite', $psrRequest->getHeaderLine('User-Agent'));
+        $this->assertEqualsWithDelta(12.5, $pendingRequest->config()->all()['timeout'], PHP_FLOAT_EPSILON);
     }
 
     /**

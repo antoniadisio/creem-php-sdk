@@ -55,11 +55,7 @@ final class ApiEnumTest extends TestCase
             sort($expected);
             sort($actual);
 
-            self::assertSame(
-                $expected,
-                $actual,
-                sprintf('Enum %s must match the spec values at %s.', $enumClass, $path),
-            );
+            $this->assertSame($expected, $actual, sprintf('Enum %s must match the spec values at %s.', $enumClass, $path));
         }
     }
 
@@ -127,18 +123,18 @@ final class ApiEnumTest extends TestCase
         $node = $this->spec();
 
         foreach (explode('.', $path) as $segment) {
-            self::assertIsArray($node, sprintf('Spec path %s must resolve at every segment.', $path));
+            $this->assertIsArray($node, sprintf('Spec path %s must resolve at every segment.', $path));
 
             $key = ctype_digit($segment) ? (int) $segment : $segment;
 
-            self::assertArrayHasKey($key, $node, sprintf('Spec path %s is missing segment %s.', $path, $segment));
+            $this->assertArrayHasKey($key, $node, sprintf('Spec path %s is missing segment %s.', $path, $segment));
 
             $node = $node[$key];
         }
 
-        self::assertIsArray($node, sprintf('Spec path %s must resolve to an enum schema.', $path));
-        self::assertArrayHasKey('enum', $node, sprintf('Spec path %s must expose an enum.', $path));
-        self::assertIsArray($node['enum'], sprintf('Spec path %s must expose enum values.', $path));
+        $this->assertIsArray($node, sprintf('Spec path %s must resolve to an enum schema.', $path));
+        $this->assertArrayHasKey('enum', $node, sprintf('Spec path %s must expose an enum.', $path));
+        $this->assertIsArray($node['enum'], sprintf('Spec path %s must expose enum values.', $path));
 
         /** @var list<int|string> $enum */
         $enum = $node['enum'];
@@ -155,7 +151,7 @@ final class ApiEnumTest extends TestCase
     {
         $contents = file_get_contents(__DIR__.'/../../spec/creem-openapi.json');
 
-        self::assertIsString($contents);
+        $this->assertIsString($contents);
 
         /** @var array<array-key, mixed> $spec */
         $spec = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);

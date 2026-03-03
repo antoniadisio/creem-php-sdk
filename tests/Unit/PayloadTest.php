@@ -23,33 +23,33 @@ final class PayloadTest extends TestCase
             'enabled' => true,
         ];
 
-        self::assertSame('starter', Payload::string($payload, 'label', 'ExampleDto', true));
-        self::assertSame(3, Payload::integer($payload, 'count', 'ExampleDto', true));
-        self::assertSame(1.5, Payload::decimal($payload, 'rate', 'ExampleDto', true));
-        self::assertTrue(Payload::bool($payload, 'enabled', 'ExampleDto', true));
+        $this->assertSame('starter', Payload::string($payload, 'label', 'ExampleDto', true));
+        $this->assertSame(3, Payload::integer($payload, 'count', 'ExampleDto', true));
+        $this->assertEqualsWithDelta(1.5, Payload::decimal($payload, 'rate', 'ExampleDto', true), PHP_FLOAT_EPSILON);
+        $this->assertTrue(Payload::bool($payload, 'enabled', 'ExampleDto', true));
     }
 
     public function test_it_parses_enum_values(): void
     {
         $currency = Payload::enum(['currency' => 'USD'], 'currency', 'StatsSummary', CurrencyCode::class, true);
 
-        self::assertSame(CurrencyCode::USD, $currency);
+        $this->assertSame(CurrencyCode::USD, $currency);
     }
 
     public function test_it_parses_iso_date_time_strings(): void
     {
         $createdAt = Payload::dateTime(['created_at' => '2026-03-03T10:15:00+00:00'], 'created_at', 'Product', true);
 
-        self::assertInstanceOf(DateTimeImmutable::class, $createdAt);
-        self::assertSame('2026-03-03T10:15:00+00:00', $createdAt->format(DATE_ATOM));
+        $this->assertInstanceOf(DateTimeImmutable::class, $createdAt);
+        $this->assertSame('2026-03-03T10:15:00+00:00', $createdAt->format(DATE_ATOM));
     }
 
     public function test_it_parses_millisecond_timestamps(): void
     {
         $timestamp = Payload::millisecondsDateTime(['timestamp' => 1700000000000], 'timestamp', 'StatsPeriod', true);
 
-        self::assertInstanceOf(DateTimeImmutable::class, $timestamp);
-        self::assertSame('2023-11-14T22:13:20+00:00', $timestamp->format(DATE_ATOM));
+        $this->assertInstanceOf(DateTimeImmutable::class, $timestamp);
+        $this->assertSame('2023-11-14T22:13:20+00:00', $timestamp->format(DATE_ATOM));
     }
 
     public function test_it_maps_typed_objects_lists_and_array_objects(): void
@@ -88,10 +88,10 @@ final class PayloadTest extends TestCase
         );
         $metadata = Payload::arrayObject($payload, 'metadata', 'Checkout', true);
 
-        self::assertInstanceOf(StructuredObject::class, $totals);
-        self::assertSame(2, $totals->get('total_products'));
-        self::assertSame(['period_1', 'period_2'], $periods);
-        self::assertSame(['source' => 'sdk-test'], $metadata);
+        $this->assertInstanceOf(StructuredObject::class, $totals);
+        $this->assertSame(2, $totals->get('total_products'));
+        $this->assertSame(['period_1', 'period_2'], $periods);
+        $this->assertSame(['source' => 'sdk-test'], $metadata);
     }
 
     public function test_it_maps_expandable_resources_from_expanded_object_payloads(): void
@@ -104,10 +104,10 @@ final class PayloadTest extends TestCase
             true,
         );
 
-        self::assertInstanceOf(ExpandableResource::class, $product);
-        self::assertSame('prod_123', $product->id());
-        self::assertTrue($product->isExpanded());
-        self::assertInstanceOf(StructuredObject::class, $product->resource());
+        $this->assertInstanceOf(ExpandableResource::class, $product);
+        $this->assertSame('prod_123', $product->id());
+        $this->assertTrue($product->isExpanded());
+        $this->assertInstanceOf(StructuredObject::class, $product->resource());
     }
 
     public function test_it_maps_expandable_resources_from_id_only_payloads(): void
@@ -120,10 +120,10 @@ final class PayloadTest extends TestCase
             true,
         );
 
-        self::assertInstanceOf(ExpandableResource::class, $customer);
-        self::assertSame('cus_123', $customer->id());
-        self::assertFalse($customer->isExpanded());
-        self::assertNull($customer->resource());
+        $this->assertInstanceOf(ExpandableResource::class, $customer);
+        $this->assertSame('cus_123', $customer->id());
+        $this->assertFalse($customer->isExpanded());
+        $this->assertNotInstanceOf(\Creem\Dto\Common\StructuredObject::class, $customer->resource());
     }
 
     public function test_it_throws_contextual_hydration_exceptions_for_invalid_required_integer_fields(): void

@@ -22,15 +22,15 @@ final class ClientTest extends TestCase
     {
         $client = new Client(new Config('sk_test_123'));
 
-        self::assertInstanceOf(ProductsResource::class, $client->products());
-        self::assertInstanceOf(CustomersResource::class, $client->customers());
-        self::assertInstanceOf(SubscriptionsResource::class, $client->subscriptions());
-        self::assertInstanceOf(CheckoutsResource::class, $client->checkouts());
-        self::assertInstanceOf(LicensesResource::class, $client->licenses());
-        self::assertInstanceOf(DiscountsResource::class, $client->discounts());
-        self::assertInstanceOf(TransactionsResource::class, $client->transactions());
-        self::assertInstanceOf(StatsResource::class, $client->stats());
-        self::assertSame($client->products(), $client->products());
+        $this->assertInstanceOf(ProductsResource::class, $client->products());
+        $this->assertInstanceOf(CustomersResource::class, $client->customers());
+        $this->assertInstanceOf(SubscriptionsResource::class, $client->subscriptions());
+        $this->assertInstanceOf(CheckoutsResource::class, $client->checkouts());
+        $this->assertInstanceOf(LicensesResource::class, $client->licenses());
+        $this->assertInstanceOf(DiscountsResource::class, $client->discounts());
+        $this->assertInstanceOf(TransactionsResource::class, $client->transactions());
+        $this->assertInstanceOf(StatsResource::class, $client->stats());
+        $this->assertSame($client->products(), $client->products());
     }
 
     public function test_client_retains_the_supplied_config(): void
@@ -38,6 +38,6 @@ final class ClientTest extends TestCase
         $config = new Config('sk_test_123');
         $client = new Client($config);
 
-        self::assertSame($config, $client->config());
+        $this->assertSame($config, $client->config());
     }
 }

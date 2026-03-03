@@ -44,30 +44,21 @@ final class OpenApiContractTest extends TestCase
 
         ksort($manifest);
 
-        self::assertSame($manifest, $this->specOperations());
+        $this->assertSame($manifest, $this->specOperations());
     }
 
     public function test_every_spec_operation_maps_to_a_real_resource_method_and_behavior_test(): void
     {
         foreach ($this->coverageManifest() as $operationId => $coverage) {
             foreach ($coverage['sdk_methods'] as $sdkMethod) {
-                self::assertTrue(
-                    method_exists($coverage['resource'], $sdkMethod),
-                    sprintf('Operation %s must map to an existing SDK method.', $operationId),
-                );
+                $this->assertTrue(method_exists($coverage['resource'], $sdkMethod), sprintf('Operation %s must map to an existing SDK method.', $operationId));
 
                 $resourceMethod = new ReflectionMethod($coverage['resource'], $sdkMethod);
 
-                self::assertTrue(
-                    $resourceMethod->isPublic(),
-                    sprintf('Operation %s must map to a public SDK method.', $operationId),
-                );
+                $this->assertTrue($resourceMethod->isPublic(), sprintf('Operation %s must map to a public SDK method.', $operationId));
             }
 
-            self::assertTrue(
-                method_exists(ResourcesTest::class, $coverage['coverage_test']),
-                sprintf('Operation %s must map to a behavior test.', $operationId),
-            );
+            $this->assertTrue(method_exists(ResourcesTest::class, $coverage['coverage_test']), sprintf('Operation %s must map to a behavior test.', $operationId));
         }
     }
 
@@ -91,16 +82,16 @@ final class OpenApiContractTest extends TestCase
         sort($expectedFixtures);
         sort($actualFixtures);
 
-        self::assertSame($expectedFixtures, $actualFixtures);
+        $this->assertSame($expectedFixtures, $actualFixtures);
 
         foreach ($expectedFixtures as $fixture) {
             $contents = file_get_contents($this->fixturesDirectory().'/'.$fixture);
 
-            self::assertNotFalse($contents, sprintf('Fixture %s could not be read.', $fixture));
+            $this->assertNotFalse($contents, sprintf('Fixture %s could not be read.', $fixture));
 
             $payload = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
 
-            self::assertIsArray($payload, sprintf('Fixture %s must decode to an array payload.', $fixture));
+            $this->assertIsArray($payload, sprintf('Fixture %s must decode to an array payload.', $fixture));
         }
     }
 
@@ -110,78 +101,54 @@ final class OpenApiContractTest extends TestCase
     public function test_key_response_fixtures_lock_spec_aligned_typed_shapes(): void
     {
         $product = $this->fixture('product.json');
-        self::assertSame('USD', $this->stringValue($product, 'currency', 'product fixture'));
-        self::assertSame('every-month', $this->stringValue($product, 'billing_period', 'product fixture'));
-        self::assertSame(
-            'licenseKey',
-            $this->stringValue(
-                $this->listObjectAt($this->listValue($product, 'features', 'product fixture'), 0, 'product fixture features'),
-                'type',
-                'product fixture features[0]',
-            ),
-        );
-        self::assertSame('2026-01-01T00:00:00Z', $this->stringValue($product, 'created_at', 'product fixture'));
+        $this->assertSame('USD', $this->stringValue($product, 'currency', 'product fixture'));
+        $this->assertSame('every-month', $this->stringValue($product, 'billing_period', 'product fixture'));
+        $this->assertSame('licenseKey', $this->stringValue(
+            $this->listObjectAt($this->listValue($product, 'features', 'product fixture'), 0, 'product fixture features'),
+            'type',
+            'product fixture features[0]',
+        ));
+        $this->assertSame('2026-01-01T00:00:00Z', $this->stringValue($product, 'created_at', 'product fixture'));
 
         $checkout = $this->fixture('checkout.json');
-        self::assertSame('pending', $this->stringValue($checkout, 'status', 'checkout fixture'));
-        self::assertIsArray($this->value($checkout, 'product', 'checkout fixture'));
-        self::assertIsArray($this->value($checkout, 'order', 'checkout fixture'));
-        self::assertSame(
-            'paid',
-            $this->stringValue($this->objectValue($checkout, 'order', 'checkout fixture'), 'status', 'checkout order'),
-        );
-        self::assertSame(
-            'text',
-            $this->stringValue(
-                $this->listObjectAt($this->listValue($checkout, 'custom_fields', 'checkout fixture'), 0, 'checkout custom fields'),
-                'type',
-                'checkout custom fields[0]',
-            ),
-        );
-        self::assertSame(
-            'file',
-            $this->stringValue(
-                $this->listObjectAt($this->listValue($checkout, 'feature', 'checkout fixture'), 0, 'checkout features'),
-                'type',
-                'checkout features[0]',
-            ),
-        );
+        $this->assertSame('pending', $this->stringValue($checkout, 'status', 'checkout fixture'));
+        $this->assertIsArray($this->value($checkout, 'product', 'checkout fixture'));
+        $this->assertIsArray($this->value($checkout, 'order', 'checkout fixture'));
+        $this->assertSame('paid', $this->stringValue($this->objectValue($checkout, 'order', 'checkout fixture'), 'status', 'checkout order'));
+        $this->assertSame('text', $this->stringValue(
+            $this->listObjectAt($this->listValue($checkout, 'custom_fields', 'checkout fixture'), 0, 'checkout custom fields'),
+            'type',
+            'checkout custom fields[0]',
+        ));
+        $this->assertSame('file', $this->stringValue(
+            $this->listObjectAt($this->listValue($checkout, 'feature', 'checkout fixture'), 0, 'checkout features'),
+            'type',
+            'checkout features[0]',
+        ));
         $checkoutMetadata = $this->objectValue($checkout, 'metadata', 'checkout fixture');
-        self::assertSame('sdk-test', $this->stringValue($checkoutMetadata, 'source', 'checkout metadata'));
-        self::assertIsInt($this->value($checkoutMetadata, 'attempt', 'checkout metadata'));
+        $this->assertSame('sdk-test', $this->stringValue($checkoutMetadata, 'source', 'checkout metadata'));
+        $this->assertIsInt($this->value($checkoutMetadata, 'attempt', 'checkout metadata'));
 
         $subscription = $this->fixture('subscription.json');
-        self::assertIsArray($this->value($subscription, 'product', 'subscription fixture'));
-        self::assertSame('cus_123', $this->stringValue($subscription, 'customer', 'subscription fixture'));
-        self::assertSame(
-            'charge_automatically',
-            $this->stringValue($subscription, 'collection_method', 'subscription fixture'),
-        );
-        self::assertSame(
-            'paid',
-            $this->stringValue(
-                $this->objectValue($subscription, 'last_transaction', 'subscription fixture'),
-                'status',
-                'subscription last transaction',
-            ),
-        );
-        self::assertSame(
-            '2026-01-01T12:00:00Z',
-            $this->stringValue($subscription, 'last_transaction_date', 'subscription fixture'),
-        );
+        $this->assertIsArray($this->value($subscription, 'product', 'subscription fixture'));
+        $this->assertSame('cus_123', $this->stringValue($subscription, 'customer', 'subscription fixture'));
+        $this->assertSame('charge_automatically', $this->stringValue($subscription, 'collection_method', 'subscription fixture'));
+        $this->assertSame('paid', $this->stringValue(
+            $this->objectValue($subscription, 'last_transaction', 'subscription fixture'),
+            'status',
+            'subscription last transaction',
+        ));
+        $this->assertSame('2026-01-01T12:00:00Z', $this->stringValue($subscription, 'last_transaction_date', 'subscription fixture'));
 
         $statsSummary = $this->fixture('stats_summary.json');
-        self::assertSame(
-            12000,
-            $this->value($this->objectValue($statsSummary, 'totals', 'stats summary fixture'), 'totalRevenue', 'stats summary totals'),
-        );
+        $this->assertSame(12000, $this->value($this->objectValue($statsSummary, 'totals', 'stats summary fixture'), 'totalRevenue', 'stats summary totals'));
         $firstStatsPeriod = $this->listObjectAt(
             $this->listValue($statsSummary, 'periods', 'stats summary fixture'),
             0,
             'stats summary periods',
         );
-        self::assertIsInt($this->value($firstStatsPeriod, 'timestamp', 'stats summary periods[0]'));
-        self::assertSame(11500, $this->value($firstStatsPeriod, 'netRevenue', 'stats summary periods[0]'));
+        $this->assertIsInt($this->value($firstStatsPeriod, 'timestamp', 'stats summary periods[0]'));
+        $this->assertSame(11500, $this->value($firstStatsPeriod, 'netRevenue', 'stats summary periods[0]'));
     }
 
     /**
@@ -213,7 +180,7 @@ final class OpenApiContractTest extends TestCase
                     continue;
                 }
 
-                self::assertArrayNotHasKey($operationId, $operations, 'OpenAPI operation IDs must be unique.');
+                $this->assertArrayNotHasKey($operationId, $operations, 'OpenAPI operation IDs must be unique.');
 
                 $operations[$operationId] = [
                     'method' => strtoupper($method),
@@ -440,7 +407,7 @@ final class OpenApiContractTest extends TestCase
     {
         $contents = file_get_contents(dirname(__DIR__, 2).'/spec/creem-openapi.json');
 
-        self::assertNotFalse($contents, 'OpenAPI spec could not be read.');
+        $this->assertNotFalse($contents, 'OpenAPI spec could not be read.');
 
         /** @var array<string, mixed> $spec */
         $spec = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
@@ -458,7 +425,7 @@ final class OpenApiContractTest extends TestCase
      */
     private function value(array $payload, string $key, string $context): mixed
     {
-        self::assertArrayHasKey($key, $payload, sprintf('%s must contain key %s.', $context, $key));
+        $this->assertArrayHasKey($key, $payload, sprintf('%s must contain key %s.', $context, $key));
 
         return $payload[$key];
     }
@@ -471,8 +438,8 @@ final class OpenApiContractTest extends TestCase
     {
         $value = $this->value($payload, $key, $context);
 
-        self::assertIsArray($value, sprintf('%s.%s must be an object.', $context, $key));
-        self::assertFalse(array_is_list($value), sprintf('%s.%s must be an object.', $context, $key));
+        $this->assertIsArray($value, sprintf('%s.%s must be an object.', $context, $key));
+        $this->assertFalse(array_is_list($value), sprintf('%s.%s must be an object.', $context, $key));
 
         /** @var array<string, mixed> $value */
         return $value;
@@ -486,8 +453,8 @@ final class OpenApiContractTest extends TestCase
     {
         $value = $this->value($payload, $key, $context);
 
-        self::assertIsArray($value, sprintf('%s.%s must be a list.', $context, $key));
-        self::assertTrue(array_is_list($value), sprintf('%s.%s must be a list.', $context, $key));
+        $this->assertIsArray($value, sprintf('%s.%s must be a list.', $context, $key));
+        $this->assertTrue(array_is_list($value), sprintf('%s.%s must be a list.', $context, $key));
 
         /** @var list<mixed> $value */
         return $value;
@@ -499,12 +466,12 @@ final class OpenApiContractTest extends TestCase
      */
     private function listObjectAt(array $items, int $index, string $context): array
     {
-        self::assertArrayHasKey($index, $items, sprintf('%s must contain index %d.', $context, $index));
+        $this->assertArrayHasKey($index, $items, sprintf('%s must contain index %d.', $context, $index));
 
         $value = $items[$index];
 
-        self::assertIsArray($value, sprintf('%s[%d] must be an object.', $context, $index));
-        self::assertFalse(array_is_list($value), sprintf('%s[%d] must be an object.', $context, $index));
+        $this->assertIsArray($value, sprintf('%s[%d] must be an object.', $context, $index));
+        $this->assertFalse(array_is_list($value), sprintf('%s[%d] must be an object.', $context, $index));
 
         /** @var array<string, mixed> $value */
         return $value;
@@ -517,7 +484,7 @@ final class OpenApiContractTest extends TestCase
     {
         $value = $this->value($payload, $key, $context);
 
-        self::assertIsString($value, sprintf('%s.%s must be a string.', $context, $key));
+        $this->assertIsString($value, sprintf('%s.%s must be a string.', $context, $key));
 
         return $value;
     }
@@ -531,7 +498,7 @@ final class OpenApiContractTest extends TestCase
     {
         $contents = file_get_contents($this->fixturesDirectory().'/'.$name);
 
-        self::assertNotFalse($contents, sprintf('Fixture %s could not be read.', $name));
+        $this->assertNotFalse($contents, sprintf('Fixture %s could not be read.', $name));
 
         /** @var array<string, mixed> $fixture */
         $fixture = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
