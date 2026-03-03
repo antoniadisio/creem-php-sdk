@@ -1,0 +1,706 @@
+imports:
+  root: __package__.yml
+types:
+  CancelSubscriptionRequestEntityMode:
+    docs: >-
+      The mode of cancellation (immediate or scheduled), default can be
+      configured in the store billing settings.
+    enum:
+      - immediate
+      - scheduled
+    inline: true
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  CancelSubscriptionRequestEntityOnExecute:
+    docs: >-
+      The action to execute when canceling (cancel or pause) when mode is
+      scheduled, ignored when mode is immediate or not provided
+    enum:
+      - cancel
+      - pause
+    inline: true
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  UpdateSubscriptionRequestEntityUpdateBehavior:
+    default: proration-charge
+    docs: The update behavior for the subscription (defaults to proration)
+    enum:
+      - name: ProrationChargeImmediately
+        value: proration-charge-immediately
+      - name: ProrationCharge
+        value: proration-charge
+      - name: ProrationNone
+        value: proration-none
+    inline: true
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  UpgradeSubscriptionRequestEntityUpdateBehavior:
+    default: proration-charge-immediately
+    docs: >-
+      The update behavior for the subscription (defaults to
+      proration-charge-immediately)
+    enum:
+      - name: ProrationChargeImmediately
+        value: proration-charge-immediately
+      - name: ProrationCharge
+        value: proration-charge
+      - name: ProrationNone
+        value: proration-none
+    inline: true
+    source:
+      openapi: definition/openapi/creem-openapi.json
+service:
+  auth: false
+  base-path: ''
+  endpoints:
+    cancelSubscription:
+      auth: true
+      display-name: Cancel a subscription.
+      docs: >-
+        Cancel an active subscription immediately or schedule cancellation at
+        period end.
+      errors:
+        - root.BadRequestError
+        - root.UnauthorizedError
+        - root.NotFoundError
+      examples:
+        - path-parameters:
+            id: id
+          request: {}
+          response:
+            body:
+              canceled_at: '2024-09-12T12:34:56Z'
+              collection_method: charge_automatically
+              created_at: '2024-01-01T00:00:00Z'
+              current_period_end_date: '2024-09-12T12:34:56Z'
+              current_period_start_date: '2024-09-12T12:34:56Z'
+              customer:
+                country: US
+                created_at: '2023-01-01T00:00:00Z'
+                email: user@example.com
+                id: id
+                mode: test
+                name: John Doe
+                object: object
+                updated_at: '2023-01-01T00:00:00Z'
+              discount:
+                key: value
+              id: id
+              items:
+                - id: id
+                  mode: test
+                  object: object
+                  price_id: price_id
+                  product_id: product_id
+                  units: 1.1
+              last_transaction:
+                amount: 2000
+                amount_paid: 2000
+                created_at: 1.1
+                currency: USD
+                customer: customer
+                description: description
+                discount_amount: 2000
+                id: id
+                mode: test
+                object: transaction
+                order: order
+                period_end: 1.1
+                period_start: 1.1
+                refunded_amount: 2000
+                status: pending
+                subscription: subscription
+                tax_amount: 2000
+                tax_country: US
+                type: payment
+              last_transaction_date: '2024-09-12T12:34:56Z'
+              last_transaction_id: tran_3e6Z6TzvHKdsjEgXnGDEp0
+              mode: test
+              next_transaction_date: '2024-09-12T12:34:56Z'
+              object: subscription
+              product:
+                billing_period: every-month
+                billing_type: recurring
+                created_at: '2023-01-01T00:00:00Z'
+                currency: USD
+                default_success_url: https://example.com/?status=successful
+                description: This is a sample product description.
+                features:
+                  - description: Access to premium course materials.
+                    id: feat_abc123
+                    type: custom
+                id: id
+                image_url: https://example.com/image.jpg
+                mode: test
+                name: name
+                object: object
+                price: 400
+                product_url: https://creem.io/product/prod_123123123123
+                status: active
+                tax_category: saas
+                tax_mode: inclusive
+                updated_at: '2023-01-01T00:00:00Z'
+              status: active
+              updated_at: '2024-09-12T12:34:56Z'
+      method: POST
+      path: /v1/subscriptions/{id}/cancel
+      path-parameters:
+        id:
+          docs: The unique identifier of the subscription
+          type: string
+      request:
+        body:
+          properties:
+            mode:
+              docs: >-
+                The mode of cancellation (immediate or scheduled), default can
+                be configured in the store billing settings.
+              type: optional<CancelSubscriptionRequestEntityMode>
+            onExecute:
+              docs: >-
+                The action to execute when canceling (cancel or pause) when mode
+                is scheduled, ignored when mode is immediate or not provided
+              type: optional<CancelSubscriptionRequestEntityOnExecute>
+        content-type: application/json
+        name: CancelSubscriptionRequestEntity
+      response:
+        docs: Successfully canceled a subscription
+        status-code: 200
+        type: root.SubscriptionEntity
+      source:
+        openapi: definition/openapi/creem-openapi.json
+    pauseSubscription:
+      auth: true
+      display-name: Pause a subscription.
+      docs: >-
+        Temporarily pause a subscription. Stop billing while retaining the
+        subscription for later resumption.
+      errors:
+        - root.BadRequestError
+        - root.UnauthorizedError
+        - root.NotFoundError
+      examples:
+        - path-parameters:
+            id: id
+          response:
+            body:
+              canceled_at: '2024-09-12T12:34:56Z'
+              collection_method: charge_automatically
+              created_at: '2024-01-01T00:00:00Z'
+              current_period_end_date: '2024-09-12T12:34:56Z'
+              current_period_start_date: '2024-09-12T12:34:56Z'
+              customer:
+                country: US
+                created_at: '2023-01-01T00:00:00Z'
+                email: user@example.com
+                id: id
+                mode: test
+                name: John Doe
+                object: object
+                updated_at: '2023-01-01T00:00:00Z'
+              discount:
+                key: value
+              id: id
+              items:
+                - id: id
+                  mode: test
+                  object: object
+                  price_id: price_id
+                  product_id: product_id
+                  units: 1.1
+              last_transaction:
+                amount: 2000
+                amount_paid: 2000
+                created_at: 1.1
+                currency: USD
+                customer: customer
+                description: description
+                discount_amount: 2000
+                id: id
+                mode: test
+                object: transaction
+                order: order
+                period_end: 1.1
+                period_start: 1.1
+                refunded_amount: 2000
+                status: pending
+                subscription: subscription
+                tax_amount: 2000
+                tax_country: US
+                type: payment
+              last_transaction_date: '2024-09-12T12:34:56Z'
+              last_transaction_id: tran_3e6Z6TzvHKdsjEgXnGDEp0
+              mode: test
+              next_transaction_date: '2024-09-12T12:34:56Z'
+              object: subscription
+              product:
+                billing_period: every-month
+                billing_type: recurring
+                created_at: '2023-01-01T00:00:00Z'
+                currency: USD
+                default_success_url: https://example.com/?status=successful
+                description: This is a sample product description.
+                features:
+                  - description: Access to premium course materials.
+                    id: feat_abc123
+                    type: custom
+                id: id
+                image_url: https://example.com/image.jpg
+                mode: test
+                name: name
+                object: object
+                price: 400
+                product_url: https://creem.io/product/prod_123123123123
+                status: active
+                tax_category: saas
+                tax_mode: inclusive
+                updated_at: '2023-01-01T00:00:00Z'
+              status: active
+              updated_at: '2024-09-12T12:34:56Z'
+      method: POST
+      path: /v1/subscriptions/{id}/pause
+      path-parameters:
+        id:
+          docs: The unique identifier of the subscription
+          type: string
+      response:
+        docs: Successfully paused a subscription
+        status-code: 200
+        type: root.SubscriptionEntity
+      source:
+        openapi: definition/openapi/creem-openapi.json
+    resumeSubscription:
+      auth: true
+      display-name: Resume a subscription.
+      docs: >-
+        Resume a subscription. Subscription must be in paused or
+        scheduled_cancel status.
+      errors:
+        - root.BadRequestError
+        - root.UnauthorizedError
+        - root.NotFoundError
+      examples:
+        - path-parameters:
+            id: id
+          response:
+            body:
+              canceled_at: '2024-09-12T12:34:56Z'
+              collection_method: charge_automatically
+              created_at: '2024-01-01T00:00:00Z'
+              current_period_end_date: '2024-09-12T12:34:56Z'
+              current_period_start_date: '2024-09-12T12:34:56Z'
+              customer:
+                country: US
+                created_at: '2023-01-01T00:00:00Z'
+                email: user@example.com
+                id: id
+                mode: test
+                name: John Doe
+                object: object
+                updated_at: '2023-01-01T00:00:00Z'
+              discount:
+                key: value
+              id: id
+              items:
+                - id: id
+                  mode: test
+                  object: object
+                  price_id: price_id
+                  product_id: product_id
+                  units: 1.1
+              last_transaction:
+                amount: 2000
+                amount_paid: 2000
+                created_at: 1.1
+                currency: USD
+                customer: customer
+                description: description
+                discount_amount: 2000
+                id: id
+                mode: test
+                object: transaction
+                order: order
+                period_end: 1.1
+                period_start: 1.1
+                refunded_amount: 2000
+                status: pending
+                subscription: subscription
+                tax_amount: 2000
+                tax_country: US
+                type: payment
+              last_transaction_date: '2024-09-12T12:34:56Z'
+              last_transaction_id: tran_3e6Z6TzvHKdsjEgXnGDEp0
+              mode: test
+              next_transaction_date: '2024-09-12T12:34:56Z'
+              object: subscription
+              product:
+                billing_period: every-month
+                billing_type: recurring
+                created_at: '2023-01-01T00:00:00Z'
+                currency: USD
+                default_success_url: https://example.com/?status=successful
+                description: This is a sample product description.
+                features:
+                  - description: Access to premium course materials.
+                    id: feat_abc123
+                    type: custom
+                id: id
+                image_url: https://example.com/image.jpg
+                mode: test
+                name: name
+                object: object
+                price: 400
+                product_url: https://creem.io/product/prod_123123123123
+                status: active
+                tax_category: saas
+                tax_mode: inclusive
+                updated_at: '2023-01-01T00:00:00Z'
+              status: active
+              updated_at: '2024-09-12T12:34:56Z'
+      method: POST
+      path: /v1/subscriptions/{id}/resume
+      path-parameters:
+        id:
+          docs: The unique identifier of the subscription
+          type: string
+      response:
+        docs: Successfully resumed a subscription
+        status-code: 200
+        type: root.SubscriptionEntity
+      source:
+        openapi: definition/openapi/creem-openapi.json
+    retrieveSubscription:
+      auth: true
+      display-name: Retrieve a subscription
+      docs: >-
+        Retrieve subscription details by ID. View status, billing cycle,
+        customer info, and payment history.
+      errors:
+        - root.BadRequestError
+        - root.UnauthorizedError
+        - root.NotFoundError
+      examples:
+        - query-parameters:
+            subscription_id: sub_1234567890
+          response:
+            body:
+              canceled_at: '2024-09-12T12:34:56Z'
+              collection_method: charge_automatically
+              created_at: '2024-01-01T00:00:00Z'
+              current_period_end_date: '2024-09-12T12:34:56Z'
+              current_period_start_date: '2024-09-12T12:34:56Z'
+              customer:
+                country: US
+                created_at: '2023-01-01T00:00:00Z'
+                email: user@example.com
+                id: id
+                mode: test
+                name: John Doe
+                object: object
+                updated_at: '2023-01-01T00:00:00Z'
+              discount:
+                key: value
+              id: id
+              items:
+                - id: id
+                  mode: test
+                  object: object
+                  price_id: price_id
+                  product_id: product_id
+                  units: 1.1
+              last_transaction:
+                amount: 2000
+                amount_paid: 2000
+                created_at: 1.1
+                currency: USD
+                customer: customer
+                description: description
+                discount_amount: 2000
+                id: id
+                mode: test
+                object: transaction
+                order: order
+                period_end: 1.1
+                period_start: 1.1
+                refunded_amount: 2000
+                status: pending
+                subscription: subscription
+                tax_amount: 2000
+                tax_country: US
+                type: payment
+              last_transaction_date: '2024-09-12T12:34:56Z'
+              last_transaction_id: tran_3e6Z6TzvHKdsjEgXnGDEp0
+              mode: test
+              next_transaction_date: '2024-09-12T12:34:56Z'
+              object: subscription
+              product:
+                billing_period: every-month
+                billing_type: recurring
+                created_at: '2023-01-01T00:00:00Z'
+                currency: USD
+                default_success_url: https://example.com/?status=successful
+                description: This is a sample product description.
+                features:
+                  - description: Access to premium course materials.
+                    id: feat_abc123
+                    type: custom
+                id: id
+                image_url: https://example.com/image.jpg
+                mode: test
+                name: name
+                object: object
+                price: 400
+                product_url: https://creem.io/product/prod_123123123123
+                status: active
+                tax_category: saas
+                tax_mode: inclusive
+                updated_at: '2023-01-01T00:00:00Z'
+              status: active
+              updated_at: '2024-09-12T12:34:56Z'
+      method: GET
+      path: /v1/subscriptions
+      request:
+        name: RetrieveSubscriptionRequest
+        query-parameters:
+          subscription_id:
+            docs: The unique identifier of the subscription
+            type: string
+      response:
+        docs: Successfully retrieved the subscription
+        status-code: 200
+        type: root.SubscriptionEntity
+      source:
+        openapi: definition/openapi/creem-openapi.json
+    updateSubscription:
+      auth: true
+      display-name: Update a subscription.
+      docs: >-
+        Modify subscription details like units, seats, or add-ons. Support
+        proration and immediate billing options.
+      errors:
+        - root.BadRequestError
+        - root.UnauthorizedError
+        - root.NotFoundError
+      examples:
+        - path-parameters:
+            id: id
+          request: {}
+          response:
+            body:
+              canceled_at: '2024-09-12T12:34:56Z'
+              collection_method: charge_automatically
+              created_at: '2024-01-01T00:00:00Z'
+              current_period_end_date: '2024-09-12T12:34:56Z'
+              current_period_start_date: '2024-09-12T12:34:56Z'
+              customer:
+                country: US
+                created_at: '2023-01-01T00:00:00Z'
+                email: user@example.com
+                id: id
+                mode: test
+                name: John Doe
+                object: object
+                updated_at: '2023-01-01T00:00:00Z'
+              discount:
+                key: value
+              id: id
+              items:
+                - id: id
+                  mode: test
+                  object: object
+                  price_id: price_id
+                  product_id: product_id
+                  units: 1.1
+              last_transaction:
+                amount: 2000
+                amount_paid: 2000
+                created_at: 1.1
+                currency: USD
+                customer: customer
+                description: description
+                discount_amount: 2000
+                id: id
+                mode: test
+                object: transaction
+                order: order
+                period_end: 1.1
+                period_start: 1.1
+                refunded_amount: 2000
+                status: pending
+                subscription: subscription
+                tax_amount: 2000
+                tax_country: US
+                type: payment
+              last_transaction_date: '2024-09-12T12:34:56Z'
+              last_transaction_id: tran_3e6Z6TzvHKdsjEgXnGDEp0
+              mode: test
+              next_transaction_date: '2024-09-12T12:34:56Z'
+              object: subscription
+              product:
+                billing_period: every-month
+                billing_type: recurring
+                created_at: '2023-01-01T00:00:00Z'
+                currency: USD
+                default_success_url: https://example.com/?status=successful
+                description: This is a sample product description.
+                features:
+                  - description: Access to premium course materials.
+                    id: feat_abc123
+                    type: custom
+                id: id
+                image_url: https://example.com/image.jpg
+                mode: test
+                name: name
+                object: object
+                price: 400
+                product_url: https://creem.io/product/prod_123123123123
+                status: active
+                tax_category: saas
+                tax_mode: inclusive
+                updated_at: '2023-01-01T00:00:00Z'
+              status: active
+              updated_at: '2024-09-12T12:34:56Z'
+      method: POST
+      path: /v1/subscriptions/{id}
+      path-parameters:
+        id:
+          docs: The unique identifier of the subscription
+          type: string
+      request:
+        body:
+          properties:
+            items:
+              docs: >-
+                List of subscription items to update/create. If no item ID is
+                provided, the item will be created.
+              type: optional<list<root.UpsertSubscriptionItemEntity>>
+            update_behavior:
+              default: proration-charge
+              docs: The update behavior for the subscription (defaults to proration)
+              type: optional<UpdateSubscriptionRequestEntityUpdateBehavior>
+        content-type: application/json
+        name: UpdateSubscriptionRequestEntity
+      response:
+        docs: Successfully updated a subscription
+        status-code: 200
+        type: root.SubscriptionEntity
+      source:
+        openapi: definition/openapi/creem-openapi.json
+    upgradeSubscription:
+      auth: true
+      display-name: Upgrade a subscription to a different product
+      docs: >-
+        Upgrade a subscription to a different product or plan. Handle proration
+        and plan changes seamlessly.
+      errors:
+        - root.BadRequestError
+        - root.UnauthorizedError
+        - root.NotFoundError
+      examples:
+        - path-parameters:
+            id: id
+          request:
+            product_id: prod_123
+          response:
+            body:
+              canceled_at: '2024-09-12T12:34:56Z'
+              collection_method: charge_automatically
+              created_at: '2024-01-01T00:00:00Z'
+              current_period_end_date: '2024-09-12T12:34:56Z'
+              current_period_start_date: '2024-09-12T12:34:56Z'
+              customer:
+                country: US
+                created_at: '2023-01-01T00:00:00Z'
+                email: user@example.com
+                id: id
+                mode: test
+                name: John Doe
+                object: object
+                updated_at: '2023-01-01T00:00:00Z'
+              discount:
+                key: value
+              id: id
+              items:
+                - id: id
+                  mode: test
+                  object: object
+                  price_id: price_id
+                  product_id: product_id
+                  units: 1.1
+              last_transaction:
+                amount: 2000
+                amount_paid: 2000
+                created_at: 1.1
+                currency: USD
+                customer: customer
+                description: description
+                discount_amount: 2000
+                id: id
+                mode: test
+                object: transaction
+                order: order
+                period_end: 1.1
+                period_start: 1.1
+                refunded_amount: 2000
+                status: pending
+                subscription: subscription
+                tax_amount: 2000
+                tax_country: US
+                type: payment
+              last_transaction_date: '2024-09-12T12:34:56Z'
+              last_transaction_id: tran_3e6Z6TzvHKdsjEgXnGDEp0
+              mode: test
+              next_transaction_date: '2024-09-12T12:34:56Z'
+              object: subscription
+              product:
+                billing_period: every-month
+                billing_type: recurring
+                created_at: '2023-01-01T00:00:00Z'
+                currency: USD
+                default_success_url: https://example.com/?status=successful
+                description: This is a sample product description.
+                features:
+                  - description: Access to premium course materials.
+                    id: feat_abc123
+                    type: custom
+                id: id
+                image_url: https://example.com/image.jpg
+                mode: test
+                name: name
+                object: object
+                price: 400
+                product_url: https://creem.io/product/prod_123123123123
+                status: active
+                tax_category: saas
+                tax_mode: inclusive
+                updated_at: '2023-01-01T00:00:00Z'
+              status: active
+              updated_at: '2024-09-12T12:34:56Z'
+      method: POST
+      path: /v1/subscriptions/{id}/upgrade
+      path-parameters:
+        id:
+          docs: The unique identifier of the subscription
+          type: string
+      request:
+        body:
+          properties:
+            product_id:
+              docs: The ID of the product to upgrade to
+              type: string
+            update_behavior:
+              default: proration-charge-immediately
+              docs: >-
+                The update behavior for the subscription (defaults to
+                proration-charge-immediately)
+              type: optional<UpgradeSubscriptionRequestEntityUpdateBehavior>
+        content-type: application/json
+        name: UpgradeSubscriptionRequestEntity
+      response:
+        docs: Successfully upgraded the subscription
+        status-code: 200
+        type: root.SubscriptionEntity
+      source:
+        openapi: definition/openapi/creem-openapi.json
+  source:
+    openapi: definition/openapi/creem-openapi.json

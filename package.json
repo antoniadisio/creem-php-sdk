@@ -3,9 +3,11 @@
     "private": true,
     "description": "Local Fern tooling for the Creem PHP SDK repository.",
     "scripts": {
-        "fern": "fern",
-        "fern:check": "fern check",
-        "fern:generate": "fern generate"
+        "fern": "node scripts/run-fern.mjs",
+        "fern:check": "node scripts/run-fern.mjs check --local",
+        "fern:definition": "node scripts/run-fern.mjs write-definition --language php",
+        "fern:definition:check": "node scripts/check-fern-definition-sync.mjs",
+        "fern:generate": "node scripts/run-fern.mjs generate"
     },
     "devDependencies": {
         "fern-api": "0.75.3"

@@ -1,0 +1,14 @@
+auth: ApiKey
+auth-schemes:
+  ApiKey:
+    header: x-api-key
+    name: apiKey
+    type: string
+default-environment: production
+display-name: Creem API
+environments:
+  production: https://api.creem.io
+  test: https://test-api.creem.io
+error-discrimination:
+  strategy: status-code
+name: api

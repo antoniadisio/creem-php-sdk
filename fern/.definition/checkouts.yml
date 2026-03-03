@@ -1,0 +1,232 @@
+imports:
+  root: __package__.yml
+service:
+  auth: false
+  base-path: ''
+  endpoints:
+    createCheckout:
+      auth: true
+      display-name: Creates a new checkout session.
+      docs: >-
+        Create a new checkout session to accept one-time payments or start
+        subscriptions. Returns a checkout URL to redirect customers.
+      errors:
+        - root.BadRequestError
+        - root.UnauthorizedError
+        - root.NotFoundError
+      examples:
+        - request:
+            product_id: prod_1234567890
+          response:
+            body:
+              checkout_url: checkout_url
+              custom_fields:
+                - key: key
+                  label: label
+                  optional: true
+                  type: text
+              customer: customer
+              feature:
+                - description: Get access to the full course materials.
+                  file:
+                    files:
+                      - file_name: ebook.pdf
+                        id: file_abc123
+                        size: 1024000
+                        type: application/pdf
+                        url: https://storage.creem.io/files/ebook.pdf
+                  id: feat_abc123
+                  license_key:
+                    activation: 5
+                    created_at: '2023-09-13T00:00:00Z'
+                    id: id
+                    key: ABC123-XYZ456-XYZ456-XYZ456
+                    mode: test
+                    object: object
+                    status: inactive
+                  private_note: >-
+                    Thank you for your purchase! Here is your access code:
+                    XYZ123
+                  type: custom
+              id: id
+              metadata:
+                lastVisit: '2023-04-01'
+                userId: user_123
+                visitCount: 42
+              mode: test
+              object: object
+              order:
+                affiliate: affiliate
+                amount: 2000
+                amount_due: 1900
+                amount_paid: 1900
+                created_at: '2023-09-13T00:00:00Z'
+                currency: USD
+                customer: customer
+                discount: dis_1234567890
+                discount_amount: 100
+                fx_amount: 15
+                fx_currency: EUR
+                fx_rate: 1.2
+                id: id
+                mode: test
+                object: object
+                product: product
+                status: pending
+                sub_total: 1800
+                tax_amount: 200
+                transaction: tx_1234567890
+                type: recurring
+                updated_at: '2023-09-13T00:00:00Z'
+              product: product
+              request_id: request_id
+              status: pending
+              subscription: subscription
+              success_url: https://example.com/return
+              units: 1.1
+      method: POST
+      path: /v1/checkouts
+      request:
+        body:
+          properties:
+            custom_field:
+              availability: deprecated
+              docs: >-
+                DEPRECATED: Use `custom_fields` instead. Collect additional
+                information from your customer using custom fields. Up to 3
+                fields are supported.
+              type: optional<list<root.CustomFieldRequestEntity>>
+            custom_fields:
+              docs: >-
+                Collect additional information from your customer using custom
+                fields. Up to 3 fields are supported.
+              type: optional<list<root.CustomFieldRequestEntity>>
+            customer:
+              docs: >-
+                Customer data for checkout session. This will prefill the
+                customer info on the checkout page.
+              type: optional<root.CustomerRequestEntity>
+            discount_code:
+              docs: Prefill the checkout session with a discount code.
+              type: optional<string>
+            metadata:
+              docs: Metadata for the checkout in the form of key-value pairs
+              type: optional<map<string, unknown>>
+            product_id:
+              docs: The ID of the product associated with the checkout session.
+              type: string
+            request_id:
+              docs: Identify and track each checkout request.
+              type: optional<string>
+            success_url:
+              docs: >-
+                The URL to which the user will be redirected after the checkout
+                process is completed.
+              type: optional<string>
+            units:
+              docs: The number of units for the order.
+              type: optional<double>
+        content-type: application/json
+        name: CreateCheckoutRequest
+      response:
+        docs: Successfully created a checkout session
+        status-code: 200
+        type: root.CheckoutEntity
+      source:
+        openapi: definition/openapi/creem-openapi.json
+    retrieveCheckout:
+      auth: true
+      display-name: Retrieve a checkout session.
+      docs: >-
+        Retrieve details of a checkout session by ID. View status, customer
+        info, and payment details.
+      errors:
+        - root.BadRequestError
+        - root.UnauthorizedError
+        - root.NotFoundError
+      examples:
+        - query-parameters:
+            checkout_id: chk_1234567890
+          response:
+            body:
+              checkout_url: checkout_url
+              custom_fields:
+                - key: key
+                  label: label
+                  optional: true
+                  type: text
+              customer: customer
+              feature:
+                - description: Get access to the full course materials.
+                  file:
+                    files:
+                      - file_name: ebook.pdf
+                        id: file_abc123
+                        size: 1024000
+                        type: application/pdf
+                        url: https://storage.creem.io/files/ebook.pdf
+                  id: feat_abc123
+                  license_key:
+                    activation: 5
+                    created_at: '2023-09-13T00:00:00Z'
+                    id: id
+                    key: ABC123-XYZ456-XYZ456-XYZ456
+                    mode: test
+                    object: object
+                    status: inactive
+                  private_note: >-
+                    Thank you for your purchase! Here is your access code:
+                    XYZ123
+                  type: custom
+              id: id
+              metadata:
+                lastVisit: '2023-04-01'
+                userId: user_123
+                visitCount: 42
+              mode: test
+              object: object
+              order:
+                affiliate: affiliate
+                amount: 2000
+                amount_due: 1900
+                amount_paid: 1900
+                created_at: '2023-09-13T00:00:00Z'
+                currency: USD
+                customer: customer
+                discount: dis_1234567890
+                discount_amount: 100
+                fx_amount: 15
+                fx_currency: EUR
+                fx_rate: 1.2
+                id: id
+                mode: test
+                object: object
+                product: product
+                status: pending
+                sub_total: 1800
+                tax_amount: 200
+                transaction: tx_1234567890
+                type: recurring
+                updated_at: '2023-09-13T00:00:00Z'
+              product: product
+              request_id: request_id
+              status: pending
+              subscription: subscription
+              success_url: https://example.com/return
+              units: 1.1
+      method: GET
+      path: /v1/checkouts
+      request:
+        name: RetrieveCheckoutRequest
+        query-parameters:
+          checkout_id:
+            docs: The ID of the checkout session to retrieve.
+            type: string
+      response:
+        docs: Successfully retrieved the checkout session
+        status-code: 200
+        type: root.CheckoutEntity
+      source:
+        openapi: definition/openapi/creem-openapi.json
+  source:
+    openapi: definition/openapi/creem-openapi.json

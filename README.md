@@ -6,7 +6,8 @@ This repository is being structured around a generated transport and model layer
 
 Current status:
 
-- the OpenAPI source spec is present in this repository
+- the OpenAPI source of truth lives at `fern/definition/openapi/creem-openapi.json`
+- the committed Fern definition is generated into `fern/.definition/`
 - repository scaffolding and local generation tooling are being established
 - PHP source generation and handwritten wrapper implementation will follow in subsequent phases
 
@@ -27,4 +28,7 @@ Planned architecture:
 ```bash
 composer validate
 npm run fern -- --version
+npm run fern:check
+npm run fern:definition
+npm run fern:definition:check
 ```

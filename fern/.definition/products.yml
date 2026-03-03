@@ -1,0 +1,213 @@
+imports:
+  root: __package__.yml
+service:
+  auth: false
+  base-path: ''
+  endpoints:
+    createProduct:
+      auth: true
+      display-name: Creates a new product.
+      docs: >-
+        Create a new product for one-time payments or subscriptions. Configure
+        pricing, billing cycles, and features.
+      errors:
+        - root.BadRequestError
+        - root.UnauthorizedError
+        - root.NotFoundError
+      examples:
+        - request:
+            billing_type: recurring
+            currency: EUR
+            name: name
+            price: 400
+          response:
+            body:
+              billing_period: every-month
+              billing_type: recurring
+              created_at: '2023-01-01T00:00:00Z'
+              currency: USD
+              default_success_url: https://example.com/?status=successful
+              description: This is a sample product description.
+              features:
+                - description: Access to premium course materials.
+                  id: feat_abc123
+                  type: custom
+              id: id
+              image_url: https://example.com/image.jpg
+              mode: test
+              name: name
+              object: object
+              price: 400
+              product_url: https://creem.io/product/prod_123123123123
+              status: active
+              tax_category: saas
+              tax_mode: inclusive
+              updated_at: '2023-01-01T00:00:00Z'
+      method: POST
+      path: /v1/products
+      request:
+        body:
+          properties:
+            abandoned_cart_recovery_enabled:
+              default: false
+              docs: Enable abandoned cart recovery for this product
+              type: optional<boolean>
+            billing_period: optional<root.ProductRequestBillingPeriod>
+            billing_type: root.ProductRequestBillingType
+            currency: root.ProductCurrency
+            custom_field:
+              availability: deprecated
+              docs: >-
+                DEPRECATED: Use `custom_fields` instead. Collect additional
+                information from your customer using custom fields during
+                checkout. Up to 3 fields are supported.
+              type: optional<list<root.CustomFieldRequestEntity>>
+            custom_fields:
+              docs: >-
+                Collect additional information from your customer using custom
+                fields during checkout. Up to 3 fields are supported.
+              type: optional<list<root.CustomFieldRequestEntity>>
+            default_success_url:
+              docs: >-
+                The URL to which the user will be redirected after successfull
+                payment.
+              type: optional<string>
+            description:
+              docs: Description of the product
+              type: optional<string>
+            image_url:
+              docs: URL of the product image
+              type: optional<string>
+            name:
+              docs: Name of the product
+              type: string
+            price:
+              docs: 'The price of the product in cents '
+              type: integer
+              validation:
+                min: 100
+            tax_category: optional<root.TaxCategory>
+            tax_mode: optional<root.TaxMode>
+        content-type: application/json
+        name: CreateProductRequestEntity
+      response:
+        docs: Successfully created a product
+        status-code: 200
+        type: root.ProductEntity
+      source:
+        openapi: definition/openapi/creem-openapi.json
+    retrieveProduct:
+      auth: true
+      display-name: Retrieve a product
+      docs: >-
+        Retrieve product details by ID. View pricing, billing type, status, and
+        product configuration.
+      errors:
+        - root.BadRequestError
+        - root.UnauthorizedError
+        - root.NotFoundError
+      examples:
+        - query-parameters:
+            product_id: prod_1234567890
+          response:
+            body:
+              billing_period: every-month
+              billing_type: recurring
+              created_at: '2023-01-01T00:00:00Z'
+              currency: USD
+              default_success_url: https://example.com/?status=successful
+              description: This is a sample product description.
+              features:
+                - description: Access to premium course materials.
+                  id: feat_abc123
+                  type: custom
+              id: id
+              image_url: https://example.com/image.jpg
+              mode: test
+              name: name
+              object: object
+              price: 400
+              product_url: https://creem.io/product/prod_123123123123
+              status: active
+              tax_category: saas
+              tax_mode: inclusive
+              updated_at: '2023-01-01T00:00:00Z'
+      method: GET
+      path: /v1/products
+      request:
+        name: RetrieveProductRequest
+        query-parameters:
+          product_id:
+            docs: The unique identifier of the product.
+            type: string
+      response:
+        docs: Successfully retrieved the product
+        status-code: 200
+        type: root.ProductEntity
+      source:
+        openapi: definition/openapi/creem-openapi.json
+    searchProducts:
+      auth: true
+      display-name: List all products
+      docs: >-
+        Search and retrieve a paginated list of products. Filter by status,
+        billing type, and other criteria.
+      errors:
+        - root.BadRequestError
+        - root.UnauthorizedError
+        - root.NotFoundError
+      examples:
+        - query-parameters:
+            page_number: 1
+            page_size: 10
+          response:
+            body:
+              items:
+                - billing_period: every-month
+                  billing_type: recurring
+                  created_at: '2023-01-01T00:00:00Z'
+                  currency: USD
+                  default_success_url: https://example.com/?status=successful
+                  description: This is a sample product description.
+                  features:
+                    - description: Access to premium course materials.
+                      id: feat_abc123
+                      type: custom
+                  id: id
+                  image_url: https://example.com/image.jpg
+                  mode: test
+                  name: name
+                  object: object
+                  price: 400
+                  product_url: https://creem.io/product/prod_123123123123
+                  status: active
+                  tax_category: saas
+                  tax_mode: inclusive
+                  updated_at: '2023-01-01T00:00:00Z'
+              pagination:
+                current_page: 1
+                next_page: 2
+                prev_page: 1.1
+                total_pages: 0
+                total_records: 0
+      method: GET
+      path: /v1/products/search
+      request:
+        name: SearchProductsRequest
+        query-parameters:
+          page_number:
+            default: 1
+            docs: The page number for pagination.
+            type: optional<nullable<double>>
+          page_size:
+            default: 10
+            docs: The number of items per page.
+            type: optional<nullable<double>>
+      response:
+        docs: Successfully retrieved products
+        status-code: 200
+        type: root.ProductListEntity
+      source:
+        openapi: definition/openapi/creem-openapi.json
+  source:
+    openapi: definition/openapi/creem-openapi.json

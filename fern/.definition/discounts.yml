@@ -1,0 +1,195 @@
+imports:
+  root: __package__.yml
+service:
+  auth: false
+  base-path: ''
+  endpoints:
+    createDiscount:
+      auth: true
+      display-name: Create a discount.
+      docs: >-
+        Create promotional discount codes for products. Set percentage or fixed
+        amount discounts with expiration dates.
+      errors:
+        - root.BadRequestError
+        - root.UnauthorizedError
+        - root.NotFoundError
+      examples:
+        - request:
+            applies_to_products:
+              - prod_123
+              - prod_456
+            duration: forever
+            name: Holiday Sale
+            type: percentage
+          response:
+            body:
+              amount: 20
+              applies_to_products:
+                - prod_123
+                - prod_456
+              code: HOLIDAY2024
+              currency: USD
+              duration: forever
+              duration_in_months: 6
+              expiry_date: '2024-12-31T23:59:59Z'
+              id: id
+              max_redemptions: 100
+              mode: test
+              name: Holiday Sale
+              object: discount
+              percentage: 15
+              redeem_count: 15
+              status: active
+              type: percentage
+      method: POST
+      path: /v1/discounts
+      request:
+        body:
+          properties:
+            amount:
+              docs: >-
+                The fixed value for the discount. Only applicable if the type is
+                "fixed".
+              type: optional<double>
+            applies_to_products:
+              docs: The list of product IDs to which this discount applies.
+              type: list<string>
+            code:
+              docs: Optional discount code. If left empty, a code will be generated.
+              type: optional<string>
+            currency:
+              docs: The currency of the discount. Only required if type is "fixed".
+              type: optional<string>
+            duration: root.CouponDurationType
+            duration_in_months:
+              docs: >-
+                The number of months the discount is valid for. Only applicable
+                if the duration is "repeating" and the product is a
+                subscription.
+              type: optional<double>
+            expiry_date:
+              docs: The expiry date of the discount.
+              type: optional<datetime>
+            max_redemptions:
+              docs: The maximum number of redemptions for the discount.
+              type: optional<double>
+            name:
+              docs: The name of the discount.
+              type: string
+            percentage:
+              docs: >-
+                The percentage value for the discount. Only applicable if the
+                type is "percentage".
+              type: optional<double>
+            type: root.DiscountType
+        content-type: application/json
+        name: CreateDiscountRequestEntity
+      response:
+        docs: Successfully created a discount
+        status-code: 200
+        type: root.DiscountEntity
+      source:
+        openapi: definition/openapi/creem-openapi.json
+    deleteDiscount:
+      auth: true
+      display-name: Delete a discount.
+      docs: >-
+        Permanently delete a discount code. Prevent further usage of the
+        discount.
+      errors:
+        - root.BadRequestError
+        - root.UnauthorizedError
+        - root.NotFoundError
+      examples:
+        - path-parameters:
+            id: id
+          response:
+            body:
+              amount: 20
+              applies_to_products:
+                - prod_123
+                - prod_456
+              code: HOLIDAY2024
+              currency: USD
+              duration: forever
+              duration_in_months: 6
+              expiry_date: '2024-12-31T23:59:59Z'
+              id: id
+              max_redemptions: 100
+              mode: test
+              name: Holiday Sale
+              object: discount
+              percentage: 15
+              redeem_count: 15
+              status: active
+              type: percentage
+      method: DELETE
+      path: /v1/discounts/{id}/delete
+      path-parameters:
+        id:
+          docs: The unique identifier of the discount to delete
+          type: string
+      response:
+        docs: Successfully deleted a discount
+        status-code: 200
+        type: root.DiscountEntity
+      source:
+        openapi: definition/openapi/creem-openapi.json
+    retrieveDiscount:
+      auth: true
+      display-name: Retrieve discount
+      docs: >-
+        Retrieve discount code details by ID or code. Check usage limits,
+        expiration, and discount amount.
+      errors:
+        - root.BadRequestError
+        - root.UnauthorizedError
+        - root.NotFoundError
+      examples:
+        - query-parameters:
+            discount_code: SAVE20
+            discount_id: disc_1234567890
+          response:
+            body:
+              amount: 20
+              applies_to_products:
+                - prod_123
+                - prod_456
+              code: HOLIDAY2024
+              currency: USD
+              duration: forever
+              duration_in_months: 6
+              expiry_date: '2024-12-31T23:59:59Z'
+              id: id
+              max_redemptions: 100
+              mode: test
+              name: Holiday Sale
+              object: discount
+              percentage: 15
+              redeem_count: 15
+              status: active
+              type: percentage
+      method: GET
+      path: /v1/discounts
+      request:
+        name: RetrieveDiscountRequest
+        query-parameters:
+          discount_code:
+            docs: >-
+              The unique discount code (provide either discount_id OR
+              discount_code).
+            type: optional<nullable<string>>
+          discount_id:
+            docs: >-
+              The unique identifier of the discount (provide either discount_id
+              OR discount_code).
+            type: optional<nullable<string>>
+      response:
+        docs: Successfully retrieved the discount
+        status-code: 200
+        type: root.DiscountEntity
+      source:
+        openapi: definition/openapi/creem-openapi.json
+  source:
+    openapi: definition/openapi/creem-openapi.json

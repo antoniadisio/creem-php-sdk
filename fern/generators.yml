@@ -1,0 +1,5 @@
+api:
+  specs:
+    - openapi: definition/openapi/creem-openapi.json
+      settings:
+        respect-nullable-schemas: true

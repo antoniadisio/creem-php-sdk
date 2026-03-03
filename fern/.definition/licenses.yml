@@ -1,0 +1,161 @@
+imports:
+  root: __package__.yml
+service:
+  auth: false
+  base-path: ''
+  endpoints:
+    activateLicense:
+      auth: true
+      display-name: Activates a license key.
+      docs: >-
+        Activate a license key for a specific device or instance. Register new
+        activations and track usage limits.
+      errors:
+        - root.BadRequestError
+        - root.UnauthorizedError
+        - root.NotFoundError
+      examples:
+        - request:
+            instance_name: instance_name
+            key: key
+          response:
+            body:
+              activation: 5
+              activation_limit: 1
+              created_at: '2023-09-13T00:00:00Z'
+              expires_at: '2023-09-13T00:00:00Z'
+              id: id
+              instance:
+                created_at: '2023-09-13T00:00:00Z'
+                id: id
+                mode: test
+                name: My Customer License Instance
+                object: license-instance
+                status: active
+              key: ABC123-XYZ456-XYZ456-XYZ456
+              mode: test
+              object: object
+              status: inactive
+      method: POST
+      path: /v1/licenses/activate
+      request:
+        body:
+          properties:
+            instance_name:
+              docs: A label for the new instance to identify it in Creem.
+              type: string
+            key:
+              docs: The license key to activate.
+              type: string
+        content-type: application/json
+        name: ActivateLicenseRequestEntity
+      response:
+        docs: Successfully activated a license key
+        status-code: 200
+        type: root.LicenseEntity
+      source:
+        openapi: definition/openapi/creem-openapi.json
+    deactivateLicense:
+      auth: true
+      display-name: Deactivate a license key instance.
+      docs: >-
+        Remove a device activation from a license key. Free up activation slots
+        for new devices.
+      errors:
+        - root.BadRequestError
+        - root.UnauthorizedError
+        - root.NotFoundError
+      examples:
+        - request:
+            instance_id: instance_id
+            key: key
+          response:
+            body:
+              activation: 5
+              activation_limit: 1
+              created_at: '2023-09-13T00:00:00Z'
+              expires_at: '2023-09-13T00:00:00Z'
+              id: id
+              instance:
+                created_at: '2023-09-13T00:00:00Z'
+                id: id
+                mode: test
+                name: My Customer License Instance
+                object: license-instance
+                status: active
+              key: ABC123-XYZ456-XYZ456-XYZ456
+              mode: test
+              object: object
+              status: inactive
+      method: POST
+      path: /v1/licenses/deactivate
+      request:
+        body:
+          properties:
+            instance_id:
+              docs: Id of the instance to deactivate.
+              type: string
+            key:
+              docs: The license key to deactivate.
+              type: string
+        content-type: application/json
+        name: DeactivateLicenseRequestEntity
+      response:
+        docs: Successfully deactivated a license key instance
+        status-code: 200
+        type: root.LicenseEntity
+      source:
+        openapi: definition/openapi/creem-openapi.json
+    validateLicense:
+      auth: true
+      display-name: Validates a license key or instance.
+      docs: >-
+        Verify if a license key is valid and active for a specific instance.
+        Check activation status and expiration.
+      errors:
+        - root.BadRequestError
+        - root.UnauthorizedError
+        - root.NotFoundError
+      examples:
+        - request:
+            instance_id: instance_id
+            key: key
+          response:
+            body:
+              activation: 5
+              activation_limit: 1
+              created_at: '2023-09-13T00:00:00Z'
+              expires_at: '2023-09-13T00:00:00Z'
+              id: id
+              instance:
+                created_at: '2023-09-13T00:00:00Z'
+                id: id
+                mode: test
+                name: My Customer License Instance
+                object: license-instance
+                status: active
+              key: ABC123-XYZ456-XYZ456-XYZ456
+              mode: test
+              object: object
+              status: inactive
+      method: POST
+      path: /v1/licenses/validate
+      request:
+        body:
+          properties:
+            instance_id:
+              docs: Id of the instance to validate.
+              type: string
+            key:
+              docs: The license key to validate.
+              type: string
+        content-type: application/json
+        name: ValidateLicenseRequestEntity
+      response:
+        docs: Successfully validated a license key instance
+        status-code: 200
+        type: root.LicenseEntity
+      source:
+        openapi: definition/openapi/creem-openapi.json
+  source:
+    openapi: definition/openapi/creem-openapi.json

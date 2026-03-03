@@ -100,6 +100,7 @@ Do not duplicate every DTO by default. Only add handwritten DTOs when the genera
 Use a single-repo layout that keeps Fern config, the source OpenAPI spec, generated code, handwritten wrappers, and docs sources together:
 
 - `fern/`
+- `fern/.definition/`
 - `fern/definition/`
 - `fern/definition/openapi/`
 - `fern/definition/openapi/creem-openapi.json`
@@ -177,8 +178,9 @@ Convert the existing `creem-openapi.json` into a Fern-managed API definition wit
 3. Initialize Fern config in `fern/`.
 4. Configure Fern to import or generate from the OpenAPI file into its definition structure.
 5. Commit the generated Fern definition files that are intended to be source-controlled.
-6. Document the regeneration command in both `README.md` and package scripts.
-7. Add a validation script that fails if the OpenAPI source and derived Fern definition are out of sync.
+6. Wrap Fern CLI execution through a repository script that sets a repo-local `HOME` and disables telemetry/version redirection so local `npm run fern:*` commands work reliably in restricted environments.
+7. Document the regeneration command in both `README.md` and package scripts.
+8. Add a validation script that fails if the OpenAPI source and derived Fern definition are out of sync.
 
 ### Spec Audit Tasks
 
@@ -198,7 +200,7 @@ The current spec already contains `allOf` and `oneOf`, so this audit is mandator
 ### Acceptance Criteria
 
 - Fern can validate the imported API definition locally
-- the imported definition is deterministic and committed
+- the imported definition is deterministic and committed (under Fern's current local output path, `fern/.definition/`)
 - known spec issues are captured in `docs/spec-audit.md` or explicit TODOs
 
 ## Phase 3 - Configure Fern PHP Generation for a Repo-Friendly Output

@@ -1,0 +1,1066 @@
+types:
+  Checkbox:
+    properties:
+      label:
+        docs: The markdown text to display for the checkbox.
+        type: optional<nullable<string>>
+      value:
+        docs: The value of the checkbox (checked or not).
+        type: optional<nullable<boolean>>
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  CheckboxFieldConfig:
+    properties:
+      label:
+        docs: The markdown text to display for the checkbox.
+        type: optional<string>
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  CheckoutEntity:
+    properties:
+      checkout_url:
+        docs: >-
+          The URL to which the customer will be redirected to complete the
+          payment.
+        type: optional<string>
+      custom_fields:
+        docs: >-
+          Additional information collected from your customer during the
+          checkout process.
+        type: optional<list<CustomField>>
+      customer:
+        docs: The customer associated with the checkout session.
+        type: optional<CheckoutEntityCustomer>
+      feature:
+        docs: Features issued for the order.
+        type: optional<list<ProductFeatureEntity>>
+      id:
+        docs: Unique identifier for the object.
+        type: string
+      metadata:
+        docs: Metadata for the checkout in the form of key-value pairs
+        type: optional<map<string, unknown>>
+      mode: EnvironmentMode
+      object:
+        docs: >-
+          String representing the object's type. Objects of the same type share
+          the same value.
+        type: string
+      order:
+        docs: The order associated with the checkout session.
+        type: optional<OrderEntity>
+      product:
+        docs: The product associated with the checkout session.
+        type: CheckoutEntityProduct
+      request_id:
+        docs: Identify and track each checkout request.
+        type: optional<string>
+      status:
+        docs: Status of the checkout.
+        type: CheckoutEntityStatus
+      subscription:
+        docs: The subscription associated with the checkout session.
+        type: optional<CheckoutEntitySubscription>
+      success_url:
+        docs: >-
+          The URL to which the user will be redirected after the checkout
+          process is completed.
+        type: optional<nullable<string>>
+      units:
+        default: 1
+        docs: The number of units for the of the product.
+        type: optional<double>
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  CheckoutEntityCustomer:
+    discriminated: false
+    docs: The customer associated with the checkout session.
+    inline: true
+    source:
+      openapi: definition/openapi/creem-openapi.json
+    union:
+      - string
+      - CustomerEntity
+  CheckoutEntityProduct:
+    discriminated: false
+    docs: The product associated with the checkout session.
+    inline: true
+    source:
+      openapi: definition/openapi/creem-openapi.json
+    union:
+      - string
+      - ProductEntity
+  CheckoutEntityStatus:
+    docs: Status of the checkout.
+    enum:
+      - pending
+      - processing
+      - completed
+      - expired
+    inline: true
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  CheckoutEntitySubscription:
+    discriminated: false
+    docs: The subscription associated with the checkout session.
+    inline: true
+    source:
+      openapi: definition/openapi/creem-openapi.json
+    union:
+      - string
+      - SubscriptionEntity
+  CouponDurationType:
+    docs: The duration type for the discount.
+    enum:
+      - forever
+      - once
+      - repeating
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  CustomerEntity:
+    properties:
+      country:
+        docs: The ISO alpha-2 country code for the customer.
+        type: string
+        validation:
+          pattern: ^[A-Z]{2}$
+      created_at:
+        docs: Creation date of the product
+        type: datetime
+      email:
+        docs: Customer email address.
+        type: string
+      id:
+        docs: Unique identifier for the object.
+        type: string
+      mode: EnvironmentMode
+      name:
+        docs: Customer name.
+        type: optional<nullable<string>>
+      object:
+        docs: >-
+          String representing the object’s type. Objects of the same type share
+          the same value.
+        type: string
+      updated_at:
+        docs: Last updated date of the product
+        type: datetime
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  CustomerLinksEntity:
+    properties:
+      customer_portal_link:
+        docs: Customer portal link.
+        type: string
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  CustomerListEntity:
+    properties:
+      items:
+        docs: List of customer items
+        type: list<CustomerEntity>
+      pagination:
+        docs: Pagination details for the list
+        type: PaginationEntity
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  CustomerRequestEntity:
+    properties:
+      email:
+        docs: >-
+          Customer email address. You may only specify one of these parameters:
+          id, email.
+        type: optional<string>
+      id:
+        docs: >-
+          Unique identifier of the customer. You may specify only one of these
+          parameters: id or email.
+        type: optional<string>
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  CustomField:
+    properties:
+      checkbox:
+        docs: Configuration for checkbox field type.
+        type: optional<nullable<Checkbox>>
+      key:
+        docs: >-
+          Unique key for custom field. Must be unique to this field,
+          alphanumeric, and up to 200 characters.
+        type: string
+        validation:
+          maxLength: 200
+      label:
+        docs: >-
+          The label for the field, displayed to the customer, up to 50
+          characters
+        type: string
+        validation:
+          maxLength: 200
+      optional:
+        docs: >-
+          Whether the customer is required to complete the field. Defaults to
+          `false`.
+        type: optional<nullable<boolean>>
+      text:
+        docs: Configuration for text field type.
+        type: optional<nullable<Text>>
+      type: CustomFieldType
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  CustomFieldRequestEntity:
+    properties:
+      checkbox:
+        docs: Configuration for checkbox field type.
+        type: optional<CheckboxFieldConfig>
+      key:
+        docs: >-
+          Unique key for custom field. Must be unique to this field,
+          alphanumeric, and up to 200 characters.
+        type: string
+        validation:
+          maxLength: 200
+      label:
+        docs: >-
+          The label for the field, displayed to the customer, up to 50
+          characters.
+        type: string
+        validation:
+          maxLength: 50
+      optional:
+        docs: >-
+          Whether the customer is required to complete the field. Defaults to
+          `false`
+        type: optional<boolean>
+      text:
+        docs: Configuration for text field type.
+        type: optional<TextFieldConfig>
+      type: CustomFieldRequestType
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  CustomFieldRequestType:
+    docs: The type of the field.
+    enum:
+      - text
+      - checkbox
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  CustomFieldType:
+    docs: The type of the field.
+    enum:
+      - text
+      - checkbox
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  DiscountEntity:
+    properties:
+      amount:
+        docs: The amount of the discount. Can be a percentage or a fixed amount.
+        type: optional<double>
+      applies_to_products:
+        docs: The list of product IDs to which this discount applies.
+        type: optional<list<string>>
+      code:
+        docs: The discount code. A unique identifier for the discount.
+        type: string
+      currency:
+        docs: The currency of the discount. Only required if type is "fixed".
+        type: optional<string>
+      duration:
+        docs: The duration type for the discount.
+        type: optional<DiscountEntityDuration>
+      duration_in_months:
+        docs: >-
+          The number of months the discount is valid for. Only applicable if the
+          duration is "repeating" and the product is a subscription.
+        type: optional<double>
+      expiry_date:
+        docs: The expiry date of the discount.
+        type: optional<datetime>
+      id:
+        docs: Unique identifier for the object.
+        type: string
+      max_redemptions:
+        docs: The maximum number of redemptions allowed for the discount.
+        type: optional<double>
+      mode: EnvironmentMode
+      name:
+        docs: The name of the discount.
+        type: string
+      object:
+        docs: >-
+          A string representing the object’s type. Objects of the same type
+          share the same value.
+        type: string
+      percentage:
+        docs: >-
+          The percentage of the discount. Only applicable if type is
+          "percentage".
+        type: optional<double>
+      redeem_count:
+        docs: The number of times this discount has been redeemed.
+        type: optional<double>
+      status:
+        docs: The status of the discount (e.g., active, inactive).
+        type: DiscountEntityStatus
+      type:
+        docs: The type of the discount, either "percentage" or "fixed".
+        type: DiscountEntityType
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  DiscountEntityDuration:
+    docs: The duration type for the discount.
+    enum:
+      - forever
+      - once
+      - repeating
+    inline: true
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  DiscountEntityStatus:
+    docs: The status of the discount (e.g., active, inactive).
+    enum:
+      - active
+      - draft
+      - expired
+      - scheduled
+    inline: true
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  DiscountEntityType:
+    docs: The type of the discount, either "percentage" or "fixed".
+    enum:
+      - percentage
+      - fixed
+    inline: true
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  DiscountType:
+    docs: The type of the discount, either "percentage" or "fixed".
+    enum:
+      - percentage
+      - fixed
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  EnvironmentMode:
+    docs: String representing the environment.
+    enum:
+      - test
+      - prod
+      - sandbox
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  FeatureEntity:
+    properties:
+      description:
+        docs: A brief description of the feature.
+        type: string
+      id:
+        docs: Unique identifier for the feature.
+        type: string
+      type: ProductFeatureType
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  FeatureFileEntity:
+    properties:
+      file_name:
+        docs: The name of the file.
+        type: string
+      id:
+        docs: Unique identifier for the file.
+        type: string
+      size:
+        docs: The size of the file in bytes.
+        type: double
+      type:
+        docs: The MIME type of the file.
+        type: string
+      url:
+        docs: The URL to download the file.
+        type: string
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  FileFeatureEntity:
+    properties:
+      files:
+        docs: List of downloadable files.
+        type: list<FeatureFileEntity>
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  LicenseEntity:
+    properties:
+      activation:
+        docs: The number of instances that this license key was activated.
+        type: double
+      activation_limit:
+        docs: The activation limit. Null if activations are unlimited.
+        type: optional<nullable<double>>
+      created_at:
+        docs: The creation date of the license key.
+        type: datetime
+      expires_at:
+        docs: >-
+          The date the license key expires. Null if it does not have an
+          expiration date.
+        type: optional<nullable<datetime>>
+      id:
+        docs: Unique identifier for the object.
+        type: string
+      instance:
+        docs: Associated license instances.
+        type: optional<nullable<LicenseInstanceEntity>>
+      key:
+        docs: The license key.
+        type: string
+      mode: EnvironmentMode
+      object:
+        docs: >-
+          A string representing the object’s type. Objects of the same type
+          share the same value.
+        type: string
+      status: LicenseStatus
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  LicenseInstanceEntity:
+    properties:
+      created_at:
+        docs: The creation date of the license instance.
+        type: datetime
+      id:
+        docs: Unique identifier for the object.
+        type: string
+      mode: EnvironmentMode
+      name:
+        docs: The name of the license instance.
+        type: string
+      object:
+        docs: >-
+          A string representing the object’s type. Objects of the same type
+          share the same value.
+        type: string
+      status:
+        docs: The status of the license instance.
+        type: LicenseInstanceEntityStatus
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  LicenseInstanceEntityStatus:
+    docs: The status of the license instance.
+    enum:
+      - active
+      - deactivated
+    inline: true
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  LicenseStatus:
+    docs: The current status of the license key.
+    enum:
+      - inactive
+      - active
+      - expired
+      - disabled
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  OrderEntity:
+    properties:
+      affiliate:
+        docs: The affiliate associated with the order, if applicable.
+        type: optional<nullable<string>>
+      amount:
+        docs: The total amount of the order in cents. 1000 = $10.00
+        type: double
+      amount_due:
+        docs: The amount due for the order in cents. 1000 = $10.00
+        type: optional<double>
+      amount_paid:
+        docs: The amount paid for the order in cents. 1000 = $10.00
+        type: optional<double>
+      created_at:
+        docs: Creation date of the order
+        type: datetime
+      currency:
+        docs: >-
+          Three-letter ISO currency code, in uppercase. Must be a supported
+          currency.
+        type: string
+      customer:
+        docs: The customer who placed the order.
+        type: optional<nullable<string>>
+      discount:
+        docs: The discount ID of the order
+        type: optional<nullable<string>>
+      discount_amount:
+        docs: The discount amount of the order in cents. 1000 = $10.00
+        type: optional<double>
+      fx_amount:
+        docs: The amount in the foreign currency, if applicable.
+        type: optional<nullable<double>>
+      fx_currency:
+        docs: Three-letter ISO code of the foreign currency, if applicable.
+        type: optional<nullable<string>>
+      fx_rate:
+        docs: >-
+          The exchange rate used for converting between currencies, if
+          applicable.
+        type: optional<nullable<double>>
+      id:
+        docs: Unique identifier for the object.
+        type: string
+      mode: EnvironmentMode
+      object:
+        docs: >-
+          String representing the object's type. Objects of the same type share
+          the same value.
+        type: string
+      product:
+        docs: The product associated with the order.
+        type: string
+      status: OrderStatus
+      sub_total:
+        docs: The subtotal of the order in cents. 1000 = $10.00
+        type: optional<double>
+      tax_amount:
+        docs: The tax amount of the order in cents. 1000 = $10.00
+        type: optional<double>
+      transaction:
+        docs: The transaction ID of the order
+        type: optional<nullable<string>>
+      type: OrderType
+      updated_at:
+        docs: Last updated date of the order
+        type: datetime
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  OrderStatus:
+    docs: Current status of the order.
+    enum:
+      - pending
+      - paid
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  OrderType:
+    docs: >-
+      The type of order. This can specify whether it's a regular purchase,
+      subscription, etc.
+    enum:
+      - recurring
+      - onetime
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  PaginationEntity:
+    properties:
+      current_page:
+        docs: The current page number
+        type: double
+      next_page:
+        docs: The next page number, or null if there is no next page
+        type: optional<nullable<double>>
+      prev_page:
+        docs: The previous page number, or null if there is no previous page
+        type: optional<nullable<double>>
+      total_pages:
+        docs: Total number of pages available
+        type: double
+      total_records:
+        docs: Total number of records in the list
+        type: double
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  ProductBillingPeriod:
+    docs: Billing period
+    enum:
+      - name: EveryMonth
+        value: every-month
+      - name: EveryThreeMonths
+        value: every-three-months
+      - name: EverySixMonths
+        value: every-six-months
+      - name: EveryYear
+        value: every-year
+      - once
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  ProductBillingType:
+    docs: >-
+      Indicates the billing method for the customer. It can either be a
+      `recurring` billing cycle or a `onetime` payment.
+    enum:
+      - recurring
+      - onetime
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  ProductCurrency:
+    docs: >-
+      Three-letter ISO currency code, in uppercase. Must be a supported
+      currency.
+    enum:
+      - EUR
+      - USD
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  ProductEntity:
+    properties:
+      billing_period: ProductBillingPeriod
+      billing_type: ProductBillingType
+      created_at:
+        docs: Creation date of the product
+        type: datetime
+      currency:
+        docs: >-
+          Three-letter ISO currency code, in uppercase. Must be a supported
+          currency.
+        type: string
+      default_success_url:
+        docs: >-
+          The URL to which the user will be redirected after successfull
+          payment.
+        type: optional<nullable<string>>
+      description:
+        docs: A brief description of the product
+        type: string
+      features:
+        docs: Features of the product.
+        type: optional<list<FeatureEntity>>
+      id:
+        docs: Unique identifier for the object.
+        type: string
+      image_url:
+        docs: URL of the product image. Only png as jpg are supported
+        type: optional<string>
+      mode: EnvironmentMode
+      name:
+        docs: The name of the product
+        type: string
+      object:
+        docs: >-
+          String representing the object's type. Objects of the same type share
+          the same value.
+        type: string
+      price:
+        docs: The price of the product in cents. 1000 = $10.00
+        type: double
+      product_url:
+        docs: >-
+          The product page you can redirect your customers to for express
+          checkout.
+        type: optional<string>
+      status: ProductStatus
+      tax_category: TaxCategory
+      tax_mode: TaxMode
+      updated_at:
+        docs: Last updated date of the product
+        type: datetime
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  ProductFeatureEntity:
+    properties:
+      description:
+        docs: A brief description of the feature.
+        type: optional<nullable<string>>
+      file:
+        docs: File feature data containing downloadable files.
+        type: optional<nullable<FileFeatureEntity>>
+      id:
+        docs: Unique identifier for the feature.
+        type: optional<nullable<string>>
+      license:
+        availability: deprecated
+        docs: >-
+          DEPRECATED: Use `license_key` instead. License key issued for the
+          order.
+        type: optional<nullable<LicenseEntity>>
+      license_key:
+        docs: License key issued for the order.
+        type: optional<nullable<LicenseEntity>>
+      private_note:
+        docs: >-
+          Private note from the seller. This is only visible to the customer
+          after purchase.
+        type: optional<nullable<string>>
+      type: optional<ProductFeatureType>
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  ProductFeatureType:
+    docs: >-
+      The type of the feature: privateNote (custom note), file (downloadable
+      files), or licenseKey (license key).
+    enum:
+      - custom
+      - file
+      - licenseKey
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  ProductListEntity:
+    properties:
+      items:
+        docs: List of product items
+        type: list<ProductEntity>
+      pagination:
+        docs: Pagination details for the list
+        type: PaginationEntity
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  ProductRequestBillingPeriod:
+    docs: Billing period, required if billing_type is recurring
+    enum:
+      - once
+      - name: EveryMonth
+        value: every-month
+      - name: EveryThreeMonths
+        value: every-three-months
+      - name: EverySixMonths
+        value: every-six-months
+      - name: EveryYear
+        value: every-year
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  ProductRequestBillingType:
+    docs: >-
+      Indicates the billing method for the customer. It can either be a
+      `recurring` billing cycle or a `onetime` payment.
+    enum:
+      - recurring
+      - onetime
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  ProductStatus:
+    docs: Status of the product
+    enum:
+      - active
+      - archived
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  StatsMetricPeriodEntity:
+    properties:
+      grossRevenue:
+        docs: Gross revenue in cents for this period
+        type: double
+      netRevenue:
+        docs: Net revenue in cents for this period (after fees and taxes)
+        type: double
+      timestamp:
+        docs: >-
+          Start of the period as a Unix timestamp in milliseconds (e.g. Monday
+          of that week for weekly intervals)
+        type: double
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  StatsMetricTotalsEntity:
+    properties:
+      activeSubscriptions:
+        docs: Number of currently active subscriptions
+        type: double
+      monthlyRecurringRevenue:
+        docs: Gross monthly recurring revenue in cents
+        type: double
+      netMonthlyRecurringRevenue:
+        docs: Net monthly recurring revenue in cents (after estimated fees)
+        type: double
+      totalCustomers:
+        docs: Total number of customers within the queried date range
+        type: double
+      totalNetRevenue:
+        docs: >-
+          Total net revenue in cents within the queried date range (after fees
+          and taxes)
+        type: double
+      totalPayments:
+        docs: Total number of payments within the queried date range
+        type: double
+      totalProducts:
+        docs: Total number of products in the store
+        type: double
+      totalRevenue:
+        docs: Total gross revenue in cents within the queried date range
+        type: double
+      totalSubscriptions:
+        docs: Total number of subscriptions within the queried date range
+        type: double
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  StatsSummaryEntity:
+    properties:
+      periods:
+        docs: >-
+          Time-series data points grouped by the requested interval. Only
+          present when interval, startDate, and endDate are provided.
+        type: optional<list<StatsMetricPeriodEntity>>
+      totals:
+        docs: Aggregated totals for the queried date range
+        type: StatsMetricTotalsEntity
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  SubscriptionCollectionMethod:
+    docs: The method used for collecting payments for the subscription.
+    type: literal<"charge_automatically">
+  SubscriptionEntity:
+    properties:
+      canceled_at:
+        docs: The date and time when the subscription was canceled, if applicable.
+        type: optional<nullable<datetime>>
+      collection_method: SubscriptionCollectionMethod
+      created_at:
+        docs: The date and time when the subscription was created.
+        type: datetime
+      current_period_end_date:
+        docs: The end date of the current subscription period.
+        type: optional<datetime>
+      current_period_start_date:
+        docs: The start date of the current subscription period.
+        type: optional<datetime>
+      customer:
+        docs: The customer who owns the subscription.
+        type: SubscriptionEntityCustomer
+      discount:
+        docs: The discount code applied to the subscription, if any.
+        type: optional<map<string, unknown>>
+      id:
+        docs: Unique identifier for the object.
+        type: string
+      items:
+        docs: Subscription items.
+        type: optional<list<SubscriptionItemEntity>>
+      last_transaction:
+        docs: The last paid transaction.
+        type: optional<TransactionEntity>
+      last_transaction_date:
+        docs: The date of the last paid transaction.
+        type: optional<datetime>
+      last_transaction_id:
+        docs: The ID of the last paid transaction.
+        type: optional<string>
+      mode: EnvironmentMode
+      next_transaction_date:
+        docs: The date when the next subscription transaction will be charged.
+        type: optional<datetime>
+      object:
+        docs: >-
+          String representing the object's type. Objects of the same type share
+          the same value.
+        type: string
+      product:
+        docs: The product associated with the subscription.
+        type: SubscriptionEntityProduct
+      status: SubscriptionStatus
+      updated_at:
+        docs: The date and time when the subscription was last updated.
+        type: datetime
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  SubscriptionEntityCustomer:
+    discriminated: false
+    docs: The customer who owns the subscription.
+    inline: true
+    source:
+      openapi: definition/openapi/creem-openapi.json
+    union:
+      - CustomerEntity
+      - string
+  SubscriptionEntityProduct:
+    discriminated: false
+    docs: The product associated with the subscription.
+    inline: true
+    source:
+      openapi: definition/openapi/creem-openapi.json
+    union:
+      - ProductEntity
+      - string
+  SubscriptionItemEntity:
+    properties:
+      id:
+        docs: Unique identifier for the object.
+        type: string
+      mode: EnvironmentMode
+      object:
+        docs: >-
+          String representing the object’s type. Objects of the same type share
+          the same value.
+        type: string
+      price_id:
+        docs: The ID of the price associated with the subscription item.
+        type: optional<string>
+      product_id:
+        docs: The ID of the product associated with the subscription item.
+        type: optional<string>
+      units:
+        docs: The number of units for the subscription item.
+        type: optional<nullable<double>>
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  SubscriptionStatus:
+    docs: The current status of the subscription.
+    enum:
+      - active
+      - canceled
+      - unpaid
+      - paused
+      - trialing
+      - scheduled_cancel
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  TaxCategory:
+    docs: >-
+      Categorizes the type of product or service for tax purposes. This helps
+      determine the applicable tax rules based on the nature of the item or
+      service.
+    enum:
+      - saas
+      - name: DigitalGoodsService
+        value: digital-goods-service
+      - ebooks
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  TaxMode:
+    docs: >-
+      Specifies the tax calculation mode for the transaction. If set to
+      "inclusive," the tax is included in the price. If set to "exclusive," the
+      tax is added on top of the price.
+    enum:
+      - inclusive
+      - exclusive
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  Text:
+    properties:
+      max_length:
+        docs: Maximum character length constraint for the input.
+        type: optional<nullable<double>>
+      minimum_length:
+        docs: Minimum character length requirement for the input.
+        type: optional<nullable<double>>
+      value:
+        docs: The value of the input.
+        type: optional<nullable<string>>
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  TextFieldConfig:
+    properties:
+      max_length:
+        docs: Maximum character length constraint for the input.
+        type: optional<double>
+      min_length:
+        docs: Minimum character length requirement for the input.
+        type: optional<double>
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  TransactionEntity:
+    properties:
+      amount:
+        docs: The transaction amount in cents. 1000 = $10.00
+        type: double
+      amount_paid:
+        docs: The amount the customer paid in cents. 1000 = $10.00
+        type: optional<nullable<double>>
+      created_at:
+        docs: Creation date of the order as timestamp
+        type: double
+      currency:
+        docs: >-
+          Three-letter ISO currency code, in uppercase. Must be a supported
+          currency.
+        type: string
+      customer:
+        docs: The customer associated with the transaction.
+        type: optional<nullable<string>>
+      description:
+        docs: The description of the transaction.
+        type: optional<string>
+      discount_amount:
+        docs: The discount amount in cents. 1000 = $10.00
+        type: optional<nullable<double>>
+      id:
+        docs: Unique identifier for the object.
+        type: string
+      mode: EnvironmentMode
+      object:
+        docs: >-
+          String representing the object's type. Objects of the same type share
+          the same value.
+        type: string
+      order:
+        docs: The order associated with the transaction.
+        type: optional<nullable<string>>
+      period_end:
+        docs: End period for the invoice as timestamp
+        type: optional<double>
+      period_start:
+        docs: Start period for the invoice as timestamp
+        type: optional<double>
+      refunded_amount:
+        docs: The amount that has been refunded in cents. 1000 = $10.00
+        type: optional<nullable<double>>
+      status: TransactionStatus
+      subscription:
+        docs: The subscription associated with the transaction.
+        type: optional<nullable<string>>
+      tax_amount:
+        docs: The sale tax amount in cents. 1000 = $10.00
+        type: optional<nullable<double>>
+      tax_country:
+        docs: The ISO alpha-2 country code where tax is collected.
+        type: optional<nullable<string>>
+        validation:
+          pattern: ^[A-Z]{2}$
+      type: TransactionType
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  TransactionListEntity:
+    properties:
+      items:
+        docs: List of transactions items
+        type: list<TransactionEntity>
+      pagination:
+        docs: Pagination details for the list
+        type: PaginationEntity
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  TransactionStatus:
+    docs: Status of the transaction.
+    enum:
+      - pending
+      - paid
+      - refunded
+      - partialRefund
+      - chargedBack
+      - uncollectible
+      - declined
+      - void
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  TransactionType:
+    docs: >-
+      The type of transaction. payment(one time payments) and
+      invoice(subscription)
+    enum:
+      - payment
+      - invoice
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  UpsertSubscriptionItemEntity:
+    properties:
+      id:
+        docs: The id of the item to update.
+        type: optional<string>
+      price_id:
+        docs: The ID of the price associated with the subscription item.
+        type: optional<string>
+      product_id:
+        docs: The ID of the product associated with the subscription item.
+        type: optional<string>
+      units:
+        docs: The number of units for the subscription item.
+        type: optional<double>
+    source:
+      openapi: definition/openapi/creem-openapi.json
+errors:
+  BadRequestError:
+    docs: Bad Request - Invalid input parameters
+    status-code: 400
+    type: unknown
+  NotFoundError:
+    docs: Not Found - Resource does not exist
+    status-code: 404
+    type: unknown
+  UnauthorizedError:
+    docs: Unauthorized - Invalid or missing API key
+    status-code: 401
+    type: unknown

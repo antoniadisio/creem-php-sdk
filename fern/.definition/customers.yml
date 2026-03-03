@@ -1,0 +1,131 @@
+imports:
+  root: __package__.yml
+service:
+  auth: false
+  base-path: ''
+  endpoints:
+    generateCustomerLinks:
+      auth: true
+      display-name: Generate Customer Links
+      docs: >-
+        Generate a customer portal link for managing billing, subscriptions, and
+        payment methods.
+      errors:
+        - root.BadRequestError
+        - root.UnauthorizedError
+        - root.NotFoundError
+      examples:
+        - request:
+            customer_id: customer_id
+          response:
+            body:
+              customer_portal_link: customer_portal_link
+      method: POST
+      path: /v1/customers/billing
+      request:
+        body:
+          properties:
+            customer_id:
+              docs: Unique identifier of the customer.
+              type: string
+        content-type: application/json
+        name: CreateCustomerPortalLinkRequestEntity
+      response:
+        docs: Successfully generated customer links
+        status-code: 200
+        type: root.CustomerLinksEntity
+      source:
+        openapi: definition/openapi/creem-openapi.json
+    listCustomers:
+      auth: true
+      display-name: List all customers
+      docs: >-
+        Retrieve a paginated list of all customers. Filter and search through
+        your customer base.
+      errors:
+        - root.BadRequestError
+        - root.UnauthorizedError
+        - root.NotFoundError
+      examples:
+        - query-parameters:
+            page_number: 1
+            page_size: 50
+          response:
+            body:
+              items:
+                - country: US
+                  created_at: '2023-01-01T00:00:00Z'
+                  email: user@example.com
+                  id: id
+                  mode: test
+                  name: John Doe
+                  object: object
+                  updated_at: '2023-01-01T00:00:00Z'
+              pagination:
+                current_page: 1
+                next_page: 2
+                prev_page: 1.1
+                total_pages: 0
+                total_records: 0
+      method: GET
+      path: /v1/customers/list
+      request:
+        name: ListCustomersRequest
+        query-parameters:
+          page_number:
+            default: 1
+            docs: The page number for pagination.
+            type: optional<nullable<double>>
+          page_size:
+            default: 50
+            docs: The number of items per page.
+            type: optional<nullable<double>>
+      response:
+        docs: Successfully retrieved customers
+        status-code: 200
+        type: root.CustomerListEntity
+      source:
+        openapi: definition/openapi/creem-openapi.json
+    retrieveCustomer:
+      auth: true
+      display-name: Retrieve a customer
+      docs: >-
+        Retrieve customer information by ID or email. View purchase history,
+        subscriptions, and profile details.
+      errors:
+        - root.BadRequestError
+        - root.UnauthorizedError
+        - root.NotFoundError
+      examples:
+        - query-parameters:
+            customer_id: cust_1234567890
+            email: customer@example.com
+          response:
+            body:
+              country: US
+              created_at: '2023-01-01T00:00:00Z'
+              email: user@example.com
+              id: id
+              mode: test
+              name: John Doe
+              object: object
+              updated_at: '2023-01-01T00:00:00Z'
+      method: GET
+      path: /v1/customers
+      request:
+        name: RetrieveCustomerRequest
+        query-parameters:
+          customer_id:
+            docs: The unique identifier of the customer.
+            type: optional<nullable<string>>
+          email:
+            docs: The email address of the customer.
+            type: optional<nullable<string>>
+      response:
+        docs: Successfully retrieved the customer
+        status-code: 200
+        type: root.CustomerEntity
+      source:
+        openapi: definition/openapi/creem-openapi.json
+  source:
+    openapi: definition/openapi/creem-openapi.json

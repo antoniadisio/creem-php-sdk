@@ -1,0 +1,129 @@
+imports:
+  root: __package__.yml
+service:
+  auth: false
+  base-path: ''
+  endpoints:
+    getTransactionById:
+      auth: true
+      display-name: Get a transaction by ID
+      docs: >-
+        Retrieve a single transaction by ID. View payment details, status, and
+        associated order information.
+      errors:
+        - root.BadRequestError
+        - root.UnauthorizedError
+        - root.NotFoundError
+      examples:
+        - query-parameters:
+            transaction_id: txn_1234567890
+          response:
+            body:
+              amount: 2000
+              amount_paid: 2000
+              created_at: 1.1
+              currency: USD
+              customer: customer
+              description: description
+              discount_amount: 2000
+              id: id
+              mode: test
+              object: transaction
+              order: order
+              period_end: 1.1
+              period_start: 1.1
+              refunded_amount: 2000
+              status: pending
+              subscription: subscription
+              tax_amount: 2000
+              tax_country: US
+              type: payment
+      method: GET
+      path: /v1/transactions
+      request:
+        name: GetTransactionByIdRequest
+        query-parameters:
+          transaction_id:
+            docs: The unique identifier of the transaction.
+            type: string
+      response:
+        docs: Successfully retrieved transaction
+        status-code: 200
+        type: root.TransactionEntity
+      source:
+        openapi: definition/openapi/creem-openapi.json
+    searchTransactions:
+      auth: true
+      display-name: List all transactions
+      docs: >-
+        Search and retrieve payment transactions. Filter by customer, product,
+        date range, and status.
+      errors:
+        - root.BadRequestError
+        - root.UnauthorizedError
+        - root.NotFoundError
+      examples:
+        - query-parameters:
+            customer_id: cust_1234567890
+            order_id: ord_1234567890
+            page_number: 1
+            page_size: 10
+            product_id: prod_1234567890
+          response:
+            body:
+              items:
+                - amount: 2000
+                  amount_paid: 2000
+                  created_at: 1.1
+                  currency: USD
+                  customer: customer
+                  description: description
+                  discount_amount: 2000
+                  id: id
+                  mode: test
+                  object: transaction
+                  order: order
+                  period_end: 1.1
+                  period_start: 1.1
+                  refunded_amount: 2000
+                  status: pending
+                  subscription: subscription
+                  tax_amount: 2000
+                  tax_country: US
+                  type: payment
+              pagination:
+                current_page: 1
+                next_page: 2
+                prev_page: 1.1
+                total_pages: 0
+                total_records: 0
+      method: GET
+      path: /v1/transactions/search
+      request:
+        name: SearchTransactionsRequest
+        query-parameters:
+          customer_id:
+            docs: Filter transactions by customer ID.
+            type: optional<nullable<string>>
+          order_id:
+            docs: Filter transactions by order ID.
+            type: optional<nullable<string>>
+          page_number:
+            default: 1
+            docs: The page number for pagination.
+            type: optional<nullable<double>>
+          page_size:
+            default: 10
+            docs: The number of items per page.
+            type: optional<nullable<double>>
+          product_id:
+            docs: Filter transactions by product ID.
+            type: optional<nullable<string>>
+      response:
+        docs: Successfully retrieved transactions
+        status-code: 200
+        type: root.TransactionListEntity
+      source:
+        openapi: definition/openapi/creem-openapi.json
+  source:
+    openapi: definition/openapi/creem-openapi.json

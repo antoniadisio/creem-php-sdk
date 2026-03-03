@@ -1265,10 +1265,12 @@
   "tags": [],
   "servers": [
     {
-      "url": "https://api.creem.io"
+      "url": "https://api.creem.io",
+      "x-fern-server-name": "production"
     },
     {
-      "url": "https://test-api.creem.io"
+      "url": "https://test-api.creem.io",
+      "x-fern-server-name": "test"
     }
   ],
   "components": {

@@ -1,0 +1,107 @@
+imports:
+  root: __package__.yml
+types:
+  GetMetricsSummaryRequestCurrency:
+    enum:
+      - EUR
+      - USD
+    source:
+      openapi: definition/openapi/creem-openapi.json
+  GetMetricsSummaryRequestInterval:
+    enum:
+      - day
+      - week
+      - month
+    source:
+      openapi: definition/openapi/creem-openapi.json
+service:
+  auth: false
+  base-path: ''
+  endpoints:
+    getMetricsSummary:
+      auth: true
+      display-name: Get store metrics summary
+      docs: >-
+        Retrieve aggregated store metrics including counts, revenue, and MRR.
+        When startDate and endDate are provided, totals are filtered to that
+        date range. When interval is also provided, the response includes a
+        periods array with time-series data points grouped by that interval. The
+        periods array starts from the store's first transaction or startDate,
+        whichever is later, to avoid empty leading buckets. All monetary amounts
+        are in cents (integer, no decimals).
+      errors:
+        - root.BadRequestError
+        - root.UnauthorizedError
+        - root.NotFoundError
+      examples:
+        - query-parameters:
+            currency: EUR
+          response:
+            body:
+              periods:
+                - grossRevenue: 2999
+                  netRevenue: 2909
+                  timestamp: 1763337600000
+                - grossRevenue: 32989
+                  netRevenue: 31998
+                  timestamp: 1763942400000
+                - grossRevenue: 47984
+                  netRevenue: 46542
+                  timestamp: 1764547200000
+                - grossRevenue: 125958
+                  netRevenue: 122173
+                  timestamp: 1765152000000
+                - grossRevenue: 343968
+                  netRevenue: 278372
+                  timestamp: 1765756800000
+                - grossRevenue: 0
+                  netRevenue: 0
+                  timestamp: 1766361600000
+                - grossRevenue: 0
+                  netRevenue: 0
+                  timestamp: 1766966400000
+                - grossRevenue: 225240
+                  netRevenue: 192096
+                  timestamp: 1767571200000
+              totals:
+                activeSubscriptions: 21
+                monthlyRecurringRevenue: 94200
+                netMonthlyRecurringRevenue: 89500
+                totalCustomers: 35
+                totalNetRevenue: 478094
+                totalPayments: 62
+                totalProducts: 12
+                totalRevenue: 553939
+                totalSubscriptions: 48
+      method: GET
+      path: /v1/stats/summary
+      request:
+        name: GetMetricsSummaryRequest
+        query-parameters:
+          currency: GetMetricsSummaryRequestCurrency
+          endDate:
+            docs: >-
+              End of the date range as a Unix timestamp in milliseconds (e.g.
+              1772150400000). When provided with startDate, filters totals to
+              this range. Required when interval is specified.
+            type: optional<nullable<double>>
+          interval:
+            docs: >-
+              Groups time-series data into buckets of this size. Requires
+              startDate and endDate. Returns a periods array with one entry per
+              bucket containing grossRevenue and netRevenue.
+            type: optional<nullable<GetMetricsSummaryRequestInterval>>
+          startDate:
+            docs: >-
+              Start of the date range as a Unix timestamp in milliseconds (e.g.
+              1740614400000). When provided with endDate, filters totals to this
+              range. Required when interval is specified.
+            type: optional<nullable<double>>
+      response:
+        docs: Successfully retrieved store metrics summary
+        status-code: 200
+        type: root.StatsSummaryEntity
+      source:
+        openapi: definition/openapi/creem-openapi.json
+  source:
+    openapi: definition/openapi/creem-openapi.json
