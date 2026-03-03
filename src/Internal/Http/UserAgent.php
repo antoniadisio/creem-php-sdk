@@ -9,7 +9,6 @@ use Creem\Config;
 
 use function class_exists;
 use function implode;
-use function is_string;
 
 final class UserAgent
 {
@@ -33,8 +32,8 @@ final class UserAgent
             return 'unknown';
         }
 
-        $version = InstalledVersions::getRootPackage()['pretty_version'] ?? null;
+        $version = InstalledVersions::getRootPackage()['pretty_version'];
 
-        return is_string($version) && $version !== '' ? $version : 'unknown';
+        return $version !== '' ? $version : 'unknown';
     }
 }

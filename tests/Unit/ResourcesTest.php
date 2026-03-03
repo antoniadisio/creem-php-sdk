@@ -87,7 +87,7 @@ final class ResourcesTest extends TestCase
         self::assertSame(BillingPeriod::EveryMonth, $product->billingPeriod);
         $feature = $product->features[0] ?? null;
         self::assertInstanceOf(ProductFeature::class, $feature);
-        self::assertSame(ProductFeatureType::LicenseKey, $feature?->type);
+        self::assertSame(ProductFeatureType::LicenseKey, $feature->type);
         $this->assertRequest($mockClient, Method::GET, '/v1/products', ['product_id' => 'prod_123']);
 
         $created = $resource->create(new CreateProductRequest('Enterprise', 4900, CurrencyCode::USD, BillingType::OneTime, description: 'Scale plan'));
@@ -102,8 +102,8 @@ final class ResourcesTest extends TestCase
 
         $page = $resource->search(new SearchProductsRequest(2, 50));
         self::assertSame(1, $page->count());
-        self::assertSame(2, $page->pagination?->currentPage);
-        self::assertNull($page->pagination?->nextPage);
+        self::assertSame(2, $page->pagination->currentPage);
+        self::assertNull($page->pagination->nextPage);
         $item = $page->get(0);
         self::assertInstanceOf(Product::class, $item);
         self::assertSame('prod_123', $item->id);
@@ -162,7 +162,7 @@ final class ResourcesTest extends TestCase
 
         $subscription = $resource->get('sub_123');
         self::assertSame('prod_123', $subscription->product?->id());
-        self::assertTrue($subscription->product?->isExpanded() ?? false);
+        self::assertTrue($subscription->product->isExpanded());
         self::assertFalse($subscription->customer?->isExpanded() ?? true);
         self::assertSame(SubscriptionStatus::Active, $subscription->status);
         $this->assertRequest($mockClient, Method::GET, '/v1/subscriptions', ['subscription_id' => 'sub_123']);
@@ -249,7 +249,7 @@ final class ResourcesTest extends TestCase
         self::assertSame('lic_123', $activated->id);
         self::assertSame(LicenseStatus::Active, $activated->status);
         self::assertInstanceOf(LicenseInstance::class, $activated->instance);
-        self::assertSame('ins_123', $activated->instance?->id);
+        self::assertSame('ins_123', $activated->instance->id);
         $this->assertRequest($mockClient, Method::POST, '/v1/licenses/activate', [], ['key' => 'lic_key', 'instance_name' => 'macbook']);
 
         $deactivated = $resource->deactivate(new DeactivateLicenseRequest('lic_key', 'ins_123'));
@@ -311,10 +311,10 @@ final class ResourcesTest extends TestCase
 
         $page = $resource->search(new SearchTransactionsRequest(customerId: 'cus_123', pageNumber: 3, pageSize: 25));
         self::assertSame(1, $page->count());
-        self::assertSame(3, $page->pagination?->currentPage);
-        self::assertNull($page->pagination?->nextPage);
+        self::assertSame(3, $page->pagination->currentPage);
+        self::assertNull($page->pagination->nextPage);
         self::assertInstanceOf(Transaction::class, $page->get(0));
-        self::assertSame(TransactionStatus::Paid, $page->get(0)?->status);
+        self::assertSame(TransactionStatus::Paid, $page->get(0)->status);
         $this->assertRequest(
             $mockClient,
             Method::GET,
@@ -341,7 +341,7 @@ final class ResourcesTest extends TestCase
         self::assertSame(2, $summary->totals?->totalProducts);
         self::assertCount(1, $summary->periods);
         self::assertInstanceOf(StatsPeriod::class, $summary->periods[0] ?? null);
-        self::assertSame('2023-11-14T22:13:20+00:00', $summary->periods[0]?->timestamp?->format(DATE_ATOM));
+        self::assertSame('2023-11-14T22:13:20+00:00', $summary->periods[0]->timestamp?->format(DATE_ATOM));
         $this->assertRequest(
             $mockClient,
             Method::GET,

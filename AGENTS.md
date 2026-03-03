@@ -12,9 +12,9 @@ Install dependencies with `composer install`. Use the Composer scripts already d
 - `composer test` runs the PHPUnit unit suite from `tests/Unit/`.
 - `composer cs` checks formatting with Laravel Pint.
 - `composer cs:fix` applies Pint formatting fixes.
-- `composer stan` runs PHPStan against `src` and `tests`.
+- `composer stan` runs PHPStan against `src` and `tests` through the committed `phpstan.neon.dist` configuration.
 
-Run `composer test` after each completed task and keep fixing until the suite passes cleanly. Before opening a pull request, also run `composer cs` and `composer stan`.
+Run `composer test` and `composer stan` after each completed task and keep fixing until both pass cleanly. Before opening a pull request, also run `composer cs`.
 
 ## Coding Style & Naming Conventions
 Follow the existing code style: `declare(strict_types=1);`, 4-space indentation, typed properties, and constructor property promotion where it improves clarity. Use Laravel Pint as the formatting authority. Keep classes `final` unless extension is required. Match the current naming patterns: DTOs and request payloads use PascalCase (`CreateProductRequest`), resource classes end in `Resource`, shared API enums use PascalCase class names with backed cases, and custom exceptions end in `Exception`. Keep public APIs in `src/` consumer-focused; hide transport-specific details under `src/Internal/`.

@@ -41,7 +41,7 @@ final class PayloadTest extends TestCase
         $createdAt = Payload::dateTime(['created_at' => '2026-03-03T10:15:00+00:00'], 'created_at', 'Product', true);
 
         self::assertInstanceOf(DateTimeImmutable::class, $createdAt);
-        self::assertSame('2026-03-03T10:15:00+00:00', $createdAt?->format(DATE_ATOM));
+        self::assertSame('2026-03-03T10:15:00+00:00', $createdAt->format(DATE_ATOM));
     }
 
     public function test_it_parses_millisecond_timestamps(): void
@@ -49,7 +49,7 @@ final class PayloadTest extends TestCase
         $timestamp = Payload::millisecondsDateTime(['timestamp' => 1700000000000], 'timestamp', 'StatsPeriod', true);
 
         self::assertInstanceOf(DateTimeImmutable::class, $timestamp);
-        self::assertSame('2023-11-14T22:13:20+00:00', $timestamp?->format(DATE_ATOM));
+        self::assertSame('2023-11-14T22:13:20+00:00', $timestamp->format(DATE_ATOM));
     }
 
     public function test_it_maps_typed_objects_lists_and_array_objects(): void
@@ -80,7 +80,7 @@ final class PayloadTest extends TestCase
         $metadata = Payload::arrayObject($payload, 'metadata', 'Checkout', true);
 
         self::assertInstanceOf(StructuredObject::class, $totals);
-        self::assertSame(2, $totals?->get('total_products'));
+        self::assertSame(2, $totals->get('total_products'));
         self::assertSame(['period_1', 'period_2'], $periods);
         self::assertSame(['source' => 'sdk-test'], $metadata);
     }
@@ -96,9 +96,9 @@ final class PayloadTest extends TestCase
         );
 
         self::assertInstanceOf(ExpandableResource::class, $product);
-        self::assertSame('prod_123', $product?->id());
-        self::assertTrue($product?->isExpanded() ?? false);
-        self::assertInstanceOf(StructuredObject::class, $product?->resource());
+        self::assertSame('prod_123', $product->id());
+        self::assertTrue($product->isExpanded());
+        self::assertInstanceOf(StructuredObject::class, $product->resource());
     }
 
     public function test_it_maps_expandable_resources_from_id_only_payloads(): void
@@ -112,9 +112,9 @@ final class PayloadTest extends TestCase
         );
 
         self::assertInstanceOf(ExpandableResource::class, $customer);
-        self::assertSame('cus_123', $customer?->id());
-        self::assertFalse($customer?->isExpanded() ?? true);
-        self::assertNull($customer?->resource());
+        self::assertSame('cus_123', $customer->id());
+        self::assertFalse($customer->isExpanded());
+        self::assertNull($customer->resource());
     }
 
     public function test_it_throws_contextual_hydration_exceptions_for_invalid_required_integer_fields(): void

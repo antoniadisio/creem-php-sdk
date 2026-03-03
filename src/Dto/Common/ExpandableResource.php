@@ -22,7 +22,10 @@ final class ExpandableResource
      */
     public static function fromId(string $id): self
     {
-        return new self($id, null);
+        /** @var self<TResource> $resource */
+        $resource = new self($id, null);
+
+        return $resource;
     }
 
     /**
@@ -33,7 +36,10 @@ final class ExpandableResource
      */
     public static function expanded(string $id, object $resource): self
     {
-        return new self($id, $resource);
+        /** @var self<TExpanded> $expandedResource */
+        $expandedResource = new self($id, $resource);
+
+        return $expandedResource;
     }
 
     public function id(): string

@@ -10,6 +10,18 @@ The public contract is a stable `Creem\Client` facade with typed DTOs, typed exc
 composer require antoniadisio/creem-php-sdk
 ```
 
+## Validation
+
+For local development, run the repository checks before shipping changes:
+
+```bash
+composer test
+composer cs
+composer stan
+```
+
+`composer stan` uses the committed `phpstan.neon.dist` project configuration and the repository-defined memory limit, so local analysis and CI run the same PHPStan setup.
+
 ## Quick Start
 
 ```php

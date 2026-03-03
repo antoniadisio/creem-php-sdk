@@ -8,6 +8,7 @@ node_modules/
 .phpunit.result.cache
 .php-cs-fixer.cache
 .phpstan/
+phpstan.neon
 
 # Local environment files
 .env

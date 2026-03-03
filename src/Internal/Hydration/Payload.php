@@ -389,7 +389,10 @@ final class Payload
         }
 
         if (is_string($value)) {
-            return ExpandableResource::fromId($value);
+            /** @var ExpandableResource<TObject> $resource */
+            $resource = ExpandableResource::fromId($value);
+
+            return $resource;
         }
 
         if (! is_array($value) || array_is_list($value)) {
@@ -402,7 +405,10 @@ final class Payload
             throw HydrationException::missingField($dto, $key);
         }
 
-        return ExpandableResource::expanded($id, $mapper($value));
+        /** @var ExpandableResource<TObject> $resource */
+        $resource = ExpandableResource::expanded($id, $mapper($value));
+
+        return $resource;
     }
 
     /**

@@ -52,7 +52,7 @@ final class CreemConnector extends Connector
         return ['timeout' => $this->sdkConfig->timeout()];
     }
 
-    public function getRequestException(Response $response, ?Throwable $senderException): ?Throwable
+    public function getRequestException(Response $response, ?Throwable $senderException): Throwable
     {
         return ExceptionMapper::map($response, $senderException);
     }

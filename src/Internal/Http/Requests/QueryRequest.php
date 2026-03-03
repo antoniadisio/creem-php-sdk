@@ -9,7 +9,7 @@ use Saloon\Http\Request;
 abstract class QueryRequest extends Request
 {
     /**
-     * @param  array<string, string|int|float>  $query
+     * @param  array<string, string|int|float>  $queryParameters
      */
     public function __construct(
         private readonly array $queryParameters = [],
