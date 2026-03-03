@@ -165,25 +165,31 @@ Supported methods:
 use Creem\Dto\Subscription\CancelSubscriptionRequest;
 use Creem\Dto\Subscription\UpdateSubscriptionRequest;
 use Creem\Dto\Subscription\UpgradeSubscriptionRequest;
+use Creem\Dto\Subscription\UpsertSubscriptionItem;
+use Creem\Enum\SubscriptionCancellationMode;
+use Creem\Enum\SubscriptionUpdateBehavior;
 
 $subscription = $client->subscriptions()->update(
     'sub_123',
     new UpdateSubscriptionRequest(
         items: [
-            ['product_id' => 'prod_pro', 'quantity' => 2],
+            new UpsertSubscriptionItem(productId: 'prod_pro', units: 2),
         ],
-        updateBehavior: 'prorate',
+        updateBehavior: SubscriptionUpdateBehavior::ProrationCharge,
     ),
 );
 
 $subscription = $client->subscriptions()->upgrade(
     'sub_123',
-    new UpgradeSubscriptionRequest(productId: 'prod_enterprise'),
+    new UpgradeSubscriptionRequest(
+        productId: 'prod_enterprise',
+        updateBehavior: SubscriptionUpdateBehavior::ProrationChargeImmediately,
+    ),
 );
 
 $subscription = $client->subscriptions()->cancel(
     'sub_123',
-    new CancelSubscriptionRequest(mode: 'immediately'),
+    new CancelSubscriptionRequest(mode: SubscriptionCancellationMode::Immediate),
 );
 ```
 
@@ -202,13 +208,12 @@ Supported methods:
 <?php
 
 use Creem\Dto\Checkout\CreateCheckoutRequest;
+use Creem\Dto\Checkout\CheckoutCustomerInput;
 
 $checkout = $client->checkouts()->create(new CreateCheckoutRequest(
     productId: 'prod_123',
     successUrl: 'https://example.com/billing/success',
-    customer: [
-        'email' => 'customer@example.com',
-    ],
+    customer: new CheckoutCustomerInput(email: 'customer@example.com'),
 ));
 ```
 
@@ -254,11 +259,13 @@ Supported methods:
 <?php
 
 use Creem\Dto\Discount\CreateDiscountRequest;
+use Creem\Enum\DiscountDuration;
+use Creem\Enum\DiscountType;
 
 $discount = $client->discounts()->create(new CreateDiscountRequest(
     name: 'Spring Sale',
-    type: 'percentage',
-    duration: 'once',
+    type: DiscountType::Percentage,
+    duration: DiscountDuration::Once,
     appliesToProducts: ['prod_123'],
     code: 'SPRING25',
     percentage: 25,
@@ -315,6 +322,8 @@ Supported methods:
 ## Response Shapes
 
 Collection-style endpoints return `Creem\Dto\Common\Page`, with pagination metadata in `Creem\Dto\Common\Pagination`. Resource items are exposed through typed DTO payloads instead of raw decoded arrays.
+
+Closed-set response fields are hydrated to `Creem\Enum\*` cases, spec-defined date-time fields are hydrated to `DateTimeImmutable`, and malformed required payloads now raise `Creem\Exception\HydrationException` instead of being silently coerced.
 
 ## OpenAPI Contract Maintenance
 
