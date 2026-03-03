@@ -3,6 +3,9 @@
 ## Project Structure & Module Organization
 The SDK is a PHP 8.1 library with PSR-4 autoloading under `src/` (`Creem\\`). Keep the public API stable through `src/Client.php`, `src/Config.php`, resource wrappers in `src/Resource/`, and typed DTOs in `src/Dto/`. Transport and hydration details belong in `src/Internal/`; typed failures live in `src/Exception/`. Tests are in `tests/Unit/`, with reusable JSON fixtures in `tests/Fixtures/Responses/`. `tests/Integration/` exists for future end-to-end coverage. Contract references live in `spec/creem-openapi.json` and `docs/openapi-audit.md`.
 
+## Public Repo Hygiene
+Commit only package and contributor-facing assets. Keep maintainer-only planning files local and ignored: `IMPLEMENTATION_PLAN.md`, `PROJECT_DESCRIPTION.md`, `plan/`, `.env`, IDE files, and tool caches.
+
 ## Build, Test, and Development Commands
 Install dependencies with `composer install`. Use the Composer scripts already defined in `composer.json`:
 

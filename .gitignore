@@ -12,6 +12,11 @@ node_modules/
 # Local environment files
 .env
 
+# Maintainer-only planning notes
+IMPLEMENTATION_PLAN.md
+PROJECT_DESCRIPTION.md
+plan/
+
 # IDE and system files
 .DS_Store
 .idea/
