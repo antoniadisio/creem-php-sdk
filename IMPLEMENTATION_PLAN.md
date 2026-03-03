@@ -335,19 +335,19 @@ Document the finished SDK and prepare it for normal package release flow.
 
 ### Tasks
 
-- [ ] Rewrite `README.md` with Saloon-based installation and usage examples
-- [ ] Document configuration, environments, and error handling
-- [ ] Document one representative example per major resource group
-- [ ] Document how the OpenAPI contract is maintained in `spec/`
-- [ ] Remove stale references to Fern, generated docs, and Node scripts
-- [ ] Verify the package is Packagist-ready
-- [ ] Add release notes guidance for future spec-driven SDK updates
+- [x] Rewrite `README.md` with Saloon-based installation and usage examples
+- [x] Document configuration, environments, and error handling
+- [x] Document one representative example per major resource group
+- [x] Document how the OpenAPI contract is maintained in `spec/`
+- [x] Remove stale references to Fern, generated docs, and Node scripts
+- [x] Verify the package is Packagist-ready
+- [x] Add release notes guidance for future spec-driven SDK updates
 
 ### Acceptance Criteria
 
-- [ ] The README describes the actual SDK architecture
-- [ ] The docs match the final public API
-- [ ] No release step depends on Fern or Node tooling
+- [x] The README describes the actual SDK architecture
+- [x] The docs match the final public API
+- [x] No release step depends on Fern or Node tooling
 
 ## Test Scenarios
 
