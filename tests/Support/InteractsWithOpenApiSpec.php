@@ -311,7 +311,7 @@ trait InteractsWithOpenApiSpec
      */
     public function spec(): array
     {
-        $contents = file_get_contents(dirname(__DIR__, 2).'/spec/creem-openapi.json');
+        $contents = file_get_contents(dirname(__DIR__, 2).'/tests/Fixtures/OpenApi/creem-openapi.json');
 
         $this->assertNotFalse($contents, 'OpenAPI spec could not be read.');
 

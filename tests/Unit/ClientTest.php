@@ -15,7 +15,7 @@ use Creem\Resource\StatsResource;
 use Creem\Resource\SubscriptionsResource;
 use Creem\Resource\TransactionsResource;
 
-test('client exposes stable resource accessors', function (): void {
+test('client exposes expected resource accessors', function (): void {
     $client = new Client(new Config('sk_test_123'));
 
     expect($client->products())->toBeInstanceOf(ProductsResource::class)

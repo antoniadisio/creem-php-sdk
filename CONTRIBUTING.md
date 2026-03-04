@@ -1,7 +1,7 @@
 # Contributing
 
 ## Scope
-This repository is a public PHP SDK. Keep changes focused on package code and contributor-facing documentation. The stable consumer entrypoint is `Creem\Client`; avoid turning internal Saloon transport classes into part of the public contract.
+This repository is a public PHP SDK. Keep changes focused on package code and contributor-facing documentation. The consumer entrypoint is the pre-1.0 `Creem\Client` facade; avoid turning internal Saloon transport classes into part of the public contract.
 
 ## Local Setup
 - Run `composer install` to install PHP dependencies.
@@ -9,20 +9,23 @@ This repository is a public PHP SDK. Keep changes focused on package code and co
 - Read `README.md` before changing the public API surface.
 
 ## Development Workflow
-- Keep source changes under `src/` and matching tests under `tests/Unit/`.
+- Keep source changes under `src/` and add matching deterministic tests under `tests/Unit/` and `tests/Integration/` as needed.
 - Update response fixtures in `tests/Fixtures/Responses/` when payload shapes change.
-- Keep OpenAPI contract work aligned with `spec/creem-openapi.json` and `docs/openapi-audit.md`.
-- Do not commit local-only planning files or machine-specific files such as `.env`, `plan/`, `PROJECT_DESCRIPTION.md`, `vendor/`, or IDE settings.
+- Keep OpenAPI contract work aligned with `tests/Fixtures/OpenApi/creem-openapi.json`.
+- Do not commit local-only planning files or machine-specific files such as `.env`, `plan/`, `PROJECT_DESCRIPTION.md`, personal local workflow files, `vendor/`, or IDE settings.
 
 ## Validation
 Run these commands locally:
 
-- `composer test` after each completed task, and keep fixing until the Pest suite passes.
+- `composer qa` after each completed task, and keep fixing until the full local QA flow passes.
+- `composer qa:check` before opening a pull request.
+- `composer test` when you only need the fast `Unit` suite during iteration.
+- `composer test:integration` when you need deterministic mocked transport coverage only.
 - `composer cs` to verify formatting.
 - `composer cs:fix` to apply formatting fixes.
 - `composer stan` to run static analysis on `src` and `tests`.
 
-Pull requests should be opened only after `composer test`, `composer cs`, and `composer stan` are green.
+Pull requests should be opened only after `composer qa:check` is green.
 
 ## Style
 - Use `declare(strict_types=1);`, 4-space indentation, typed properties, and clear immutable DTO-style objects.
@@ -30,7 +33,7 @@ Pull requests should be opened only after `composer test`, `composer cs`, and `c
 - Keep public DTOs, resources, and exceptions in their existing namespaces and naming patterns.
 
 ## Typed API Contract Conventions
-- Treat `spec/creem-openapi.json` as the source of truth for public DTO field types.
+- Treat `tests/Fixtures/OpenApi/creem-openapi.json` as the source of truth for public DTO field types and contract coverage tests.
 - Use enums for closed-set API fields and keep enum-to-string normalization inside the internal request serialization layer.
 - Use `DateTimeImmutable` for spec-defined `format: date-time` fields and for millisecond timestamps only when the contract explicitly documents that unit.
 - Keep public response DTOs concrete: use nested DTOs, typed lists, and `ExpandableResource<T>` instead of `StructuredObject`, `StructuredList`, `ExpandableValue`, or `int|float` unions.
@@ -41,3 +44,15 @@ Pull requests should be opened only after `composer test`, `composer cs`, and `c
 - Keep the tone concise and direct, focused on what changed for the repository or SDK user.
 - Add a `CHANGELOG.md` entry for the next major release when you ship breaking public API changes.
 - In pull requests, describe the user-visible impact, list the validation commands you ran, and link the relevant issue when one exists.
+
+## Release Process
+- Run `composer validate --strict`.
+- Run `composer qa:check`.
+- Update `CHANGELOG.md` with the exact release version and date.
+- Create an annotated Git tag for that version (for example `git tag -a v0.1.0 -m "Release v0.1.0"`).
+- Push the tag and publish matching GitHub release notes.
+- Keep the Git tag, GitHub release title, and `CHANGELOG.md` entry identical.
+
+## Security Reporting
+- Do not file public GitHub issues for vulnerabilities.
+- Follow `SECURITY.md` and use the repository security reporting path for sensitive disclosures.

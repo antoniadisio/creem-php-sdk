@@ -18,6 +18,9 @@ phpstan.neon
 IMPLEMENTATION_PLAN.md
 PROJECT_DESCRIPTION.md
 plan/
+AGENTS.md
+.gitmessage.txt
+.githooks/
 
 # IDE and system files
 .DS_Store

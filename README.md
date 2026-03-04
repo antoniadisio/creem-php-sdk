@@ -2,7 +2,9 @@
 
 Handwritten PHP SDK for the Creem API.
 
-The public contract is a stable `Creem\Client` facade for outbound API access plus a stateless `Creem\Webhook` helper for inbound webhook verification and parsing. `saloonphp/saloon` is used internally for transport only and is not part of the supported consumer-facing API.
+This is an independently maintained package published under the personal `antoniadisio` namespace; it is not an official Creem package.
+
+The public contract is a pre-1.0 `Creem\Client` facade for outbound API access plus a stateless `Creem\Webhook` helper for inbound webhook verification and parsing. `saloonphp/saloon` is used internally for transport only and is not part of the supported consumer-facing API.
 
 ## Installation
 
@@ -11,6 +13,8 @@ composer require antoniadisio/creem-php-sdk
 ```
 
 Requires PHP 8.4 or newer.
+
+The current public line is a `0.x` preview release. Follow normal semver expectations for install constraints, but expect the SDK surface to keep evolving until `1.0`.
 
 ## Validation
 
@@ -34,7 +38,7 @@ composer test:live
 `composer test:local` runs both local suites (`Unit` then `Integration`).
 `composer test:live` runs a small opt-in read-only smoke suite against the Creem test environment and is intentionally excluded from the default QA flow.
 
-`composer qa` runs the fix-first local QA flow in this order: Rector, Pint fixes, PHPStan, then Pest. When you want a non-mutating verification pass (for example before opening a pull request), run `composer qa:check`.
+`composer qa` runs the fix-first local QA flow in this order: Rector, Pint fixes, PHPStan, then the local Pest suites (`Unit` then `Integration`). When you want a non-mutating verification pass (for example before opening a pull request), run `composer qa:check`.
 The committed Rector config applies PHP 8.4, code-quality, and type-declaration refactors across internal code and tests, but it intentionally skips automatic type-declaration inference on `Creem\Client`, `Creem\Config`, and the `Creem\Resource\*` surface so public signatures stay under manual review.
 `composer stan` uses the committed `phpstan.neon.dist` project configuration and the repository-defined memory limit, so local analysis and CI run the same PHPStan setup.
 `composer install` and `composer update` also use the committed Composer platform pin (`php: 8.4.0`), which keeps the lockfile aligned with the PHP 8.4 CI target even when dependency updates are run on newer local PHP versions.
@@ -427,36 +431,15 @@ Collection-style endpoints return `Creem\Dto\Common\Page`, with pagination metad
 
 Closed-set response fields are hydrated to `Creem\Enum\*` cases, spec-defined date-time fields are hydrated to `DateTimeImmutable`, and malformed required payloads now raise `Creem\Exception\HydrationException` instead of being silently coerced.
 
-## OpenAPI Contract Maintenance
+## Contributing
 
-The committed OpenAPI file at `spec/creem-openapi.json` remains the source of truth for endpoint coverage.
-
-When the Creem API changes:
-
-1. Update `spec/creem-openapi.json`.
-2. Update request classes, resources, DTOs, fixtures, and tests to match the new contract.
-3. Run `composer test` to confirm the contract checks still pass.
-
-`tests/Unit/OpenApiContractTest.php` fails when the spec changes without corresponding SDK coverage updates.
-
-## Release Notes Guidance
-
-For future releases driven by spec updates, call out:
-
-- which OpenAPI operations were added, changed, or removed
-- any public SDK surface changes (new methods, renamed DTO fields, behavior changes)
-- new exception behavior or validation changes
-- required consumer migration steps, if any
-
-Document those notes in `CHANGELOG.md` for the next release, especially when the change is intentionally breaking.
+Contributor workflows, OpenAPI contract fixture maintenance, and release steps live in `CONTRIBUTING.md`.
 
 ## Local Development
 
 ```bash
-composer validate --no-check-publish
-composer test
-composer cs
-composer stan
+composer validate --strict
+composer qa:check
 ```
 
 The package metadata in `composer.json` is suitable for Packagist publication: it includes package name, description, license, keywords, support links, and PSR-4 autoload configuration.

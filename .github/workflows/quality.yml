@@ -25,11 +25,5 @@ jobs:
             - name: Install Composer dependencies
               run: composer install --no-interaction --prefer-dist
 
-            - name: Run Pest
-              run: composer test
-
-            - name: Run Pint
-              run: composer cs
-
-            - name: Run PHPStan
-              run: composer stan
+            - name: Run QA verification
+              run: composer qa:check

@@ -1,6 +1,6 @@
 # Creem OpenAPI Spec Audit
 
-This audit captures the current shape of the committed OpenAPI contract at `spec/creem-openapi.json` and the known issues that matter while the handwritten PHP SDK is being built. This document focuses on the API surface and the risks that affect the SDK design.
+This audit captures the current shape of the committed OpenAPI contract at `tests/Fixtures/OpenApi/creem-openapi.json` and the known issues that matter while the handwritten PHP SDK is being built. This document focuses on the API surface and the risks that affect the SDK design.
 
 ## Current Contract Status
 
