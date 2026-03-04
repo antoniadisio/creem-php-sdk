@@ -18,30 +18,32 @@ The current public line is a `0.x` preview release. Follow normal semver expecta
 
 ## Validation
 
-For local development, run the repository checks before shipping changes:
+Most local work should use:
 
 ```bash
 composer qa
 ```
 
-The test scripts are split by suite:
+Before opening a pull request or cutting a release, use:
 
 ```bash
-composer test
-composer test:integration
-composer test:local
-composer test:live
+composer qa:check
 ```
 
-`composer test` runs the fast `Unit` suite only.
-`composer test:integration` runs the deterministic `Integration` suite with Saloon mocks.
-`composer test:local` runs both local suites (`Unit` then `Integration`).
-`composer test:live` runs a small opt-in read-only smoke suite against the Creem test environment and is intentionally excluded from the default QA flow.
+Command guide:
 
-`composer qa` runs the fix-first local QA flow in this order: Rector, Pint fixes, PHPStan, then the local Pest suites (`Unit` then `Integration`). When you want a non-mutating verification pass (for example before opening a pull request), run `composer qa:check`.
-The committed Rector config applies PHP 8.4, code-quality, and type-declaration refactors across internal code and tests, but it intentionally skips automatic type-declaration inference on `Creem\Client`, `Creem\Config`, and the `Creem\Resource\*` surface so public signatures stay under manual review.
-`composer stan` uses the committed `phpstan.neon.dist` project configuration and the repository-defined memory limit, so local analysis and CI run the same PHPStan setup.
-`composer install` and `composer update` also use the committed Composer platform pin (`php: 8.4.0`), which keeps the lockfile aligned with the PHP 8.4 CI target even when dependency updates are run on newer local PHP versions.
+- `composer qa` runs the fix-first local QA flow: Rector, Pint fixes, PHPStan, then the local Pest suites (`Unit` then `Integration`).
+- `composer qa:check` runs the same flow without changing files.
+- `composer test` runs the fast `Unit` suite only.
+- `composer test:integration` runs the deterministic `Integration` suite with Saloon mocks.
+- `composer test:local` runs `Unit` then `Integration`.
+- `composer test:live` runs the opt-in read-only smoke suite against the Creem test environment and is intentionally excluded from the default QA flow.
+
+Notes:
+
+- The committed Rector config intentionally skips automatic type-declaration inference on `Creem\Client`, `Creem\Config`, and `Creem\Resource\*` so public signatures stay under manual review.
+- `composer stan` uses the committed `phpstan.neon.dist` configuration and the repository-defined memory limit.
+- `composer install` and `composer update` use the committed Composer platform pin (`php: 8.4.0`) so the lockfile stays aligned with the PHP 8.4 CI target.
 
 For `composer test:live`, use:
 
