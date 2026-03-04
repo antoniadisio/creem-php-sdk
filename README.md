@@ -141,7 +141,13 @@ $event = Webhook::constructEvent(
     $signature,
     $_ENV['CREEM_WEBHOOK_SECRET'],
 );
+
+if ($event->eventType() === 'license.created') {
+    $licenseId = $event->object()->get('id');
+}
 ```
+
+The returned `WebhookEvent` exposes `id()`, `eventType()`, `createdAt()`, `object()`, `payload()`, and `toArray()`. `object()` returns a `StructuredObject`, so consumers can read nested webhook data without decoding JSON again.
 
 ## Resources
 
