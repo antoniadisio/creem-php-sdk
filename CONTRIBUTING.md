@@ -5,7 +5,7 @@ This repository is a public PHP SDK. Keep changes focused on package code and co
 
 ## Local Setup
 - Run `composer install` to install PHP dependencies.
-- Use PHP 8.2+.
+- Use PHP 8.4+.
 - Read `README.md` before changing the public API surface.
 
 ## Development Workflow
@@ -17,7 +17,7 @@ This repository is a public PHP SDK. Keep changes focused on package code and co
 ## Validation
 Run these commands locally:
 
-- `composer test` after each completed task, and keep fixing until it passes.
+- `composer test` after each completed task, and keep fixing until the Pest suite passes.
 - `composer cs` to verify formatting.
 - `composer cs:fix` to apply formatting fixes.
 - `composer stan` to run static analysis on `src` and `tests`.

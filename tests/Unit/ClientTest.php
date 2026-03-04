@@ -14,30 +14,24 @@ use Creem\Resource\ProductsResource;
 use Creem\Resource\StatsResource;
 use Creem\Resource\SubscriptionsResource;
 use Creem\Resource\TransactionsResource;
-use PHPUnit\Framework\TestCase;
 
-final class ClientTest extends TestCase
-{
-    public function test_client_exposes_stable_resource_accessors(): void
-    {
-        $client = new Client(new Config('sk_test_123'));
+test('client exposes stable resource accessors', function (): void {
+    $client = new Client(new Config('sk_test_123'));
 
-        $this->assertInstanceOf(ProductsResource::class, $client->products());
-        $this->assertInstanceOf(CustomersResource::class, $client->customers());
-        $this->assertInstanceOf(SubscriptionsResource::class, $client->subscriptions());
-        $this->assertInstanceOf(CheckoutsResource::class, $client->checkouts());
-        $this->assertInstanceOf(LicensesResource::class, $client->licenses());
-        $this->assertInstanceOf(DiscountsResource::class, $client->discounts());
-        $this->assertInstanceOf(TransactionsResource::class, $client->transactions());
-        $this->assertInstanceOf(StatsResource::class, $client->stats());
-        $this->assertSame($client->products(), $client->products());
-    }
+    $this->assertInstanceOf(ProductsResource::class, $client->products());
+    $this->assertInstanceOf(CustomersResource::class, $client->customers());
+    $this->assertInstanceOf(SubscriptionsResource::class, $client->subscriptions());
+    $this->assertInstanceOf(CheckoutsResource::class, $client->checkouts());
+    $this->assertInstanceOf(LicensesResource::class, $client->licenses());
+    $this->assertInstanceOf(DiscountsResource::class, $client->discounts());
+    $this->assertInstanceOf(TransactionsResource::class, $client->transactions());
+    $this->assertInstanceOf(StatsResource::class, $client->stats());
+    $this->assertSame($client->products(), $client->products());
+});
 
-    public function test_client_retains_the_supplied_config(): void
-    {
-        $config = new Config('sk_test_123');
-        $client = new Client($config);
+test('client retains the supplied config', function (): void {
+    $config = new Config('sk_test_123');
+    $client = new Client($config);
 
-        $this->assertSame($config, $client->config());
-    }
-}
+    $this->assertSame($config, $client->config());
+});

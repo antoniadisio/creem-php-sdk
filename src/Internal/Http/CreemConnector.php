@@ -60,6 +60,7 @@ final class CreemConnector extends Connector
     /**
      * @param  callable(Throwable, Request): bool|null  $handleRetry
      */
+    #[\Override]
     public function send(Request $request, ?MockClient $mockClient = null, ?callable $handleRetry = null): Response
     {
         try {

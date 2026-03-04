@@ -36,244 +36,234 @@ use Creem\Enum\SubscriptionUpdateBehavior;
 use Creem\Enum\TaxCategory;
 use Creem\Enum\TaxMode;
 use DateTimeImmutable;
-use PHPUnit\Framework\TestCase;
 
-final class RequestDtoSerializationTest extends TestCase
-{
-    public function test_basic_request_dtos_serialize_through_the_shared_normalizer(): void
-    {
-        $this->assertSame([
-            'customer_id' => 'cus_123',
-        ], (new CreateCustomerBillingPortalLinkRequest('cus_123'))->toArray());
+test('basic request dtos serialize through the shared normalizer', function (): void {
+    $this->assertSame([
+        'customer_id' => 'cus_123',
+    ], new CreateCustomerBillingPortalLinkRequest('cus_123')->toArray());
 
-        $this->assertSame([
-            'key' => 'lic_key',
-            'instance_name' => 'macbook',
-        ], (new ActivateLicenseRequest('lic_key', 'macbook'))->toArray());
+    $this->assertSame([
+        'key' => 'lic_key',
+        'instance_name' => 'macbook',
+    ], new ActivateLicenseRequest('lic_key', 'macbook')->toArray());
 
-        $this->assertSame([
-            'key' => 'lic_key',
-            'instance_id' => 'ins_123',
-        ], (new DeactivateLicenseRequest('lic_key', 'ins_123'))->toArray());
+    $this->assertSame([
+        'key' => 'lic_key',
+        'instance_id' => 'ins_123',
+    ], new DeactivateLicenseRequest('lic_key', 'ins_123')->toArray());
 
-        $this->assertSame([
-            'key' => 'lic_key',
-            'instance_id' => 'ins_456',
-        ], (new ValidateLicenseRequest('lic_key', 'ins_456'))->toArray());
-    }
+    $this->assertSame([
+        'key' => 'lic_key',
+        'instance_id' => 'ins_456',
+    ], new ValidateLicenseRequest('lic_key', 'ins_456')->toArray());
+});
 
-    public function test_query_request_dtos_serialize_integer_pagination(): void
-    {
-        $this->assertSame([
-            'page_number' => 2,
-            'page_size' => 50,
-        ], (new SearchProductsRequest(2, 50))->toQuery());
+test('query request dtos serialize integer pagination', function (): void {
+    $this->assertSame([
+        'page_number' => 2,
+        'page_size' => 50,
+    ], new SearchProductsRequest(2, 50)->toQuery());
 
-        $this->assertSame([
-            'page_number' => 1,
-            'page_size' => 20,
-        ], (new ListCustomersRequest(1, 20))->toQuery());
+    $this->assertSame([
+        'page_number' => 1,
+        'page_size' => 20,
+    ], new ListCustomersRequest(1, 20)->toQuery());
 
-        $this->assertSame([
-            'customer_id' => 'cus_123',
-            'order_id' => 'ord_123',
-            'product_id' => 'prod_123',
-            'page_number' => 3,
-            'page_size' => 25,
-        ], (new SearchTransactionsRequest('cus_123', 'ord_123', 'prod_123', 3, 25))->toQuery());
-    }
+    $this->assertSame([
+        'customer_id' => 'cus_123',
+        'order_id' => 'ord_123',
+        'product_id' => 'prod_123',
+        'page_number' => 3,
+        'page_size' => 25,
+    ], new SearchTransactionsRequest('cus_123', 'ord_123', 'prod_123', 3, 25)->toQuery());
+});
 
-    public function test_create_product_request_serializes_typed_custom_fields(): void
-    {
-        $request = new CreateProductRequest(
-            'Enterprise',
-            4900,
-            CurrencyCode::USD,
-            BillingType::Recurring,
-            description: 'Scale plan',
-            imageUrl: 'https://example.com/product.png',
-            billingPeriod: BillingPeriod::EveryMonth,
-            taxMode: TaxMode::Exclusive,
-            taxCategory: TaxCategory::Saas,
-            defaultSuccessUrl: 'https://example.com/success',
-            customFields: [
-                new CustomFieldInput(
-                    CustomFieldType::Text,
-                    'companyName',
-                    'Company Name',
-                    optional: true,
-                    text: new TextFieldConfigInput(maxLength: 200, minLength: 1),
-                ),
-                new CustomFieldInput(
-                    CustomFieldType::Checkbox,
-                    'termsAccepted',
-                    'Terms Accepted',
-                    checkbox: new CheckboxFieldConfigInput('I agree to the terms'),
-                ),
-            ],
-            abandonedCartRecoveryEnabled: true,
-        );
+test('create product request serializes typed custom fields', function (): void {
+    $request = new CreateProductRequest(
+        'Enterprise',
+        4900,
+        CurrencyCode::USD,
+        BillingType::Recurring,
+        description: 'Scale plan',
+        imageUrl: 'https://example.com/product.png',
+        billingPeriod: BillingPeriod::EveryMonth,
+        taxMode: TaxMode::Exclusive,
+        taxCategory: TaxCategory::Saas,
+        defaultSuccessUrl: 'https://example.com/success',
+        customFields: [
+            new CustomFieldInput(
+                CustomFieldType::Text,
+                'companyName',
+                'Company Name',
+                optional: true,
+                text: new TextFieldConfigInput(maxLength: 200, minLength: 1),
+            ),
+            new CustomFieldInput(
+                CustomFieldType::Checkbox,
+                'termsAccepted',
+                'Terms Accepted',
+                checkbox: new CheckboxFieldConfigInput('I agree to the terms'),
+            ),
+        ],
+        abandonedCartRecoveryEnabled: true,
+    );
 
-        $this->assertSame([
-            'name' => 'Enterprise',
-            'description' => 'Scale plan',
-            'image_url' => 'https://example.com/product.png',
-            'price' => 4900,
-            'currency' => 'USD',
-            'billing_type' => 'recurring',
-            'billing_period' => 'every-month',
-            'tax_mode' => 'exclusive',
-            'tax_category' => 'saas',
-            'default_success_url' => 'https://example.com/success',
-            'custom_fields' => [
-                [
-                    'type' => 'text',
-                    'key' => 'companyName',
-                    'label' => 'Company Name',
-                    'optional' => true,
-                    'text' => [
-                        'max_length' => 200,
-                        'min_length' => 1,
-                    ],
-                ],
-                [
-                    'type' => 'checkbox',
-                    'key' => 'termsAccepted',
-                    'label' => 'Terms Accepted',
-                    'checkbox' => [
-                        'label' => 'I agree to the terms',
-                    ],
-                ],
-            ],
-            'abandoned_cart_recovery_enabled' => true,
-        ], $request->toArray());
-
-        $this->assertArrayNotHasKey('custom_field', $request->toArray());
-    }
-
-    public function test_create_discount_request_serializes_enums_and_rfc3339_dates(): void
-    {
-        $request = new CreateDiscountRequest(
-            'Launch',
-            DiscountType::Fixed,
-            DiscountDuration::Repeating,
-            ['prod_123', 'prod_456'],
-            code: 'LAUNCH20',
-            amount: 2000,
-            currency: CurrencyCode::EUR,
-            expiryDate: new DateTimeImmutable('2024-12-31T23:59:59Z'),
-            maxRedemptions: 100,
-            durationInMonths: 6,
-        );
-
-        $this->assertSame([
-            'name' => 'Launch',
-            'code' => 'LAUNCH20',
-            'type' => 'fixed',
-            'amount' => 2000,
-            'currency' => 'EUR',
-            'expiry_date' => '2024-12-31T23:59:59+00:00',
-            'max_redemptions' => 100,
-            'duration' => 'repeating',
-            'duration_in_months' => 6,
-            'applies_to_products' => ['prod_123', 'prod_456'],
-        ], $request->toArray());
-    }
-
-    public function test_checkout_and_subscription_requests_serialize_nested_inputs_and_enums(): void
-    {
-        $checkoutRequest = new CreateCheckoutRequest(
-            'prod_123',
-            requestId: 'req_123',
-            units: 2,
-            discountCode: 'SUMMER2024',
-            customer: new CheckoutCustomerInput(email: 'user@example.com'),
-            customFields: [
-                new CustomFieldInput(
-                    CustomFieldType::Text,
-                    'companyName',
-                    'Company Name',
-                    text: new TextFieldConfigInput(maxLength: 100),
-                ),
-            ],
-            successUrl: 'https://example.com/success',
-            metadata: ['source' => 'email'],
-        );
-
-        $this->assertSame([
-            'request_id' => 'req_123',
-            'product_id' => 'prod_123',
-            'units' => 2,
-            'discount_code' => 'SUMMER2024',
-            'customer' => [
-                'email' => 'user@example.com',
-            ],
-            'custom_fields' => [
-                [
-                    'type' => 'text',
-                    'key' => 'companyName',
-                    'label' => 'Company Name',
-                    'text' => [
-                        'max_length' => 100,
-                    ],
-                ],
-            ],
-            'success_url' => 'https://example.com/success',
-            'metadata' => ['source' => 'email'],
-        ], $checkoutRequest->toArray());
-        $this->assertArrayNotHasKey('custom_field', $checkoutRequest->toArray());
-
-        $cancelRequest = new CancelSubscriptionRequest(
-            SubscriptionCancellationMode::Scheduled,
-            SubscriptionCancellationAction::Pause,
-        );
-        $this->assertSame([
-            'mode' => 'scheduled',
-            'onExecute' => 'pause',
-        ], $cancelRequest->toArray());
-
-        $updateRequest = new UpdateSubscriptionRequest(
+    $this->assertSame([
+        'name' => 'Enterprise',
+        'description' => 'Scale plan',
+        'image_url' => 'https://example.com/product.png',
+        'price' => 4900,
+        'currency' => 'USD',
+        'billing_type' => 'recurring',
+        'billing_period' => 'every-month',
+        'tax_mode' => 'exclusive',
+        'tax_category' => 'saas',
+        'default_success_url' => 'https://example.com/success',
+        'custom_fields' => [
             [
-                new UpsertSubscriptionItem(id: 'item_123', productId: 'prod_123', priceId: 'price_123', units: 4),
-            ],
-            SubscriptionUpdateBehavior::ProrationNone,
-        );
-        $this->assertSame([
-            'items' => [
-                [
-                    'id' => 'item_123',
-                    'product_id' => 'prod_123',
-                    'price_id' => 'price_123',
-                    'units' => 4,
+                'type' => 'text',
+                'key' => 'companyName',
+                'label' => 'Company Name',
+                'optional' => true,
+                'text' => [
+                    'max_length' => 200,
+                    'min_length' => 1,
                 ],
             ],
-            'update_behavior' => 'proration-none',
-        ], $updateRequest->toArray());
+            [
+                'type' => 'checkbox',
+                'key' => 'termsAccepted',
+                'label' => 'Terms Accepted',
+                'checkbox' => [
+                    'label' => 'I agree to the terms',
+                ],
+            ],
+        ],
+        'abandoned_cart_recovery_enabled' => true,
+    ], $request->toArray());
 
-        $upgradeRequest = new UpgradeSubscriptionRequest(
-            'prod_999',
-            SubscriptionUpdateBehavior::ProrationChargeImmediately,
-        );
-        $this->assertSame([
-            'product_id' => 'prod_999',
-            'update_behavior' => 'proration-charge-immediately',
-        ], $upgradeRequest->toArray());
-    }
+    $this->assertArrayNotHasKey('custom_field', $request->toArray());
+});
 
-    public function test_stats_request_serializes_millisecond_timestamps(): void
-    {
-        $request = new GetStatsSummaryRequest(
-            CurrencyCode::USD,
-            new DateTimeImmutable('2023-11-14T22:13:20.123+00:00'),
-            new DateTimeImmutable('2023-11-15T22:13:20.456+00:00'),
-            StatsInterval::Week,
-        );
+test('create discount request serializes enums and rfc3339 dates', function (): void {
+    $request = new CreateDiscountRequest(
+        'Launch',
+        DiscountType::Fixed,
+        DiscountDuration::Repeating,
+        ['prod_123', 'prod_456'],
+        code: 'LAUNCH20',
+        amount: 2000,
+        currency: CurrencyCode::EUR,
+        expiryDate: new DateTimeImmutable('2024-12-31T23:59:59Z'),
+        maxRedemptions: 100,
+        durationInMonths: 6,
+    );
 
-        $this->assertSame([
-            'startDate' => 1700000000123,
-            'endDate' => 1700086400456,
-            'interval' => 'week',
-            'currency' => 'USD',
-        ], $request->toQuery());
-    }
-}
+    $this->assertSame([
+        'name' => 'Launch',
+        'code' => 'LAUNCH20',
+        'type' => 'fixed',
+        'amount' => 2000,
+        'currency' => 'EUR',
+        'expiry_date' => '2024-12-31T23:59:59+00:00',
+        'max_redemptions' => 100,
+        'duration' => 'repeating',
+        'duration_in_months' => 6,
+        'applies_to_products' => ['prod_123', 'prod_456'],
+    ], $request->toArray());
+});
+
+test('checkout and subscription requests serialize nested inputs and enums', function (): void {
+    $checkoutRequest = new CreateCheckoutRequest(
+        'prod_123',
+        requestId: 'req_123',
+        units: 2,
+        discountCode: 'SUMMER2024',
+        customer: new CheckoutCustomerInput(email: 'user@example.com'),
+        customFields: [
+            new CustomFieldInput(
+                CustomFieldType::Text,
+                'companyName',
+                'Company Name',
+                text: new TextFieldConfigInput(maxLength: 100),
+            ),
+        ],
+        successUrl: 'https://example.com/success',
+        metadata: ['source' => 'email'],
+    );
+
+    $this->assertSame([
+        'request_id' => 'req_123',
+        'product_id' => 'prod_123',
+        'units' => 2,
+        'discount_code' => 'SUMMER2024',
+        'customer' => [
+            'email' => 'user@example.com',
+        ],
+        'custom_fields' => [
+            [
+                'type' => 'text',
+                'key' => 'companyName',
+                'label' => 'Company Name',
+                'text' => [
+                    'max_length' => 100,
+                ],
+            ],
+        ],
+        'success_url' => 'https://example.com/success',
+        'metadata' => ['source' => 'email'],
+    ], $checkoutRequest->toArray());
+    $this->assertArrayNotHasKey('custom_field', $checkoutRequest->toArray());
+
+    $cancelRequest = new CancelSubscriptionRequest(
+        SubscriptionCancellationMode::Scheduled,
+        SubscriptionCancellationAction::Pause,
+    );
+    $this->assertSame([
+        'mode' => 'scheduled',
+        'onExecute' => 'pause',
+    ], $cancelRequest->toArray());
+
+    $updateRequest = new UpdateSubscriptionRequest(
+        [
+            new UpsertSubscriptionItem(id: 'item_123', productId: 'prod_123', priceId: 'price_123', units: 4),
+        ],
+        SubscriptionUpdateBehavior::ProrationNone,
+    );
+    $this->assertSame([
+        'items' => [
+            [
+                'id' => 'item_123',
+                'product_id' => 'prod_123',
+                'price_id' => 'price_123',
+                'units' => 4,
+            ],
+        ],
+        'update_behavior' => 'proration-none',
+    ], $updateRequest->toArray());
+
+    $upgradeRequest = new UpgradeSubscriptionRequest(
+        'prod_999',
+        SubscriptionUpdateBehavior::ProrationChargeImmediately,
+    );
+    $this->assertSame([
+        'product_id' => 'prod_999',
+        'update_behavior' => 'proration-charge-immediately',
+    ], $upgradeRequest->toArray());
+});
+
+test('stats request serializes millisecond timestamps', function (): void {
+    $request = new GetStatsSummaryRequest(
+        CurrencyCode::USD,
+        new DateTimeImmutable('2023-11-14T22:13:20.123+00:00'),
+        new DateTimeImmutable('2023-11-15T22:13:20.456+00:00'),
+        StatsInterval::Week,
+    );
+
+    $this->assertSame([
+        'startDate' => 1700000000123,
+        'endDate' => 1700086400456,
+        'interval' => 'week',
+        'currency' => 'USD',
+    ], $request->toQuery());
+});

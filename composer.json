@@ -20,13 +20,13 @@
         }
     ],
     "require": {
-        "php": "^8.2",
+        "php": "^8.4",
         "saloonphp/saloon": "^3.15"
     },
     "require-dev": {
         "laravel/pint": "^1.27",
+        "pestphp/pest": "^4.0",
         "phpstan/phpstan": "^2.1",
-        "phpunit/phpunit": "^11.5",
         "rector/rector": "^2.3"
     },
     "autoload": {
@@ -42,7 +42,7 @@
     "scripts": {
         "rector": "rector process",
         "rector:check": "rector process --dry-run",
-        "test": "phpunit",
+        "test": "pest",
         "cs": "pint --test",
         "cs:fix": "pint",
         "stan": "phpstan analyse --configuration=phpstan.neon.dist --memory-limit=512M",
@@ -60,8 +60,11 @@
         ]
     },
     "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        },
         "platform": {
-            "php": "8.2.0"
+            "php": "8.4.0"
         }
     },
     "minimum-stability": "stable",

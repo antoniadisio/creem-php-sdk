@@ -17,7 +17,7 @@ return RectorConfig::configure()
         __DIR__.'/tests',
     ])
     ->withoutParallel()
-    ->withPhpSets(php82: true)
+    ->withPhpSets(php84: true)
     ->withPreparedSets(
         deadCode: true,
         codeQuality: true,

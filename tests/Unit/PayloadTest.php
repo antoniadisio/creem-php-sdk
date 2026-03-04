@@ -10,167 +10,146 @@ use Creem\Enum\CurrencyCode;
 use Creem\Exception\HydrationException;
 use Creem\Internal\Hydration\Payload;
 use DateTimeImmutable;
-use PHPUnit\Framework\TestCase;
 
-final class PayloadTest extends TestCase
-{
-    public function test_it_parses_strict_scalar_types(): void
-    {
-        $payload = [
-            'label' => 'starter',
-            'count' => 3,
-            'rate' => 1.5,
-            'enabled' => true,
-        ];
+test('it parses strict scalar types', function (): void {
+    $payload = [
+        'label' => 'starter',
+        'count' => 3,
+        'rate' => 1.5,
+        'enabled' => true,
+    ];
 
-        $this->assertSame('starter', Payload::string($payload, 'label', 'ExampleDto', true));
-        $this->assertSame(3, Payload::integer($payload, 'count', 'ExampleDto', true));
-        $this->assertEqualsWithDelta(1.5, Payload::decimal($payload, 'rate', 'ExampleDto', true), PHP_FLOAT_EPSILON);
-        $this->assertTrue(Payload::bool($payload, 'enabled', 'ExampleDto', true));
-    }
+    $this->assertSame('starter', Payload::string($payload, 'label', 'ExampleDto', true));
+    $this->assertSame(3, Payload::integer($payload, 'count', 'ExampleDto', true));
+    $this->assertEqualsWithDelta(1.5, Payload::decimal($payload, 'rate', 'ExampleDto', true), PHP_FLOAT_EPSILON);
+    $this->assertTrue(Payload::bool($payload, 'enabled', 'ExampleDto', true));
+});
 
-    public function test_it_parses_enum_values(): void
-    {
-        $currency = Payload::enum(['currency' => 'USD'], 'currency', 'StatsSummary', CurrencyCode::class, true);
+test('it parses enum values', function (): void {
+    $currency = Payload::enum(['currency' => 'USD'], 'currency', 'StatsSummary', CurrencyCode::class, true);
 
-        $this->assertSame(CurrencyCode::USD, $currency);
-    }
+    $this->assertSame(CurrencyCode::USD, $currency);
+});
 
-    public function test_it_parses_iso_date_time_strings(): void
-    {
-        $createdAt = Payload::dateTime(['created_at' => '2026-03-03T10:15:00+00:00'], 'created_at', 'Product', true);
+test('it parses iso date time strings', function (): void {
+    $createdAt = Payload::dateTime(['created_at' => '2026-03-03T10:15:00+00:00'], 'created_at', 'Product', true);
 
-        $this->assertInstanceOf(DateTimeImmutable::class, $createdAt);
-        $this->assertSame('2026-03-03T10:15:00+00:00', $createdAt->format(DATE_ATOM));
-    }
+    $this->assertInstanceOf(DateTimeImmutable::class, $createdAt);
+    $this->assertSame('2026-03-03T10:15:00+00:00', $createdAt->format(DATE_ATOM));
+});
 
-    public function test_it_parses_millisecond_timestamps(): void
-    {
-        $timestamp = Payload::millisecondsDateTime(['timestamp' => 1700000000000], 'timestamp', 'StatsPeriod', true);
+test('it parses millisecond timestamps', function (): void {
+    $timestamp = Payload::millisecondsDateTime(['timestamp' => 1700000000000], 'timestamp', 'StatsPeriod', true);
 
-        $this->assertInstanceOf(DateTimeImmutable::class, $timestamp);
-        $this->assertSame('2023-11-14T22:13:20+00:00', $timestamp->format(DATE_ATOM));
-    }
+    $this->assertInstanceOf(DateTimeImmutable::class, $timestamp);
+    $this->assertSame('2023-11-14T22:13:20+00:00', $timestamp->format(DATE_ATOM));
+});
 
-    public function test_it_maps_typed_objects_lists_and_array_objects(): void
-    {
-        $payload = [
-            'totals' => ['total_products' => 2],
-            'periods' => [
-                ['id' => 'period_1'],
-                ['id' => 'period_2'],
-            ],
-            'metadata' => ['source' => 'sdk-test'],
-        ];
+test('it maps typed objects lists and array objects', function (): void {
+    $payload = [
+        'totals' => ['total_products' => 2],
+        'periods' => [
+            ['id' => 'period_1'],
+            ['id' => 'period_2'],
+        ],
+        'metadata' => ['source' => 'sdk-test'],
+    ];
 
-        $totals = Payload::typedObject(
-            $payload,
-            'totals',
-            'StatsSummary',
-            static fn (array $value): StructuredObject => StructuredObject::fromArray($value),
-            true,
-        );
-        $periods = Payload::typedList(
-            $payload,
-            'periods',
-            'StatsSummary',
-            static function (mixed $item): string {
-                self::assertIsArray($item);
-                self::assertArrayHasKey('id', $item);
+    $totals = Payload::typedObject(
+        $payload,
+        'totals',
+        'StatsSummary',
+        static fn (array $value): StructuredObject => StructuredObject::fromArray($value),
+        true,
+    );
+    $periods = Payload::typedList(
+        $payload,
+        'periods',
+        'StatsSummary',
+        static function (mixed $item): string {
+            if (! is_array($item) || ! array_key_exists('id', $item) || ! is_string($item['id'])) {
+                throw new \RuntimeException('Unexpected period payload.');
+            }
 
-                $id = $item['id'];
+            return $item['id'];
+        },
+        true,
+    );
+    $metadata = Payload::arrayObject($payload, 'metadata', 'Checkout', true);
 
-                self::assertIsString($id);
+    $this->assertInstanceOf(StructuredObject::class, $totals);
+    $this->assertSame(2, $totals->get('total_products'));
+    $this->assertSame(['period_1', 'period_2'], $periods);
+    $this->assertSame(['source' => 'sdk-test'], $metadata);
+});
 
-                return $id;
-            },
-            true,
-        );
-        $metadata = Payload::arrayObject($payload, 'metadata', 'Checkout', true);
+test('it maps expandable resources from expanded object payloads', function (): void {
+    $product = Payload::expandableResource(
+        ['product' => ['id' => 'prod_123', 'name' => 'Starter']],
+        'product',
+        'Checkout',
+        static fn (array $value): StructuredObject => StructuredObject::fromArray($value),
+        true,
+    );
 
-        $this->assertInstanceOf(StructuredObject::class, $totals);
-        $this->assertSame(2, $totals->get('total_products'));
-        $this->assertSame(['period_1', 'period_2'], $periods);
-        $this->assertSame(['source' => 'sdk-test'], $metadata);
-    }
+    $this->assertInstanceOf(ExpandableResource::class, $product);
+    $this->assertSame('prod_123', $product->id());
+    $this->assertTrue($product->isExpanded());
+    $this->assertInstanceOf(StructuredObject::class, $product->resource());
+});
 
-    public function test_it_maps_expandable_resources_from_expanded_object_payloads(): void
-    {
-        $product = Payload::expandableResource(
-            ['product' => ['id' => 'prod_123', 'name' => 'Starter']],
-            'product',
-            'Checkout',
-            static fn (array $value): StructuredObject => StructuredObject::fromArray($value),
-            true,
-        );
+test('it maps expandable resources from id only payloads', function (): void {
+    $customer = Payload::expandableResource(
+        ['customer' => 'cus_123'],
+        'customer',
+        'Checkout',
+        static fn (array $value): StructuredObject => StructuredObject::fromArray($value),
+        true,
+    );
 
-        $this->assertInstanceOf(ExpandableResource::class, $product);
-        $this->assertSame('prod_123', $product->id());
-        $this->assertTrue($product->isExpanded());
-        $this->assertInstanceOf(StructuredObject::class, $product->resource());
-    }
+    $this->assertInstanceOf(ExpandableResource::class, $customer);
+    $this->assertSame('cus_123', $customer->id());
+    $this->assertFalse($customer->isExpanded());
+    $this->assertNotInstanceOf(StructuredObject::class, $customer->resource());
+});
 
-    public function test_it_maps_expandable_resources_from_id_only_payloads(): void
-    {
-        $customer = Payload::expandableResource(
-            ['customer' => 'cus_123'],
-            'customer',
-            'Checkout',
-            static fn (array $value): StructuredObject => StructuredObject::fromArray($value),
-            true,
-        );
-
-        $this->assertInstanceOf(ExpandableResource::class, $customer);
-        $this->assertSame('cus_123', $customer->id());
-        $this->assertFalse($customer->isExpanded());
-        $this->assertNotInstanceOf(\Creem\Dto\Common\StructuredObject::class, $customer->resource());
-    }
-
-    public function test_it_throws_contextual_hydration_exceptions_for_invalid_required_integer_fields(): void
-    {
-        $this->expectException(HydrationException::class);
-        $this->expectExceptionMessage('Hydration failed for Product.price: expected int, got string.');
-
+test('it throws contextual hydration exceptions for invalid required integer fields', function (): void {
+    expect(static function (): void {
         Payload::integer(['price' => '4900'], 'price', 'Product', true);
-    }
+    })
+        ->toThrow(HydrationException::class, 'Hydration failed for Product.price: expected int, got string.');
+});
 
-    public function test_it_throws_contextual_hydration_exceptions_for_missing_required_fields(): void
-    {
-        $this->expectException(HydrationException::class);
-        $this->expectExceptionMessage('Hydration failed for Product.created_at: field is required.');
-
+test('it throws contextual hydration exceptions for missing required fields', function (): void {
+    expect(static function (): void {
         Payload::dateTime([], 'created_at', 'Product', true);
-    }
+    })
+        ->toThrow(HydrationException::class, 'Hydration failed for Product.created_at: field is required.');
+});
 
-    public function test_it_throws_contextual_hydration_exceptions_for_invalid_date_time_strings(): void
-    {
-        $this->expectException(HydrationException::class);
-        $this->expectExceptionMessage('Hydration failed for Product.created_at: expected a valid date-time string.');
-
+test('it throws contextual hydration exceptions for invalid date time strings', function (): void {
+    expect(static function (): void {
         Payload::dateTime(['created_at' => 'not-a-date'], 'created_at', 'Product', true);
-    }
+    })
+        ->toThrow(HydrationException::class, 'Hydration failed for Product.created_at: expected a valid date-time string.');
+});
 
-    public function test_it_throws_contextual_hydration_exceptions_for_invalid_millisecond_timestamps(): void
-    {
-        $this->expectException(HydrationException::class);
-        $this->expectExceptionMessage('Hydration failed for StatsPeriod.timestamp: expected int millisecond timestamp, got string.');
-
+test('it throws contextual hydration exceptions for invalid millisecond timestamps', function (): void {
+    expect(static function (): void {
         Payload::millisecondsDateTime(['timestamp' => '1700000000000'], 'timestamp', 'StatsPeriod', true);
-    }
+    })
+        ->toThrow(HydrationException::class, 'Hydration failed for StatsPeriod.timestamp: expected int millisecond timestamp, got string.');
+});
 
-    public function test_it_throws_contextual_hydration_exceptions_for_invalid_enum_values(): void
-    {
-        $this->expectException(HydrationException::class);
-        $this->expectExceptionMessage('Hydration failed for StatsSummary.currency: expected valid Creem\Enum\CurrencyCode, got string.');
-
+test('it throws contextual hydration exceptions for invalid enum values', function (): void {
+    expect(static function (): void {
         Payload::enum(['currency' => 'usd'], 'currency', 'StatsSummary', CurrencyCode::class, true);
-    }
+    })
+        ->toThrow(HydrationException::class, 'Hydration failed for StatsSummary.currency: expected valid Creem\Enum\CurrencyCode, got string.');
+});
 
-    public function test_it_throws_contextual_hydration_exceptions_for_malformed_nested_objects(): void
-    {
-        $this->expectException(HydrationException::class);
-        $this->expectExceptionMessage('Hydration failed for StatsSummary.totals: expected object, got string.');
-
+test('it throws contextual hydration exceptions for malformed nested objects', function (): void {
+    expect(static function (): void {
         Payload::typedObject(
             ['totals' => 'invalid'],
             'totals',
@@ -178,5 +157,5 @@ final class PayloadTest extends TestCase
             static fn (array $value): StructuredObject => StructuredObject::fromArray($value),
             true,
         );
-    }
-}
+    })->toThrow(HydrationException::class, 'Hydration failed for StatsSummary.totals: expected object, got string.');
+});
