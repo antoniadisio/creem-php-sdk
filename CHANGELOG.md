@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+## 0.1.1 - 2026-03-04
+
+### Patch Release
+- Reordered the README so consumer installation and usage guidance come before contributor workflow details.
+- Updated the quick-start example to use `Environment::Test` and explicitly call out that `Creem\Config` defaults to `Environment::Production`.
+- Moved development validation commands into a dedicated contributor-focused section to reduce confusion for package consumers.
+
+### Compatibility Notes
+- No runtime API changes are included in this release.
+- No code changes are required for existing SDK consumers.
+
 ## 0.1.0 - 2026-03-04
 
 ### Preview Release
