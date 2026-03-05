@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Creem;
 
 use const FILTER_VALIDATE_URL;
+use const PHP_URL_HOST;
 use const PHP_URL_SCHEME;
 
 use Creem\Internal\Http\UserAgent;
@@ -30,6 +31,14 @@ final readonly class Config implements \Stringable
 
     private const string API_KEY_PATTERN = '/^(?:sk|creem)_[A-Za-z0-9][A-Za-z0-9._-]*$/';
 
+    /**
+     * @var array<int, string>
+     */
+    private const array TRUSTED_BASE_URL_HOSTS = [
+        'api.creem.io',
+        'test-api.creem.io',
+    ];
+
     private string $apiKey;
 
     private ?string $baseUrl;
@@ -45,6 +54,7 @@ final readonly class Config implements \Stringable
         ?string $baseUrl = null,
         int|float|null $timeout = null,
         ?string $userAgentSuffix = null,
+        bool $allowUnsafeBaseUrlOverride = false,
     ) {
         $apiKey = trim($apiKey);
 
@@ -67,16 +77,28 @@ final readonly class Config implements \Stringable
         }
 
         $baseUrlScheme = $normalizedBaseUrl === null ? null : parse_url($normalizedBaseUrl, PHP_URL_SCHEME);
+        $baseUrlHost = $normalizedBaseUrl === null ? null : parse_url($normalizedBaseUrl, PHP_URL_HOST);
 
         if (
             $normalizedBaseUrl !== null
             && (
                 filter_var($normalizedBaseUrl, FILTER_VALIDATE_URL) === false
                 || ! is_string($baseUrlScheme)
+                || ! is_string($baseUrlHost)
                 || strtolower($baseUrlScheme) !== 'https'
             )
         ) {
             throw new InvalidArgumentException('The Creem base URL override must be a valid HTTPS URL.');
+        }
+
+        if (
+            $normalizedBaseUrl !== null
+            && ! $this->isTrustedBaseUrlHost($baseUrlHost)
+            && ! $allowUnsafeBaseUrlOverride
+        ) {
+            throw new InvalidArgumentException(
+                'The Creem base URL override host is not trusted. Pass allowUnsafeBaseUrlOverride: true to allow non-Creem hosts.',
+            );
         }
 
         $normalizedSuffix = $userAgentSuffix === null
@@ -193,5 +215,10 @@ final readonly class Config implements \Stringable
         }
 
         return 'sk_****'.$visibleSuffix;
+    }
+
+    private function isTrustedBaseUrlHost(string $host): bool
+    {
+        return in_array(strtolower($host), self::TRUSTED_BASE_URL_HOSTS, true);
     }
 }

@@ -244,7 +244,7 @@ test('checkout and subscription requests serialize nested inputs and enums', fun
     ], $updateRequest->toArray());
 
     $upgradeRequest = new UpgradeSubscriptionRequest(
-        'prod_999',
+        '  prod_999  ',
         SubscriptionUpdateBehavior::ProrationChargeImmediately,
     );
     $this->assertSame([
@@ -301,6 +301,9 @@ test('mutation request dtos reject invalid identifiers and numeric bounds', func
 
     expect(static fn (): UpsertSubscriptionItem => new UpsertSubscriptionItem(productId: 'prod_123', units: 0))
         ->toThrow(InvalidArgumentException::class, 'The subscription item units must be greater than zero.');
+
+    expect(static fn (): UpgradeSubscriptionRequest => new UpgradeSubscriptionRequest('   '))
+        ->toThrow(InvalidArgumentException::class, 'The subscription upgrade product ID cannot be blank.');
 
     expect(static fn (): CreateDiscountRequest => new CreateDiscountRequest(
         'Launch',

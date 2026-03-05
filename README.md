@@ -44,6 +44,7 @@ $product = $client->products()->get('prod_123');
 - `baseUrl` (optional override, must be a valid `https://` URL)
 - `timeout` (optional request timeout in seconds, defaults to `30`)
 - `userAgentSuffix` (optional suffix appended to the SDK user agent)
+- `allowUnsafeBaseUrlOverride` (optional, defaults to `false`; required only when `baseUrl` uses a non-Creem host)
 
 ```php
 <?php
@@ -65,7 +66,19 @@ Environments resolve to:
 - `Environment::Production` -> `https://api.creem.io`
 - `Environment::Test` -> `https://test-api.creem.io`
 
-Use `baseUrl` only when you need to override the default API host for local proxying or similar non-standard setups. `Config` also redacts the API key in debug output, string casts, and serialization.
+When `baseUrl` is provided, `Config` now enforces trusted-host mode by default and only allows official Creem hosts (`api.creem.io`, `test-api.creem.io`). To target a non-official host (for example a local proxy), you must opt in explicitly with `allowUnsafeBaseUrlOverride: true`.
+
+```php
+<?php
+
+$config = new Config(
+    apiKey: $_ENV['CREEM_API_KEY'],
+    baseUrl: 'https://proxy.example.test',
+    allowUnsafeBaseUrlOverride: true,
+);
+```
+
+`Config` also redacts the API key in debug output, string casts, and serialization.
 
 Transport defaults are hardened: redirects are disabled, TLS certificate verification is always enabled, TLS 1.2 is enforced as the minimum protocol, and request/connect/read timeouts all use the configured SDK timeout (or the 30-second default).
 
@@ -198,6 +211,8 @@ The returned `WebhookEvent` exposes `id()`, `eventType()`, `createdAt()`, `objec
 All mutating resource methods accept an optional final `?string $idempotencyKey = null` argument. Pass a stable key on retries to prevent duplicate checkout, subscription, discount, or license side effects.
 
 Mutation request DTOs now fail fast with `InvalidArgumentException` when required identifiers are blank after trimming, numeric bounds are invalid (for example `price <= 0` or `units <= 0`), discount payload fields are incoherent (`fixed` vs `percentage`), or list elements are malformed at runtime. Existing integrations that relied on sending empty/invalid payload values should update those call sites before upgrading.
+
+Mutating resource methods that interpolate IDs into path segments (`subscriptions()->cancel/update/upgrade/pause/resume` and `discounts()->delete`) now normalize IDs and reject unsafe input. IDs are trimmed, must be non-blank, and may only contain `[A-Za-z0-9._-]`; reserved URI/control characters (`/`, `\\`, `?`, `#`, `%`, ASCII controls) are rejected to prevent route manipulation.
 
 ### Products
 

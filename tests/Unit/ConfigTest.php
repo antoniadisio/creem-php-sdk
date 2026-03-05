@@ -13,20 +13,31 @@ test('config applies overrides and normalizes inputs', function (): void {
     $config = new Config(
         '  sk_test_123  ',
         Environment::Test,
-        'https://example.test/',
+        'https://test-api.creem.io/',
         15,
         '  integration-suite  ',
     );
 
     expect($config->apiKey())->toBe('sk_test_123')
         ->and($config->environment())->toBe(Environment::Test)
-        ->and($config->baseUrl())->toBe('https://example.test')
-        ->and($config->resolveBaseUrl())->toBe('https://example.test')
+        ->and($config->baseUrl())->toBe('https://test-api.creem.io')
+        ->and($config->resolveBaseUrl())->toBe('https://test-api.creem.io')
         ->and($config->timeout())->toBe(15.0)
         ->and($config->userAgentSuffix())->toBe('integration-suite')
         ->and($config->userAgent())->toStartWith('creem-php-sdk/')
         ->and($config->userAgent())->toContain('php/'.PHP_VERSION)
         ->and($config->userAgent())->toEndWith('integration-suite');
+});
+
+test('config requires explicit opt-in for non official base url overrides', function (): void {
+    $config = new Config(
+        'sk_test_123',
+        baseUrl: 'https://example.test/',
+        allowUnsafeBaseUrlOverride: true,
+    );
+
+    expect($config->baseUrl())->toBe('https://example.test')
+        ->and($config->resolveBaseUrl())->toBe('https://example.test');
 });
 
 foreach (invalidConfigValues() as $dataset => [$factory, $message]) {
@@ -104,6 +115,10 @@ function invalidConfigValues(): array
         'non https base url' => [
             static fn (): Config => new Config('sk_test_123', baseUrl: 'http://example.test'),
             'The Creem base URL override must be a valid HTTPS URL.',
+        ],
+        'untrusted base url without opt in' => [
+            static fn (): Config => new Config('sk_test_123', baseUrl: 'https://example.test'),
+            'The Creem base URL override host is not trusted. Pass allowUnsafeBaseUrlOverride: true to allow non-Creem hosts.',
         ],
         'malformed base url' => [
             static fn (): Config => new Config('sk_test_123', baseUrl: 'not a url'),
