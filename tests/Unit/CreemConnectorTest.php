@@ -26,10 +26,11 @@ use Saloon\Http\PendingRequest;
 use Saloon\Http\Request;
 use Saloon\Http\Response;
 
-test('connector builds expected headers and request configuration', function (): void {
+test('connector builds expected headers and hardened request configuration', function (): void {
     $connector = new CreemConnector(new Config('sk_test_123', Environment::Test, null, 12.5, 'integration-suite'));
     $pendingRequest = $connector->createPendingRequest(creemConnectorTestRequest());
     $psrRequest = $pendingRequest->createPsrRequest();
+    $requestConfig = $pendingRequest->config()->all();
 
     expect((string) $psrRequest->getUri())->toBe('https://test-api.creem.io/v1/ping')
         ->and($psrRequest->getHeaderLine('Accept'))->toBe('application/json')
@@ -37,14 +38,22 @@ test('connector builds expected headers and request configuration', function ():
         ->and($psrRequest->getHeaderLine('x-api-key'))->toBe('sk_test_123')
         ->and($psrRequest->getHeaderLine('User-Agent'))->toStartWith('creem-php-sdk/')
         ->and($psrRequest->getHeaderLine('User-Agent'))->toContain('integration-suite')
-        ->and($pendingRequest->config()->all()['timeout'])->toBe(12.5);
+        ->and($requestConfig['allow_redirects'])->toBeFalse()
+        ->and($requestConfig['verify'])->toBeTrue()
+        ->and($requestConfig['timeout'])->toBe(12.5)
+        ->and($requestConfig['connect_timeout'])->toBe(12.5)
+        ->and($requestConfig['read_timeout'])->toBe(12.5)
+        ->and($requestConfig['crypto_method'])->toBe(STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT);
 });
 
 test('connector applies the default timeout when none is configured', function (): void {
     $connector = new CreemConnector(new Config('sk_test_123'));
     $pendingRequest = $connector->createPendingRequest(creemConnectorTestRequest());
+    $requestConfig = $pendingRequest->config()->all();
 
-    expect($pendingRequest->config()->all()['timeout'])->toBe(Config::DEFAULT_TIMEOUT_SECONDS);
+    expect($requestConfig['timeout'])->toBe(Config::DEFAULT_TIMEOUT_SECONDS)
+        ->and($requestConfig['connect_timeout'])->toBe(Config::DEFAULT_TIMEOUT_SECONDS)
+        ->and($requestConfig['read_timeout'])->toBe(Config::DEFAULT_TIMEOUT_SECONDS);
 });
 
 test('mutating requests reject invalid idempotency keys', function (): void {
@@ -78,11 +87,11 @@ test('invalid json is normalized to a transport exception', function (): void {
         ->toThrow(TransportException::class, 'The Creem API returned an invalid JSON response.');
 });
 
-test('transport failures are wrapped and preserve the previous exception', function (): void {
-    $connector = new CreemConnector(new Config('sk_test_123'));
+test('transport failures are wrapped without leaking sender exception internals', function (): void {
+    $connector = new CreemConnector(new Config('sk_test_very_secret_123'));
     $mockResponse = MockResponse::make()->throw(
         static fn (PendingRequest $pendingRequest): FatalRequestException => new FatalRequestException(
-            new RuntimeException('Socket closed'),
+            new RuntimeException('Socket closed for sk_test_very_secret_123'),
             $pendingRequest,
         ),
     );
@@ -93,11 +102,63 @@ test('transport failures are wrapped and preserve the previous exception', funct
 
     expect($exception)->toBeInstanceOf(TransportException::class)
         ->and($exception?->getMessage())->toBe('The Creem API request could not be completed.')
+        ->and($exception?->getMessage())->not->toContain('sk_test_very_secret_123')
         ->and($exception?->statusCode())->toBeNull()
         ->and($exception?->context())->toBe([])
-        ->and($exception?->getPrevious())->toBeInstanceOf(FatalRequestException::class)
-        ->and($exception?->getPrevious()?->getPrevious())->toBeInstanceOf(RuntimeException::class)
-        ->and($exception?->getPrevious()?->getPrevious()?->getMessage())->toBe('Socket closed');
+        ->and($exception?->getPrevious())->toBeNull();
+});
+
+test('plain text error bodies redact sensitive token patterns', function (): void {
+    $connector = new CreemConnector(new Config('sk_test_123'));
+    $exception = captureCreemException(
+        static fn (): Response => $connector->send(
+            creemConnectorTestRequest(),
+            new MockClient([
+                MockResponse::make('Rejected sk_live_secret creem_live_secret whsec_secret', 500),
+            ]),
+        ),
+    );
+
+    expect($exception)->toBeInstanceOf(ServerException::class)
+        ->and($exception?->getMessage())->toBe('Rejected [redacted] [redacted] [redacted]')
+        ->and($exception?->context())->toBe(['body' => 'Rejected [redacted] [redacted] [redacted]'])
+        ->and($exception?->getMessage())->not->toContain('sk_live_secret')
+        ->and($exception?->getMessage())->not->toContain('creem_live_secret')
+        ->and($exception?->getMessage())->not->toContain('whsec_secret')
+        ->and($exception?->getPrevious())->toBeNull();
+});
+
+test('json error messages and context redact sensitive token patterns', function (): void {
+    $connector = new CreemConnector(new Config('sk_test_123'));
+    $exception = captureCreemException(
+        static fn (): Response => $connector->send(
+            creemConnectorTestRequest(),
+            new MockClient([
+                MockResponse::make([
+                    'message' => 'Invalid key sk_live_secret',
+                    'detail' => 'Credential creem_live_secret is invalid',
+                    'errors' => [
+                        [
+                            'detail' => 'Webhook secret whsec_secret is invalid',
+                        ],
+                    ],
+                ], 422),
+            ]),
+        ),
+    );
+
+    expect($exception)->toBeInstanceOf(ValidationException::class)
+        ->and($exception?->getMessage())->toBe('Invalid key [redacted]')
+        ->and($exception?->context())->toBe([
+            'message' => 'Invalid key [redacted]',
+            'detail' => 'Credential [redacted] is invalid',
+            'errors' => [
+                [
+                    'detail' => 'Webhook secret [redacted] is invalid',
+                ],
+            ],
+        ])
+        ->and($exception?->getPrevious())->toBeNull();
 });
 
 foreach (creemConnectorResponseFailureMappings() as $dataset => [$response, $expectedException, $expectedMessage, $expectedStatus, $expectedContext]) {

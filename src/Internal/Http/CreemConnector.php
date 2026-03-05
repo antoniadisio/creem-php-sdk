@@ -41,16 +41,25 @@ final class CreemConnector extends Connector
     }
 
     /**
-     * @return array<string, float>
+     * @return array<string, bool|float|int>
      */
     protected function defaultConfig(): array
     {
-        return ['timeout' => $this->sdkConfig->timeout() ?? Config::DEFAULT_TIMEOUT_SECONDS];
+        $timeout = $this->sdkConfig->timeout() ?? Config::DEFAULT_TIMEOUT_SECONDS;
+
+        return [
+            'allow_redirects' => false,
+            'verify' => true,
+            'timeout' => $timeout,
+            'connect_timeout' => $timeout,
+            'read_timeout' => $timeout,
+            'crypto_method' => STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT,
+        ];
     }
 
-    public function getRequestException(Response $response, ?Throwable $senderException): Throwable
+    public function getRequestException(Response $response, ?Throwable $_senderException): Throwable
     {
-        return ExceptionMapper::map($response, $senderException);
+        return ExceptionMapper::map($response);
     }
 
     /**
@@ -61,8 +70,8 @@ final class CreemConnector extends Connector
     {
         try {
             return parent::send($request, $mockClient, $handleRetry);
-        } catch (FatalRequestException $exception) {
-            throw new TransportException('The Creem API request could not be completed.', null, [], $exception);
+        } catch (FatalRequestException) {
+            throw new TransportException('The Creem API request could not be completed.');
         }
     }
 }

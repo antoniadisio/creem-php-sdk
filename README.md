@@ -67,6 +67,8 @@ Environments resolve to:
 
 Use `baseUrl` only when you need to override the default API host for local proxying or similar non-standard setups. `Config` also redacts the API key in debug output, string casts, and serialization.
 
+Transport defaults are hardened: redirects are disabled, TLS certificate verification is always enabled, TLS 1.2 is enforced as the minimum protocol, and request/connect/read timeouts all use the configured SDK timeout (or the 30-second default).
+
 ## Error Handling
 
 All SDK exceptions extend `Creem\Exception\CreemException`.
