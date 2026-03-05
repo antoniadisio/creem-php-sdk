@@ -11,7 +11,6 @@ use Creem\Exception\RateLimitException;
 use Creem\Exception\ServerException;
 use Creem\Exception\ValidationException;
 use Saloon\Http\Response;
-use Throwable;
 
 use function array_is_list;
 use function array_key_exists;
@@ -24,6 +23,7 @@ use function is_int;
 use function is_string;
 use function max;
 use function preg_match;
+use function preg_replace;
 use function sprintf;
 use function str_starts_with;
 use function strlen;
@@ -46,6 +46,8 @@ final class ExceptionMapper
 
     private const int MAX_STRING_LENGTH = 500;
 
+    private const string SENSITIVE_TOKEN_PATTERN = '/(?<![A-Za-z0-9])(?:sk|creem|whsec)_[A-Za-z0-9][A-Za-z0-9._-]*/';
+
     /**
      * @var list<string>
      */
@@ -56,7 +58,7 @@ final class ExceptionMapper
      */
     private const array SAFE_ERROR_SCALAR_KEYS = ['message', 'detail', 'error', 'title', 'code', 'type', 'field', 'param', 'pointer'];
 
-    public static function map(Response $response, ?Throwable $previous = null): CreemException
+    public static function map(Response $response): CreemException
     {
         $statusCode = $response->status();
         $context = self::buildContext($response);
@@ -68,15 +70,15 @@ final class ExceptionMapper
         }
 
         if (self::isValidationFailure($statusCode, $context)) {
-            return new ValidationException($message, $statusCode, $context, $previous);
+            return new ValidationException($message, $statusCode, $context);
         }
 
         return match (true) {
-            $statusCode === 401 || $statusCode === 403 => new AuthenticationException($message, $statusCode, $context, $previous),
-            $statusCode === 404 => new NotFoundException($message, $statusCode, $context, $previous),
-            $statusCode === 429 => new RateLimitException($message, $statusCode, $context, $previous, $retryAfterSeconds),
-            $statusCode >= 500 => new ServerException($message, $statusCode, $context, $previous),
-            default => new CreemException($message, $statusCode, $context, $previous),
+            $statusCode === 401 || $statusCode === 403 => new AuthenticationException($message, $statusCode, $context),
+            $statusCode === 404 => new NotFoundException($message, $statusCode, $context),
+            $statusCode === 429 => new RateLimitException($message, $statusCode, $context, null, $retryAfterSeconds),
+            $statusCode >= 500 => new ServerException($message, $statusCode, $context),
+            default => new CreemException($message, $statusCode, $context),
         };
     }
 
@@ -278,7 +280,7 @@ final class ExceptionMapper
             return null;
         }
 
-        $value = trim($value);
+        $value = self::truncate($value);
 
         if (in_array($value, ['', self::REDACTED_PLACEHOLDER, self::TRUNCATED_PLACEHOLDER], true)) {
             return null;
@@ -289,13 +291,18 @@ final class ExceptionMapper
 
     private static function truncate(string $value): string
     {
-        $value = trim($value);
+        $value = self::redactSensitiveTokens(trim($value));
 
         if (strlen($value) <= self::MAX_STRING_LENGTH) {
             return $value;
         }
 
         return substr($value, 0, self::MAX_STRING_LENGTH).'...';
+    }
+
+    private static function redactSensitiveTokens(string $value): string
+    {
+        return preg_replace(self::SENSITIVE_TOKEN_PATTERN, self::REDACTED_PLACEHOLDER, $value) ?? $value;
     }
 
     private static function parseRetryAfterHeader(Response $response): ?int

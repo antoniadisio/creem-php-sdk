@@ -22,16 +22,21 @@ final class Webhook
         string $secret): void
     {
         $normalizedSignature = trim($signatureHeader);
+        $normalizedSecret = trim($secret);
 
         if ($normalizedSignature === '') {
             throw InvalidWebhookSignatureException::missingSignature();
+        }
+
+        if ($normalizedSecret === '') {
+            throw InvalidWebhookSignatureException::missingSecret();
         }
 
         $verifiedHeader = Signature::parseHeader($normalizedSignature);
 
         Signature::validateTimestamp($verifiedHeader['timestamp']);
 
-        $expectedSignature = Signature::compute($payload, $secret, $verifiedHeader['timestamp']);
+        $expectedSignature = Signature::compute($payload, $normalizedSecret, $verifiedHeader['timestamp']);
 
         if (! SecureComparer::equals($expectedSignature, $verifiedHeader['signature'])) {
             throw InvalidWebhookSignatureException::invalidSignature();
@@ -48,10 +53,16 @@ final class Webhook
     }
 
     public static function constructEvent(string $payload, string $signatureHeader, #[\SensitiveParameter]
-        string $secret): WebhookEvent
+        string $secret, ?callable $isReplay = null): WebhookEvent
     {
         self::verifySignature($payload, $signatureHeader, $secret);
 
-        return self::parseEvent($payload);
+        $event = self::parseEvent($payload);
+
+        if ($isReplay !== null && $isReplay($event) === true) {
+            throw InvalidWebhookSignatureException::replayedEvent();
+        }
+
+        return $event;
     }
 }

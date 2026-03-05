@@ -20,9 +20,15 @@ final class Signature
     public static function compute(string $payload, #[\SensitiveParameter]
         string $secret, ?int $timestamp = null): string
     {
+        $normalizedSecret = trim($secret);
+
+        if ($normalizedSecret === '') {
+            throw InvalidWebhookSignatureException::missingSecret();
+        }
+
         $signedPayload = $timestamp === null ? $payload : $timestamp.'.'.$payload;
 
-        return hash_hmac('sha256', $signedPayload, $secret);
+        return hash_hmac('sha256', $signedPayload, $normalizedSecret);
     }
 
     /**

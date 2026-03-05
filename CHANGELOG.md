@@ -2,6 +2,37 @@
 
 ## Unreleased
 
+## 0.2.0 - 2026-03-05
+
+### Security Release
+- Hardened outbound transport defaults:
+  - disabled redirects (`allow_redirects: false`)
+  - enforced TLS certificate verification (`verify: true`)
+  - pinned request, connect, and read timeouts
+  - enforced TLS 1.2 minimum via `crypto_method`
+- Removed raw sender exception leakage from outward SDK exceptions to avoid exposing request internals in exception chains.
+- Added centralized sensitive-token redaction in HTTP error handling for `sk_*`, `creem_*`, and `whsec_*` patterns across mapped messages and context.
+- Added strict webhook secret validation (blank/whitespace secret rejection).
+- Added optional replay-detection callback support in `Webhook::constructEvent(...)` to enable consumer-managed deduplication.
+- Hardened mutating path-identifier handling for subscription and discount operations:
+  - trim + non-blank enforcement
+  - reject reserved URI/control characters (`/`, `\\`, `?`, `#`, `%`, ASCII controls)
+  - allow only `[A-Za-z0-9._-]`
+  - reject dot segments `.` and `..`
+- Hardened base URL override policy:
+  - default trusted-host mode for official Creem hosts
+  - non-official hosts require explicit `allowUnsafeBaseUrlOverride: true`
+- Expanded deterministic security regression coverage across webhook validation, transport/exception redaction, and path-route manipulation rejection scenarios.
+- CI quality workflow now includes dependency advisory scanning (`composer audit --locked`).
+
+### Compatibility Notes
+- This release tightens validation and may reject inputs previously tolerated:
+  - blank webhook secrets now fail fast
+  - stricter DTO invariants for financially sensitive mutations
+  - mutating path IDs now reject unsafe characters and dot-segment identifiers
+  - non-official `baseUrl` overrides now require `allowUnsafeBaseUrlOverride: true`
+- Existing integrations should validate and normalize identifiers/inputs before SDK calls, and explicitly opt in when using non-official HTTPS API hosts.
+
 ## 0.1.1 - 2026-03-04
 
 ### Patch Release

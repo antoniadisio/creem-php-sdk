@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Creem\Internal\Http\Requests\Discounts;
 
+use Creem\Internal\Http\Requests\PathIdentifier;
 use Creem\Internal\Http\Requests\QueryRequest;
 use Saloon\Enums\Method;
 
@@ -13,10 +14,14 @@ final class DeleteDiscountRequest extends QueryRequest
 {
     protected Method $method = Method::DELETE;
 
+    private readonly string $discountId;
+
     public function __construct(
-        private readonly string $discountId,
+        string $discountId,
         ?string $idempotencyKey = null,
     ) {
+        $this->discountId = PathIdentifier::normalize($discountId, 'discount ID');
+
         parent::__construct(idempotencyKey: $idempotencyKey);
     }
 

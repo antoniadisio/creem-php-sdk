@@ -57,6 +57,7 @@ use Creem\Resource\TransactionsResource;
 use Creem\Tests\IntegrationTestCase;
 use Creem\Tests\Support\ResourceBehaviorTestCatalog;
 use DateTimeImmutable;
+use InvalidArgumentException;
 use Saloon\Enums\Method;
 use Saloon\Http\Faking\MockClient;
 use Saloon\Http\Faking\MockResponse;
@@ -289,6 +290,110 @@ test('subscriptions resource applies empty payload defaults when cancel dto is o
     );
 });
 
+test('subscriptions resource normalizes mutating path identifiers before endpoint resolution', function (): void {
+    /** @var IntegrationTestCase $this */
+    $mockClient = new MockClient([
+        MockResponse::make($this->responseFixture('subscription.json', ['status' => 'canceled'])),
+        MockResponse::make($this->responseFixture('subscription.json', ['status' => 'active'])),
+        MockResponse::make($this->responseFixture('subscription.json', ['status' => 'active'])),
+        MockResponse::make($this->responseFixture('subscription.json', ['status' => 'paused'])),
+        MockResponse::make($this->responseFixture('subscription.json', ['status' => 'active'])),
+    ]);
+    $resource = new SubscriptionsResource($this->connector($mockClient));
+
+    $resource->cancel(
+        '  sub_123  ',
+        new CancelSubscriptionRequest(SubscriptionCancellationMode::Immediate, SubscriptionCancellationAction::Cancel),
+    );
+    $this->assertRequest($mockClient, Method::POST, '/v1/subscriptions/sub_123/cancel', [], ['mode' => 'immediate', 'onExecute' => 'cancel']);
+
+    $resource->update(
+        '  sub_123  ',
+        new UpdateSubscriptionRequest([new UpsertSubscriptionItem(productId: 'prod_123', units: 1)]),
+    );
+    $this->assertRequest($mockClient, Method::POST, '/v1/subscriptions/sub_123', [], ['items' => [['product_id' => 'prod_123', 'units' => 1]]]);
+
+    $resource->upgrade('  sub_123  ', new UpgradeSubscriptionRequest('prod_999'));
+    $this->assertRequest($mockClient, Method::POST, '/v1/subscriptions/sub_123/upgrade', [], ['product_id' => 'prod_999']);
+
+    $resource->pause('  sub_123  ');
+    $this->assertRequest($mockClient, Method::POST, '/v1/subscriptions/sub_123/pause');
+
+    $resource->resume('  sub_123  ');
+    $this->assertRequest($mockClient, Method::POST, '/v1/subscriptions/sub_123/resume');
+});
+
+test('subscriptions resource rejects route manipulation identifiers on mutating endpoints', function (): void {
+    /** @var IntegrationTestCase $this */
+    $resource = new SubscriptionsResource($this->connector(new MockClient));
+    $cancelRequest = new CancelSubscriptionRequest(
+        SubscriptionCancellationMode::Immediate,
+        SubscriptionCancellationAction::Cancel,
+    );
+    $updateRequest = new UpdateSubscriptionRequest([new UpsertSubscriptionItem(productId: 'prod_123', units: 1)]);
+    $upgradeRequest = new UpgradeSubscriptionRequest('prod_999');
+
+    expect(static fn (): \Creem\Dto\Subscription\Subscription => $resource->cancel('sub_123/cancel', $cancelRequest))
+        ->toThrow(
+            InvalidArgumentException::class,
+            'The subscription ID cannot contain reserved URI characters or control characters.',
+        );
+
+    expect(static fn (): \Creem\Dto\Subscription\Subscription => $resource->update('sub_123?force=true', $updateRequest))
+        ->toThrow(
+            InvalidArgumentException::class,
+            'The subscription ID cannot contain reserved URI characters or control characters.',
+        );
+
+    expect(static fn (): \Creem\Dto\Subscription\Subscription => $resource->upgrade('sub_123#fragment', $upgradeRequest))
+        ->toThrow(
+            InvalidArgumentException::class,
+            'The subscription ID cannot contain reserved URI characters or control characters.',
+        );
+
+    expect(static fn (): \Creem\Dto\Subscription\Subscription => $resource->pause('sub%2F123'))
+        ->toThrow(
+            InvalidArgumentException::class,
+            'The subscription ID cannot contain reserved URI characters or control characters.',
+        );
+
+    expect(static fn (): \Creem\Dto\Subscription\Subscription => $resource->resume('sub:123'))
+        ->toThrow(
+            InvalidArgumentException::class,
+            'The subscription ID contains unsupported characters. Allowed characters are letters, numbers, ".", "_", and "-".',
+        );
+
+    expect(static fn (): \Creem\Dto\Subscription\Subscription => $resource->cancel('.', $cancelRequest))
+        ->toThrow(
+            InvalidArgumentException::class,
+            'The subscription ID cannot be "." or "..".',
+        );
+
+    expect(static fn (): \Creem\Dto\Subscription\Subscription => $resource->update('..', $updateRequest))
+        ->toThrow(
+            InvalidArgumentException::class,
+            'The subscription ID cannot be "." or "..".',
+        );
+
+    expect(static fn (): \Creem\Dto\Subscription\Subscription => $resource->upgrade('.', $upgradeRequest))
+        ->toThrow(
+            InvalidArgumentException::class,
+            'The subscription ID cannot be "." or "..".',
+        );
+
+    expect(static fn (): \Creem\Dto\Subscription\Subscription => $resource->pause('..'))
+        ->toThrow(
+            InvalidArgumentException::class,
+            'The subscription ID cannot be "." or "..".',
+        );
+
+    expect(static fn (): \Creem\Dto\Subscription\Subscription => $resource->resume('.'))
+        ->toThrow(
+            InvalidArgumentException::class,
+            'The subscription ID cannot be "." or "..".',
+        );
+});
+
 test(ResourceBehaviorTestCatalog::CHECKOUTS, function (): void {
     /** @var IntegrationTestCase $this */
     $mockClient = new MockClient([
@@ -397,7 +502,14 @@ test(ResourceBehaviorTestCatalog::DISCOUNTS, function (): void {
     $this->assertRequest($mockClient, Method::GET, '/v1/discounts', ['discount_code' => 'WELCOME10']);
 
     $created = $resource->create(
-        new CreateDiscountRequest('Launch', DiscountType::Fixed, DiscountDuration::Once, ['prod_123'], amount: 1000),
+        new CreateDiscountRequest(
+            'Launch',
+            DiscountType::Fixed,
+            DiscountDuration::Once,
+            ['prod_123'],
+            amount: 1000,
+            currency: CurrencyCode::USD,
+        ),
         'idem-discount-create',
     );
 
@@ -407,7 +519,14 @@ test(ResourceBehaviorTestCatalog::DISCOUNTS, function (): void {
         Method::POST,
         '/v1/discounts',
         [],
-        ['name' => 'Launch', 'type' => 'fixed', 'amount' => 1000, 'duration' => 'once', 'applies_to_products' => ['prod_123']],
+        [
+            'name' => 'Launch',
+            'type' => 'fixed',
+            'amount' => 1000,
+            'currency' => 'USD',
+            'duration' => 'once',
+            'applies_to_products' => ['prod_123'],
+        ],
         ['Idempotency-Key' => 'idem-discount-create'],
     );
 
@@ -415,6 +534,35 @@ test(ResourceBehaviorTestCatalog::DISCOUNTS, function (): void {
 
     expect($deleted->status)->toBe(DiscountStatus::Expired);
     $this->assertRequest($mockClient, Method::DELETE, '/v1/discounts/disc_123/delete', [], null, ['Idempotency-Key' => 'idem-discount-delete']);
+});
+
+test('discounts resource normalizes delete identifiers and rejects route manipulation input', function (): void {
+    /** @var IntegrationTestCase $this */
+    $mockClient = new MockClient([
+        MockResponse::make($this->responseFixture('discount.json', ['status' => 'expired'])),
+    ]);
+    $resource = new DiscountsResource($this->connector($mockClient));
+
+    $resource->delete('  disc_123  ');
+    $this->assertRequest($mockClient, Method::DELETE, '/v1/discounts/disc_123/delete');
+
+    expect(static fn (): \Creem\Dto\Discount\Discount => $resource->delete('disc_123/delete'))
+        ->toThrow(
+            InvalidArgumentException::class,
+            'The discount ID cannot contain reserved URI characters or control characters.',
+        );
+
+    expect(static fn (): \Creem\Dto\Discount\Discount => $resource->delete('.'))
+        ->toThrow(
+            InvalidArgumentException::class,
+            'The discount ID cannot be "." or "..".',
+        );
+
+    expect(static fn (): \Creem\Dto\Discount\Discount => $resource->delete('..'))
+        ->toThrow(
+            InvalidArgumentException::class,
+            'The discount ID cannot be "." or "..".',
+        );
 });
 
 test(ResourceBehaviorTestCatalog::TRANSACTIONS, function (): void {

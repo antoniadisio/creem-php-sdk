@@ -5,13 +5,35 @@ declare(strict_types=1);
 namespace Creem\Dto\License;
 
 use Creem\Internal\Serialization\RequestValueNormalizer;
+use InvalidArgumentException;
+
+use function trim;
 
 final readonly class DeactivateLicenseRequest
 {
+    public string $key;
+
+    public string $instanceId;
+
     public function __construct(
-        public string $key,
-        public string $instanceId,
-    ) {}
+        string $key,
+        string $instanceId,
+    ) {
+        $key = trim($key);
+
+        if ($key === '') {
+            throw new InvalidArgumentException('The license key cannot be blank.');
+        }
+
+        $instanceId = trim($instanceId);
+
+        if ($instanceId === '') {
+            throw new InvalidArgumentException('The license instance ID cannot be blank.');
+        }
+
+        $this->key = $key;
+        $this->instanceId = $instanceId;
+    }
 
     /**
      * @return array<string, string>

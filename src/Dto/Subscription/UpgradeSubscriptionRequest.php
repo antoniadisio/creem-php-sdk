@@ -6,13 +6,26 @@ namespace Creem\Dto\Subscription;
 
 use Creem\Enum\SubscriptionUpdateBehavior;
 use Creem\Internal\Serialization\RequestValueNormalizer;
+use InvalidArgumentException;
+
+use function trim;
 
 final readonly class UpgradeSubscriptionRequest
 {
+    public string $productId;
+
     public function __construct(
-        public string $productId,
+        string $productId,
         public ?SubscriptionUpdateBehavior $updateBehavior = null,
-    ) {}
+    ) {
+        $productId = trim($productId);
+
+        if ($productId === '') {
+            throw new InvalidArgumentException('The subscription upgrade product ID cannot be blank.');
+        }
+
+        $this->productId = $productId;
+    }
 
     /**
      * @return array<string, string>

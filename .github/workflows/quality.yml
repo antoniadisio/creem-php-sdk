@@ -27,3 +27,6 @@ jobs:
 
             - name: Run QA verification
               run: composer qa:check
+
+            - name: Run dependency advisory audit
+              run: composer audit --locked

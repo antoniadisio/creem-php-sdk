@@ -36,6 +36,7 @@ use Creem\Enum\SubscriptionUpdateBehavior;
 use Creem\Enum\TaxCategory;
 use Creem\Enum\TaxMode;
 use DateTimeImmutable;
+use InvalidArgumentException;
 
 test('basic request dtos serialize through the shared normalizer', function (): void {
     $this->assertSame([
@@ -243,7 +244,7 @@ test('checkout and subscription requests serialize nested inputs and enums', fun
     ], $updateRequest->toArray());
 
     $upgradeRequest = new UpgradeSubscriptionRequest(
-        'prod_999',
+        '  prod_999  ',
         SubscriptionUpdateBehavior::ProrationChargeImmediately,
     );
     $this->assertSame([
@@ -266,4 +267,102 @@ test('stats request serializes millisecond timestamps', function (): void {
         'interval' => 'week',
         'currency' => 'USD',
     ], $request->toQuery());
+});
+
+test('mutation request dtos reject invalid identifiers and numeric bounds', function (): void {
+    expect(static fn (): CreateCustomerBillingPortalLinkRequest => new CreateCustomerBillingPortalLinkRequest('   '))
+        ->toThrow(InvalidArgumentException::class, 'The customer ID cannot be blank.');
+
+    expect(static fn (): ActivateLicenseRequest => new ActivateLicenseRequest(' ', 'prod-web-1'))
+        ->toThrow(InvalidArgumentException::class, 'The license key cannot be blank.');
+
+    expect(static fn (): DeactivateLicenseRequest => new DeactivateLicenseRequest('lic_key', ' '))
+        ->toThrow(InvalidArgumentException::class, 'The license instance ID cannot be blank.');
+
+    expect(static fn (): ValidateLicenseRequest => new ValidateLicenseRequest('lic_key', ' '))
+        ->toThrow(InvalidArgumentException::class, 'The license instance ID cannot be blank.');
+
+    expect(static fn (): CreateProductRequest => new CreateProductRequest(
+        'Enterprise',
+        0,
+        CurrencyCode::USD,
+        BillingType::Recurring,
+    ))
+        ->toThrow(InvalidArgumentException::class, 'The product price must be greater than zero.');
+
+    expect(static fn (): CreateCheckoutRequest => new CreateCheckoutRequest('prod_123', units: 0))
+        ->toThrow(InvalidArgumentException::class, 'The checkout units must be greater than zero.');
+
+    expect(static fn (): UpsertSubscriptionItem => new UpsertSubscriptionItem(units: 2))
+        ->toThrow(
+            InvalidArgumentException::class,
+            'At least one of subscription item ID, product ID, or price ID must be provided.'
+        );
+
+    expect(static fn (): UpsertSubscriptionItem => new UpsertSubscriptionItem(productId: 'prod_123', units: 0))
+        ->toThrow(InvalidArgumentException::class, 'The subscription item units must be greater than zero.');
+
+    expect(static fn (): UpgradeSubscriptionRequest => new UpgradeSubscriptionRequest('   '))
+        ->toThrow(InvalidArgumentException::class, 'The subscription upgrade product ID cannot be blank.');
+
+    expect(static fn (): CreateDiscountRequest => new CreateDiscountRequest(
+        'Launch',
+        DiscountType::Fixed,
+        DiscountDuration::Once,
+        ['prod_123'],
+        amount: 0,
+        currency: CurrencyCode::USD,
+    ))
+        ->toThrow(InvalidArgumentException::class, 'The fixed discount amount must be greater than zero.');
+
+    expect(static fn (): CreateDiscountRequest => new CreateDiscountRequest(
+        'Launch',
+        DiscountType::Percentage,
+        DiscountDuration::Once,
+        ['prod_123'],
+        percentage: 101,
+    ))
+        ->toThrow(InvalidArgumentException::class, 'The percentage discount value must be between 1 and 100.');
+});
+
+test('mutation request dtos reject malformed list element types', function (): void {
+    expect(static fn (): CreateProductRequest => new CreateProductRequest(
+        'Enterprise',
+        4900,
+        CurrencyCode::USD,
+        BillingType::Recurring,
+        customFields: ['bad-field'],
+    ))
+        ->toThrow(
+            InvalidArgumentException::class,
+            'Product custom field at index 0 must be an instance of Creem\\Dto\\Common\\CustomFieldInput, string given.'
+        );
+
+    expect(static fn (): CreateCheckoutRequest => new CreateCheckoutRequest(
+        'prod_123',
+        customFields: ['bad-field'],
+    ))
+        ->toThrow(
+            InvalidArgumentException::class,
+            'Checkout custom field at index 0 must be an instance of Creem\\Dto\\Common\\CustomFieldInput, string given.'
+        );
+
+    expect(static fn (): CreateDiscountRequest => new CreateDiscountRequest(
+        'Launch',
+        DiscountType::Fixed,
+        DiscountDuration::Once,
+        ['prod_123', '   '],
+        amount: 100,
+        currency: CurrencyCode::USD,
+    ))
+        ->toThrow(InvalidArgumentException::class, 'Discount product ID at index 1 cannot be blank.');
+
+    expect(static fn (): UpdateSubscriptionRequest => new UpdateSubscriptionRequest(
+        items: ['bad-item'],
+        updateBehavior: SubscriptionUpdateBehavior::ProrationNone,
+    ))
+        ->toThrow(
+            InvalidArgumentException::class,
+            'Subscription item at index 0 must be an instance of Creem\\Dto\\Subscription\\UpsertSubscriptionItem, string given.'
+        );
 });

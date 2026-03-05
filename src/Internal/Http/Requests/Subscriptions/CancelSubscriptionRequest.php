@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Creem\Internal\Http\Requests\Subscriptions;
 
 use Creem\Internal\Http\Requests\JsonRequest;
+use Creem\Internal\Http\Requests\PathIdentifier;
 use Saloon\Enums\Method;
 
 use function sprintf;
@@ -13,11 +14,15 @@ final class CancelSubscriptionRequest extends JsonRequest
 {
     protected Method $method = Method::POST;
 
+    private readonly string $subscriptionId;
+
     public function __construct(
-        private readonly string $subscriptionId,
+        string $subscriptionId,
         array $payload = [],
         ?string $idempotencyKey = null,
     ) {
+        $this->subscriptionId = PathIdentifier::normalize($subscriptionId, 'subscription ID');
+
         parent::__construct($payload, $idempotencyKey);
     }
 
