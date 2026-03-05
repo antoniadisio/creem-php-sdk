@@ -397,7 +397,14 @@ test(ResourceBehaviorTestCatalog::DISCOUNTS, function (): void {
     $this->assertRequest($mockClient, Method::GET, '/v1/discounts', ['discount_code' => 'WELCOME10']);
 
     $created = $resource->create(
-        new CreateDiscountRequest('Launch', DiscountType::Fixed, DiscountDuration::Once, ['prod_123'], amount: 1000),
+        new CreateDiscountRequest(
+            'Launch',
+            DiscountType::Fixed,
+            DiscountDuration::Once,
+            ['prod_123'],
+            amount: 1000,
+            currency: CurrencyCode::USD,
+        ),
         'idem-discount-create',
     );
 
@@ -407,7 +414,14 @@ test(ResourceBehaviorTestCatalog::DISCOUNTS, function (): void {
         Method::POST,
         '/v1/discounts',
         [],
-        ['name' => 'Launch', 'type' => 'fixed', 'amount' => 1000, 'duration' => 'once', 'applies_to_products' => ['prod_123']],
+        [
+            'name' => 'Launch',
+            'type' => 'fixed',
+            'amount' => 1000,
+            'currency' => 'USD',
+            'duration' => 'once',
+            'applies_to_products' => ['prod_123'],
+        ],
         ['Idempotency-Key' => 'idem-discount-create'],
     );
 

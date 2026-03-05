@@ -104,7 +104,7 @@ try {
 ## Webhooks
 
 `Creem\Webhook` verifies the incoming `creem-signature` header against the raw request body and parses the JSON payload without requiring a `Client` instance.
-The signature header must include a Unix timestamp and signature pair such as `t=1700000000,v1=...`. The SDK signs `timestamp.payload` and rejects timestamps outside a 5-minute tolerance window to block replay attacks.
+The signature header must include a Unix timestamp and signature pair such as `t=1700000000,v1=...`. The SDK signs `timestamp.payload`, rejects blank webhook secrets, and rejects timestamps outside a 5-minute tolerance window.
 
 ```php
 <?php
@@ -123,6 +123,22 @@ $event = Webhook::constructEvent(
 if ($event->eventType() === 'license.created') {
     $licenseId = $event->object()->get('id');
 }
+```
+
+You can also pass an optional replay callback to `Webhook::constructEvent(...)`. The callback receives the parsed `WebhookEvent`; return `true` to reject already-seen events:
+
+```php
+<?php
+
+$event = Webhook::constructEvent(
+    $payload,
+    $signature,
+    $_ENV['CREEM_WEBHOOK_SECRET'],
+    static function (\Creem\Dto\Webhook\WebhookEvent $event): bool {
+        // Persist event IDs in durable storage (Redis, DB, etc.) with a short TTL.
+        return hasSeenWebhookId($event->id());
+    },
+);
 ```
 
 Always verify the exact raw request body. Do not `json_decode()`, re-encode, trim, or otherwise mutate the payload before calling `Webhook::verifySignature()` or `Webhook::constructEvent()`, or the HMAC check will fail. The SDK also rejects webhook payloads larger than 1 MiB before decoding.
@@ -180,6 +196,8 @@ The returned `WebhookEvent` exposes `id()`, `eventType()`, `createdAt()`, `objec
 - `stats()`
 
 All mutating resource methods accept an optional final `?string $idempotencyKey = null` argument. Pass a stable key on retries to prevent duplicate checkout, subscription, discount, or license side effects.
+
+Mutation request DTOs now fail fast with `InvalidArgumentException` when required identifiers are blank after trimming, numeric bounds are invalid (for example `price <= 0` or `units <= 0`), discount payload fields are incoherent (`fixed` vs `percentage`), or list elements are malformed at runtime. Existing integrations that relied on sending empty/invalid payload values should update those call sites before upgrading.
 
 ### Products
 

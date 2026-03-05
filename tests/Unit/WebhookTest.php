@@ -65,6 +65,16 @@ test('it throws for missing webhook signatures', function (): void {
         ->toThrow(InvalidWebhookSignatureException::class, 'The Creem webhook signature header is missing or blank.');
 });
 
+test('it rejects blank webhook secrets', function (): void {
+    $payload = '{"id":"evt_123","eventType":"license.created","object":{"id":"lic_123"}}';
+    $signature = timestampedSignatureHeader($payload);
+
+    expect(static function () use ($payload, $signature): void {
+        Webhook::verifySignature($payload, $signature, '   ');
+    })
+        ->toThrow(InvalidWebhookSignatureException::class, 'The Creem webhook secret is missing or blank.');
+});
+
 test('it rejects webhook signatures without a timestamp', function (): void {
     $payload = '{"id":"evt_123","eventType":"license.created","object":{"id":"lic_123"}}';
     $signature = Signature::compute($payload, 'whsec_test_secret');
@@ -195,6 +205,28 @@ test('it constructs a verified webhook event without a client instance', functio
     expect($event)->toBeInstanceOf(WebhookEvent::class)
         ->and($event->id())->toBe('evt_123')
         ->and($event->object()->get('id'))->toBe('lic_123');
+});
+
+test('it rejects replayed webhook events when replay callback returns true', function (): void {
+    $payload = '{"id":"evt_123","eventType":"license.created","created_at":"2026-03-04T12:34:56+00:00","object":{"id":"lic_123"}}';
+    $signature = timestampedSignatureHeader($payload);
+    $receivedEventId = null;
+
+    expect(static function () use ($payload, $signature, &$receivedEventId): void {
+        Webhook::constructEvent(
+            $payload,
+            $signature,
+            'whsec_test_secret',
+            static function (WebhookEvent $event) use (&$receivedEventId): bool {
+                $receivedEventId = $event->id();
+
+                return true;
+            },
+        );
+    })
+        ->toThrow(InvalidWebhookSignatureException::class, 'The Creem webhook event was already processed.');
+
+    expect($receivedEventId)->toBe('evt_123');
 });
 
 function timestampedSignatureHeader(

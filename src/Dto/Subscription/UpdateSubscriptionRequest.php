@@ -6,16 +6,44 @@ namespace Creem\Dto\Subscription;
 
 use Creem\Enum\SubscriptionUpdateBehavior;
 use Creem\Internal\Serialization\RequestValueNormalizer;
+use InvalidArgumentException;
+
+use function array_is_list;
+use function get_debug_type;
+use function sprintf;
 
 final readonly class UpdateSubscriptionRequest
 {
     /**
-     * @param  list<UpsertSubscriptionItem>  $items
+     * @var list<UpsertSubscriptionItem>
+     */
+    public array $items;
+
+    /**
+     * @param  array<array-key, mixed>  $items
      */
     public function __construct(
-        public array $items = [],
+        array $items = [],
         public ?SubscriptionUpdateBehavior $updateBehavior = null,
-    ) {}
+    ) {
+        if (! array_is_list($items)) {
+            throw new InvalidArgumentException('The subscription items must be a list.');
+        }
+
+        foreach ($items as $index => $item) {
+            if (! $item instanceof UpsertSubscriptionItem) {
+                throw new InvalidArgumentException(sprintf(
+                    'Subscription item at index %d must be an instance of %s, %s given.',
+                    $index,
+                    UpsertSubscriptionItem::class,
+                    get_debug_type($item),
+                ));
+            }
+        }
+
+        /** @var list<UpsertSubscriptionItem> $items */
+        $this->items = $items;
+    }
 
     /**
      * @return array<string, mixed>
