@@ -6,7 +6,7 @@ namespace Creem\Tests;
 
 use Creem\Client;
 use Creem\Config;
-use Creem\Environment;
+use Creem\Enum\Environment;
 use DateInterval;
 use DateTimeImmutable;
 use DateTimeZone;
