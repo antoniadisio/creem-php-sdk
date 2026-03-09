@@ -239,6 +239,29 @@ test('generic client errors map to the base exception type', function (): void {
         ->and($exception?->context())->toBe(['detail' => 'Conflict']);
 });
 
+test('array based top level messages are preserved and surfaced', function (): void {
+    $connector = new CreemConnector(new Config('sk_test_123'));
+    $exception = captureCreemException(
+        static fn (): Response => $connector->send(
+            creemConnectorTestRequest(),
+            new MockClient([
+                MockResponse::make([
+                    'error' => 'Bad Request',
+                    'message' => ['description must be a string'],
+                ], 400),
+            ]),
+        ),
+    );
+
+    expect($exception)->toBeInstanceOf(CreemException::class)
+        ->and($exception?->getMessage())->toBe('description must be a string')
+        ->and($exception?->statusCode())->toBe(400)
+        ->and($exception?->context())->toBe([
+            'message' => ['description must be a string'],
+            'error' => 'Bad Request',
+        ]);
+});
+
 test('nested validation errors resolve useful messages', function (): void {
     $connector = new CreemConnector(new Config('sk_test_123'));
     $errors = [

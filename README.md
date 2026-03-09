@@ -437,9 +437,15 @@ Supported methods:
 use Creem\Dto\Stats\GetStatsSummaryRequest;
 use Creem\Enum\CurrencyCode;
 use Creem\Enum\StatsInterval;
+use DateTimeImmutable;
+
+$startDate = new DateTimeImmutable('-7 days');
+$endDate = new DateTimeImmutable('now');
 
 $summary = $client->stats()->summary(new GetStatsSummaryRequest(
     currency: CurrencyCode::USD,
+    startDate: $startDate,
+    endDate: $endDate,
     interval: StatsInterval::Day,
 ));
 ```

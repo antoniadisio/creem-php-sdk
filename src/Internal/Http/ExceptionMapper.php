@@ -212,6 +212,12 @@ final class ExceptionMapper
                 continue;
             }
 
+            if (is_array($value)) {
+                $sanitized[$key] = self::sanitizeValue($value, 0, true);
+
+                continue;
+            }
+
             if (is_int($value) || is_float($value) || is_bool($value)) {
                 $sanitized[$key] = $value;
             }
@@ -276,6 +282,10 @@ final class ExceptionMapper
 
     private static function meaningfulMessageOrNull(mixed $value): ?string
     {
+        if (is_array($value)) {
+            return self::firstMeaningfulMessageFromArray($value, 0);
+        }
+
         if (! is_string($value)) {
             return null;
         }
@@ -287,6 +297,40 @@ final class ExceptionMapper
         }
 
         return $value;
+    }
+
+    /**
+     * @param  array<array-key, mixed>  $value
+     */
+    private static function firstMeaningfulMessageFromArray(array $value, int $depth): ?string
+    {
+        if ($depth >= self::MAX_ERROR_DEPTH) {
+            return null;
+        }
+
+        foreach (array_slice($value, 0, self::MAX_CONTEXT_ITEMS, true) as $key => $item) {
+            if (! array_is_list($value) && is_string($key) && ! self::isSafeErrorScalarKey($key)) {
+                continue;
+            }
+
+            if (is_array($item)) {
+                $nestedMessage = self::firstMeaningfulMessageFromArray($item, $depth + 1);
+
+                if ($nestedMessage !== null) {
+                    return $nestedMessage;
+                }
+
+                continue;
+            }
+
+            $message = self::meaningfulMessageOrNull($item);
+
+            if ($message !== null) {
+                return $message;
+            }
+        }
+
+        return null;
     }
 
     private static function truncate(string $value): string
