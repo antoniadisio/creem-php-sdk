@@ -24,12 +24,12 @@ Run these commands locally:
 - `composer test` when you only need the fast `Unit` suite during iteration.
 - `composer test:integration` when you need deterministic mocked transport coverage only.
 - `composer test:local` when you need all deterministic suites (`Unit` then `Integration`).
-- `composer test:smoke` for opt-in read-only smoke checks against `Environment::Test` (requires `CREEM_TEST_API_KEY`; `CREEM_TEST_BASE_URL` and `CREEM_TEST_TIMEOUT` are optional overrides; runs in verbose mode for readable skipped/warning/error lines).
+- `composer test:smoke` for opt-in read-only smoke checks against `Environment::Test` (requires `CREEM_TEST_API_KEY`; `CREEM_TEST_BASE_URL` and `CREEM_TEST_TIMEOUT` are optional overrides; `CREEM_TEST_PRODUCT_ID`, `CREEM_TEST_CUSTOMER_ID`, `CREEM_TEST_CUSTOMER_EMAIL`, `CREEM_TEST_TRANSACTION_ID`, `CREEM_TEST_DISCOUNT_ID`, `CREEM_TEST_DISCOUNT_CODE`, `CREEM_TEST_SUBSCRIPTION_ID`, and `CREEM_TEST_CHECKOUT_ID` enable optional retrieval checks; runs in verbose mode for readable skipped/warning/error lines).
 - `composer cs` to verify formatting.
 - `composer cs:fix` to apply formatting fixes.
 - `composer stan` to run static analysis on `src` and `tests`.
 
-Destructive verification belongs in the manual maintainer runbook, not in automated tests or default contributor workflows.
+Missing optional smoke IDs or codes should produce explicit skips, not failures. Destructive verification belongs in the manual maintainer runbook, not in automated tests or default contributor workflows.
 
 Pull requests should be opened only after `composer qa:check` is green.
 

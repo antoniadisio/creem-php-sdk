@@ -17,6 +17,7 @@ use Creem\Exception\HydrationException;
 use Creem\Internal\Hydration\Payload;
 
 use function array_is_list;
+use function array_key_exists;
 use function is_array;
 
 final readonly class Checkout
@@ -99,20 +100,43 @@ final readonly class Checkout
             ),
             Payload::string($payload, 'checkout_url', self::class),
             Payload::string($payload, 'success_url', self::class),
-            Payload::typedList(
-                $payload,
-                'feature',
-                self::class,
-                static function (mixed $item): ProductFeature {
-                    if (! is_array($item) || array_is_list($item)) {
-                        throw HydrationException::invalidField(self::class, 'feature', 'object', $item);
-                    }
-
-                    /** @var array<string, mixed> $item */
-                    return ProductFeature::fromPayload($item);
-                },
-            ),
+            self::features($payload),
             Payload::arrayObject($payload, 'metadata', self::class),
         );
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     * @return list<ProductFeature>
+     */
+    private static function features(array $payload): array
+    {
+        if (! array_key_exists('feature', $payload) || $payload['feature'] === null) {
+            return [];
+        }
+
+        $value = $payload['feature'];
+
+        if (! is_array($value)) {
+            throw HydrationException::invalidField(self::class, 'feature', 'list', $value);
+        }
+
+        if (! array_is_list($value)) {
+            /** @var array<string, mixed> $value */
+            return [ProductFeature::fromPayload($value)];
+        }
+
+        $features = [];
+
+        foreach ($value as $item) {
+            if (! is_array($item) || array_is_list($item)) {
+                throw HydrationException::invalidField(self::class, 'feature', 'object', $item);
+            }
+
+            /** @var array<string, mixed> $item */
+            $features[] = ProductFeature::fromPayload($item);
+        }
+
+        return $features;
     }
 }

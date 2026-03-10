@@ -62,6 +62,25 @@ test('product feature hydration supports license variants', function (): void {
         ->and($feature->licenseKey)->toBeNull();
 });
 
+test('checkout hydration supports a single feature object', function (): void {
+    /** @var TestCase $this */
+    $checkout = Checkout::fromPayload([
+        ...$this->fixture('checkout.json'),
+        'feature' => [
+            'id' => 'feat_checkout_primary',
+            'description' => 'Issued license key',
+            'type' => 'licenseKey',
+            'license_key' => $this->fixture('license.json'),
+        ],
+    ]);
+
+    expect($checkout->feature)->toHaveCount(1)
+        ->and($checkout->feature[0])->toBeInstanceOf(ProductFeature::class)
+        ->and($checkout->feature[0]->id)->toBe('feat_checkout_primary')
+        ->and($checkout->feature[0]->type)->toBe(ProductFeatureType::LicenseKey)
+        ->and($checkout->feature[0]->licenseKey?->id)->toBe('lk_fixture_primary');
+});
+
 foreach (resourceDtoHydrationFailures() as $dataset => [$factory, $message]) {
     test("resource dto hydration rejects malformed nested payloads ({$dataset})", function () use ($factory, $message): void {
         /** @var TestCase $this */

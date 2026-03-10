@@ -41,8 +41,11 @@ Run `composer test:smoke` for the opt-in network smoke suite against `Environmen
 
 - `CREEM_TEST_API_KEY` is required.
 - `CREEM_TEST_BASE_URL` and `CREEM_TEST_TIMEOUT` are optional overrides for smoke runs.
+- Optional read-only retrieval checks use existing test-environment records when you provide: `CREEM_TEST_PRODUCT_ID`, `CREEM_TEST_CUSTOMER_ID`, `CREEM_TEST_CUSTOMER_EMAIL`, `CREEM_TEST_TRANSACTION_ID`, `CREEM_TEST_DISCOUNT_ID`, `CREEM_TEST_DISCOUNT_CODE`, `CREEM_TEST_SUBSCRIPTION_ID`, and `CREEM_TEST_CHECKOUT_ID`.
 - The smoke suite is read-only and does not create or persist local state.
-- Automated smoke coverage is limited to invalid-auth handling plus typed checks for stats summary, products search, customers list, and transactions search.
+- Baseline smoke coverage with only `CREEM_TEST_API_KEY` is limited to invalid-auth handling plus typed checks for stats summary, products search, customers list, and transactions search.
+- Optional retrieval checks skip cleanly with explicit messages when their corresponding ID or code env var is absent.
+- Automated smoke coverage does not include create, mutate, billing-portal-link, or license lifecycle flows.
 - Smoke tests are tagged with the Pest groups `smoke` and `network`, and page assertions stay stable when the API legitimately returns zero items.
 - Destructive verification against `Environment::Test` is intentionally manual and documented in [`docs/manual-destructive-verification.md`](docs/manual-destructive-verification.md).
 
@@ -495,8 +498,11 @@ Notes:
 - `composer install` and `composer update` use the committed Composer platform pin (`php: 8.4.0`) so the lockfile stays aligned with the PHP 8.4 CI target.
 - `composer test:smoke` requires `CREEM_TEST_API_KEY`.
 - `CREEM_TEST_BASE_URL` and `CREEM_TEST_TIMEOUT` are optional smoke overrides.
+- `CREEM_TEST_PRODUCT_ID`, `CREEM_TEST_CUSTOMER_ID`, `CREEM_TEST_CUSTOMER_EMAIL`, `CREEM_TEST_TRANSACTION_ID`, `CREEM_TEST_DISCOUNT_ID`, `CREEM_TEST_DISCOUNT_CODE`, `CREEM_TEST_SUBSCRIPTION_ID`, and `CREEM_TEST_CHECKOUT_ID` enable optional read-only retrieval smoke checks.
 - `composer test:smoke` runs Pest in verbose mode (`-v`) so skip, warning, and error lines stay readable.
-- The smoke suite is intentionally limited to independent read-only checks for invalid auth, stats summary, products search, customers list, and transactions search.
+- With only `CREEM_TEST_API_KEY`, the smoke suite is intentionally limited to independent read-only checks for invalid auth, stats summary, products search, customers list, and transactions search.
+- Optional retrieval smoke checks skip intentionally when their matching ID or code env var is unset.
+- Automated smoke coverage excludes create, mutate, billing-portal-link, and license lifecycle flows.
 - Destructive test-environment verification follows the maintainer runbook in [`docs/manual-destructive-verification.md`](docs/manual-destructive-verification.md).
 
 ## Test Policy

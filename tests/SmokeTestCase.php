@@ -6,11 +6,14 @@ namespace Creem\Tests;
 
 use Creem\Client;
 use Creem\Config;
+use Creem\Dto\Common\Page;
+use Creem\Dto\Common\Pagination;
 use Creem\Enum\Environment;
 use DateInterval;
 use DateTimeImmutable;
 use DateTimeZone;
 
+use function expect;
 use function getenv;
 use function is_numeric;
 use function is_string;
@@ -38,6 +41,35 @@ abstract class SmokeTestCase extends TestCase
         }
 
         return $apiKey;
+    }
+
+    public function requireOptionalSmokeValue(string $name, string $resourceCall): string
+    {
+        $value = $this->env($name);
+
+        if ($value === null) {
+            $this->markTestSkipped("Set {$name} to run the optional {$resourceCall} smoke check against Environment::Test.");
+        }
+
+        return $value;
+    }
+
+    /**
+     * @template TItem of object
+     *
+     * @param  Page<TItem>  $page
+     * @param  class-string<TItem>  $itemClass
+     */
+    public function assertTypedSmokePage(Page $page, string $itemClass): void
+    {
+        expect($page)->toBeInstanceOf(Page::class)
+            ->and($page->pagination)->toBeInstanceOf(Pagination::class);
+
+        $item = $page->get(0);
+
+        if ($item !== null) {
+            expect($item)->toBeInstanceOf($itemClass);
+        }
     }
 
     /**
