@@ -12,7 +12,7 @@ use Creem\Webhook;
 use function time;
 
 test('webhook signature verification accepts a known signature after trimming header whitespace', function (): void {
-    $payload = '{"id":"evt_123","eventType":"license.created","object":{"id":"lic_123"}}';
+    $payload = WebhookTestSupport::eventPayload();
     $signature = WebhookTestSupport::timestampedSignatureHeader($payload);
 
     expect(static function () use ($payload, $signature): void {
@@ -21,7 +21,7 @@ test('webhook signature verification accepts a known signature after trimming he
 });
 
 test('webhook signature verification rejects invalid signatures', function (): void {
-    $payload = '{"id":"evt_123","eventType":"license.created","object":{"id":"lic_123"}}';
+    $payload = WebhookTestSupport::eventPayload();
     $signature = WebhookTestSupport::timestampedSignatureHeader($payload, signature: 'not-a-valid-signature');
 
     expect(static function () use ($payload, $signature): void {
@@ -31,7 +31,7 @@ test('webhook signature verification rejects invalid signatures', function (): v
 });
 
 test('webhook signature verification rejects mismatched secrets', function (): void {
-    $payload = '{"id":"evt_123","eventType":"license.created","object":{"id":"lic_123"}}';
+    $payload = WebhookTestSupport::eventPayload();
     $signature = WebhookTestSupport::timestampedSignatureHeader($payload);
 
     expect(static function () use ($payload, $signature): void {
@@ -41,7 +41,7 @@ test('webhook signature verification rejects mismatched secrets', function (): v
 });
 
 test('webhook signature verification rejects blank secrets', function (): void {
-    $payload = '{"id":"evt_123","eventType":"license.created","object":{"id":"lic_123"}}';
+    $payload = WebhookTestSupport::eventPayload();
     $signature = WebhookTestSupport::timestampedSignatureHeader($payload);
 
     expect(static function () use ($payload, $signature): void {
@@ -51,7 +51,7 @@ test('webhook signature verification rejects blank secrets', function (): void {
 });
 
 test('webhook signature verification rejects timestamps outside the allowed tolerance', function (): void {
-    $payload = '{"id":"evt_123","eventType":"license.created","object":{"id":"lic_123"}}';
+    $payload = WebhookTestSupport::eventPayload();
     $signature = WebhookTestSupport::timestampedSignatureHeader($payload, timestamp: time() - 301);
 
     expect(static function () use ($payload, $signature): void {
@@ -62,7 +62,7 @@ test('webhook signature verification rejects timestamps outside the allowed tole
 
 foreach (invalidWebhookSignatureHeaders() as $dataset => [$signature, $secret, $message]) {
     test("webhook signature verification rejects malformed signature headers ({$dataset})", function () use ($signature, $secret, $message): void {
-        $payload = '{"id":"evt_123","eventType":"license.created","object":{"id":"lic_123"}}';
+        $payload = WebhookTestSupport::eventPayload();
 
         expect(static function () use ($payload, $signature, $secret): void {
             Webhook::verifySignature($payload, $signature, $secret);
@@ -83,7 +83,7 @@ function invalidWebhookSignatureHeaders(): array
             'The Creem webhook signature header is missing or blank.',
         ],
         'missing timestamp' => [
-            Signature::compute('{"id":"evt_123","eventType":"license.created","object":{"id":"lic_123"}}', 'whsec_test_secret'),
+            Signature::compute(WebhookTestSupport::eventPayload(), 'whsec_test_secret'),
             'whsec_test_secret',
             'The Creem webhook signature timestamp is missing.',
         ],

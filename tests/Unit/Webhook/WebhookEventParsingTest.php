@@ -16,26 +16,32 @@ use Creem\Webhook;
 use function str_repeat;
 
 test('webhook event parsing hydrates documented envelopes into typed wrappers', function (): void {
-    $payload = '{"id":"evt_123","eventType":"license.created","created_at":"2026-03-04T12:34:56+00:00","object":{"id":"lic_123","active":true}}';
+    $payload = WebhookTestSupport::eventPayload([
+        'object' => [
+            'active' => true,
+        ],
+    ]);
 
     $event = Webhook::parseEvent($payload);
 
     expect($event)->toBeInstanceOf(WebhookEvent::class)
-        ->and($event->id())->toBe('evt_123')
+        ->and($event->id())->toBe('evt_fixture_license_created')
         ->and($event->eventType())->toBe('license.created')
-        ->and($event->createdAt()->format(DATE_ATOM))->toBe('2026-03-04T12:34:56+00:00')
+        ->and($event->createdAt()->format(DATE_ATOM))->toBe('2026-03-07T06:49:26+00:00')
         ->and($event->object())->toBeInstanceOf(StructuredObject::class)
-        ->and($event->object()->get('id'))->toBe('lic_123')
+        ->and($event->object()->get('id'))->toBe('lk_fixture_primary')
         ->and($event->payload()->get('object'))->toBeInstanceOf(StructuredObject::class)
         ->and($event->toArray()['object'])->toBeInstanceOf(StructuredObject::class);
 });
 
 test('webhook event parsing keeps unknown event types as raw strings', function (): void {
-    $payload = '{"id":"evt_123","eventType":"license.created.preview.v2","created_at":"2026-03-04T12:34:56+00:00","object":{"id":"lic_123"}}';
+    $payload = WebhookTestSupport::eventPayload([
+        'eventType' => 'license.created.partner_sync',
+    ]);
 
     $event = Webhook::parseEvent($payload);
 
-    expect($event->eventType())->toBe('license.created.preview.v2');
+    expect($event->eventType())->toBe('license.created.partner_sync');
 });
 
 test('webhook event parsing throws payload exceptions for malformed json instead of transport exceptions', function (): void {
@@ -65,9 +71,10 @@ test('webhook event parsing rejects payloads that exceed the size limit before d
 });
 
 test('webhook event parsing rejects payloads with missing envelope fields', function (): void {
-    expect(static fn (): WebhookEvent => Webhook::parseEvent(
-        '{"id":"evt_123","created_at":"2026-03-04T12:34:56+00:00","object":{"id":"lic_123"}}'
-    ))
+    $payload = WebhookTestSupport::eventPayloadArray();
+    unset($payload['eventType']);
+
+    expect(static fn (): WebhookEvent => Webhook::parseEvent(WebhookTestSupport::encodePayload($payload)))
         ->toThrow(InvalidWebhookPayloadException::class, 'The Creem webhook payload is not a valid event object.');
 });
 
@@ -75,9 +82,10 @@ test('webhook event parsing preserves hydration failures for malformed envelope 
     $thrown = null;
 
     try {
-        Webhook::parseEvent(
-            '{"id":"evt_123","eventType":"license.created","created_at":"2026-03-04T12:34:56+00:00","object":[]}'
-        );
+        $payload = WebhookTestSupport::eventPayloadArray();
+        $payload['object'] = [];
+
+        Webhook::parseEvent(WebhookTestSupport::encodePayload($payload));
     } catch (\Throwable $exception) {
         $thrown = $exception;
     }
@@ -108,18 +116,18 @@ test('webhook construction throws payload exceptions for malformed verified payl
 });
 
 test('webhook construction builds verified events without a client instance', function (): void {
-    $payload = '{"id":"evt_123","eventType":"license.created","created_at":"2026-03-04T12:34:56+00:00","object":{"id":"lic_123"}}';
+    $payload = WebhookTestSupport::eventPayload();
     $signature = WebhookTestSupport::timestampedSignatureHeader($payload);
 
     $event = Webhook::constructEvent($payload, $signature, 'whsec_test_secret');
 
     expect($event)->toBeInstanceOf(WebhookEvent::class)
-        ->and($event->id())->toBe('evt_123')
-        ->and($event->object()->get('id'))->toBe('lic_123');
+        ->and($event->id())->toBe('evt_fixture_license_created')
+        ->and($event->object()->get('id'))->toBe('lk_fixture_primary');
 });
 
 test('webhook construction rejects replayed events when the replay callback returns true', function (): void {
-    $payload = '{"id":"evt_123","eventType":"license.created","created_at":"2026-03-04T12:34:56+00:00","object":{"id":"lic_123"}}';
+    $payload = WebhookTestSupport::eventPayload();
     $signature = WebhookTestSupport::timestampedSignatureHeader($payload);
     $receivedEventId = null;
 
@@ -137,5 +145,5 @@ test('webhook construction rejects replayed events when the replay callback retu
     })
         ->toThrow(InvalidWebhookSignatureException::class, 'The Creem webhook event was already processed.');
 
-    expect($receivedEventId)->toBe('evt_123');
+    expect($receivedEventId)->toBe('evt_fixture_license_created');
 });

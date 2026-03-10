@@ -21,7 +21,7 @@ test('discounts resource retrieves creates and deletes discounts', function (): 
     /** @var IntegrationTestCase $this */
     $mockClient = new MockClient([
         MockResponse::make($this->responseFixture('discount.json')),
-        MockResponse::make($this->responseFixture('discount.json', ['code' => 'WELCOME10_FIXTURE'])),
+        MockResponse::make($this->responseFixture('discount.json')),
         MockResponse::make($this->responseFixture('discount.json', ['id' => 'dis_fixture_welcome'])),
         MockResponse::make($this->responseFixture('discount_deleted.json')),
     ]);
@@ -72,7 +72,7 @@ test('discounts resource retrieves creates and deletes discounts', function (): 
     $deleted = $resource->delete('dis_fixture_active', 'idem-discount-delete');
 
     expect($deleted->status)->toBe(DiscountStatus::Deleted)
-        ->and($deleted->code)->toBe('dis_fixture_active');
+        ->and($deleted->code)->toBe('WELCOME10_FIXTURE');
     $this->assertRequest($mockClient, Method::DELETE, '/v1/discounts/dis_fixture_active/delete', [], null, ['Idempotency-Key' => 'idem-discount-delete']);
 });
 

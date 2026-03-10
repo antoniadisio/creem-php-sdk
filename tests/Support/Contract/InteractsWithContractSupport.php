@@ -12,6 +12,8 @@ trait InteractsWithContractSupport
 
     private ?ResponseFixtureCatalog $responseFixtureCatalogHelper = null;
 
+    private ?ResponseFixturePolicy $responseFixturePolicyHelper = null;
+
     public function coverageManifest(): CoverageManifest
     {
         return $this->coverageManifestHelper ??= new CoverageManifest;
@@ -25,5 +27,10 @@ trait InteractsWithContractSupport
     public function responseFixtureCatalog(): ResponseFixtureCatalog
     {
         return $this->responseFixtureCatalogHelper ??= new ResponseFixtureCatalog;
+    }
+
+    public function responseFixturePolicy(): ResponseFixturePolicy
+    {
+        return $this->responseFixturePolicyHelper ??= new ResponseFixturePolicy;
     }
 }

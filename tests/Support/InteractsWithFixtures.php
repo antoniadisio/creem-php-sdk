@@ -14,11 +14,6 @@ use function sprintf;
 
 trait InteractsWithFixtures
 {
-    public function fixturesDirectory(): string
-    {
-        return new ResponseFixtureCatalog()->directory();
-    }
-
     /**
      * @return array<string, mixed>
      *
@@ -26,7 +21,7 @@ trait InteractsWithFixtures
      */
     public function fixture(string $name): array
     {
-        $contents = file_get_contents($this->fixturesDirectory().'/'.$name);
+        $contents = file_get_contents((new ResponseFixtureCatalog)->path($name));
 
         $this->assertNotFalse($contents, sprintf('Fixture %s could not be read.', $name));
 

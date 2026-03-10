@@ -27,7 +27,7 @@ test('licenses resource activates deactivates and validates licenses', function 
                 'id' => 'lki_fixture_active',
                 'mode' => 'test',
                 'object' => 'license-instance',
-                'name' => 'sdk-live-capture-instance',
+                'name' => 'fixture-workstation-primary',
                 'status' => 'deactivated',
                 'created_at' => '2026-03-10T08:43:11.285Z',
             ],
@@ -36,7 +36,7 @@ test('licenses resource activates deactivates and validates licenses', function 
     ]);
     $resource = new LicensesResource($this->connector($mockClient));
 
-    $activated = $resource->activate(new ActivateLicenseRequest('LICENSE-FIXTURE-PRIMARY', 'sdk-live-capture-instance'), 'idem-license-activate');
+    $activated = $resource->activate(new ActivateLicenseRequest('LICENSE-FIXTURE-PRIMARY', 'fixture-workstation-primary'), 'idem-license-activate');
 
     expect($activated->id)->toBe('lk_fixture_primary')
         ->and($activated->status)->toBe(LicenseStatus::Active)
@@ -48,7 +48,7 @@ test('licenses resource activates deactivates and validates licenses', function 
         Method::POST,
         '/v1/licenses/activate',
         [],
-        ['key' => 'LICENSE-FIXTURE-PRIMARY', 'instance_name' => 'sdk-live-capture-instance'],
+        ['key' => 'LICENSE-FIXTURE-PRIMARY', 'instance_name' => 'fixture-workstation-primary'],
         ['Idempotency-Key' => 'idem-license-activate'],
     );
 

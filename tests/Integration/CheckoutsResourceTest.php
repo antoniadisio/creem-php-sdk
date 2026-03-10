@@ -17,10 +17,7 @@ test('checkouts resource gets and creates checkouts', function (): void {
     /** @var IntegrationTestCase $this */
     $mockClient = new MockClient([
         MockResponse::make($this->responseFixture('checkout.json')),
-        MockResponse::make($this->responseFixture('checkout_create.json', [
-            'id' => 'ch_fixture_created',
-            'checkout_url' => 'https://creem.io/test/checkout/prod_fixture_catalog/ch_fixture_created',
-        ])),
+        MockResponse::make($this->responseFixture('checkout_create.json')),
     ]);
     $resource = new CheckoutsResource($this->connector($mockClient));
 

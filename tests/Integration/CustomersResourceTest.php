@@ -45,7 +45,7 @@ test('customers resource lists retrieves and finds customers by email', function
 
     $links = $resource->createBillingPortalLink(new CreateCustomerBillingPortalLinkRequest('cust_fixture_primary'), 'idem-customer-links');
 
-    expect($links->customerPortalLink)->toBe('https://creem.io/test/my-orders/login/portal_fixture_customer');
+    expect($links->customerPortalLink)->toBe('https://creem.io/test/customers/cust_fixture_primary/portal');
     $this->assertRequest(
         $mockClient,
         Method::POST,

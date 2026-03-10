@@ -4,13 +4,59 @@ declare(strict_types=1);
 
 namespace Creem\Tests\Support;
 
-use Creem\Internal\Webhook\Signature;
+use const JSON_THROW_ON_ERROR;
 
+use Creem\Internal\Webhook\Signature;
+use JsonException;
+
+use function array_replace_recursive;
+use function json_encode;
 use function sprintf;
 use function time;
 
 final class WebhookTestSupport
 {
+    /**
+     * @param  array<string, mixed>  $overrides
+     * @return array<string, mixed>
+     */
+    public static function eventPayloadArray(array $overrides = []): array
+    {
+        /** @var array<string, mixed> $payload */
+        $payload = array_replace_recursive([
+            'id' => 'evt_fixture_license_created',
+            'eventType' => 'license.created',
+            'created_at' => '2026-03-07T06:49:26+00:00',
+            'object' => [
+                'id' => 'lk_fixture_primary',
+                'object' => 'license',
+                'status' => 'active',
+            ],
+        ], $overrides);
+
+        return $payload;
+    }
+
+    /**
+     * @param  array<string, mixed>  $overrides
+     *
+     * @throws JsonException
+     */
+    public static function eventPayload(array $overrides = []): string
+    {
+        return self::encodePayload(self::eventPayloadArray($overrides));
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     *
+     * @throws JsonException
+     */
+    public static function encodePayload(array $payload): string
+    {
+        return json_encode($payload, JSON_THROW_ON_ERROR);
+    }
+
     public static function timestampedSignatureHeader(
         string $payload,
         #[\SensitiveParameter]
