@@ -18,6 +18,7 @@ phpstan.neon
 IMPLEMENTATION_PLAN.md
 PROJECT_DESCRIPTION.md
 plan/
+.spec/
 AGENTS.md
 .gitmessage.txt
 .githooks/
