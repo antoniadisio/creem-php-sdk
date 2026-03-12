@@ -1,9 +1,13 @@
+/.gitattributes export-ignore
 /.github/** export-ignore
 /.gitignore export-ignore
 /.nvmrc export-ignore
+/CHANGELOG.md export-ignore
+/composer.lock export-ignore
 /docs/** export-ignore
 /CONTRIBUTING.md export-ignore
 /phpstan.neon.dist export-ignore
 /phpunit.xml.dist export-ignore
 /rector.php export-ignore
+/SECURITY.md export-ignore
 /tests/** export-ignore

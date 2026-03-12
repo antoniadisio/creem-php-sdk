@@ -468,6 +468,7 @@ Notes:
 - The committed Rector config intentionally skips automatic type-declaration inference on `Creem\Client`, `Creem\Config`, and `Creem\Resource\*` so public signatures stay under manual review.
 - `composer stan` uses the committed `phpstan.neon.dist` configuration and the repository-defined memory limit.
 - `composer install` and `composer update` use the committed Composer platform pin (`php: 8.4.0`) so the lockfile stays aligned with the PHP 8.4 CI target.
+- The public repository intentionally keeps maintainer QA files such as `rector.php`, `phpstan.neon.dist`, `phpunit.xml.dist`, and `composer.lock` committed. Installed package archives stay lean through `.gitattributes export-ignore`.
 - For `composer test:live`, use `CREEM_LIVE_API_KEY`, and optionally `CREEM_LIVE_BASE_URL` and `CREEM_LIVE_TIMEOUT`.
 
 ## Contributing

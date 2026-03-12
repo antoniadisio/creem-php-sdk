@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Creem\Tests\Unit;
 
 use Creem\Config;
-use Creem\Environment;
+use Creem\Enum\Environment;
 use InvalidArgumentException;
 use LogicException;
 
