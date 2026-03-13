@@ -2,7 +2,7 @@
 
 This runbook is for maintainers validating Creem `Environment::Test` flows that intentionally mutate remote state. These checks are not part of `composer qa`, `composer qa:check`, or `composer test:smoke`.
 
-The automated smoke suite already covers the read-only baseline path with `CREEM_TEST_API_KEY` plus optional ID/code-gated retrieval checks under `tests/Smoke/`. Use this runbook only for flows that create, mutate, cancel, activate, deactivate, or otherwise change remote state.
+The automated smoke suite now covers only one authenticated connectivity canary with `CREEM_TEST_API_KEY`. Use this runbook or the local `.playground/` harness for any specific endpoint retrieval, create, mutate, cancel, activate, deactivate, or other live-behavior validation.
 
 ## Guardrails
 
@@ -21,10 +21,8 @@ The automated smoke suite already covers the read-only baseline path with `CREEM
 
 ## Suggested Harness
 
-- Use a temporary local script, REPL session, or scratch command that is kept out of git.
+- Prefer the local `.playground/` harness when you need live SDK request/response evidence.
 - Export `CREEM_TEST_API_KEY` before running the SDK manually.
-- Optionally set `CREEM_TEST_BASE_URL` or `CREEM_TEST_TIMEOUT` only when debugging a test-environment issue.
-- Reuse optional smoke IDs or codes as a starting point when they point at safe existing test records, but do not turn destructive runs into automated smoke coverage.
 - Record created product, checkout, subscription, discount, customer, and license identifiers in a local scratchpad so cleanup is straightforward.
 
 ## Product Creation

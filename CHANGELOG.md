@@ -5,7 +5,7 @@
 ### Repository Hardening
 - Removed the committed maintainer-only `PROJECT_DESCRIPTION.md` artifact and aligned ignore rules with the local-only `spec/` workflow.
 - Rewrote README, contributor guidance, and audit/runbook docs to describe the current `Unit` / `Integration` / `Smoke` suite architecture without preview-era wording.
-- Documented the split smoke suite, the baseline `CREEM_TEST_API_KEY` contract, and the optional ID/code-gated retrieval checks used for read-only verification.
+- Reduced the smoke env contract to `CREEM_TEST_API_KEY` only and collapsed smoke coverage to one authenticated `stats()->summary(...)` canary, moving endpoint-specific retrieval or mutating live verification into the local `.playground/` harness.
 - Clarified that destructive `Environment::Test` validation remains a separate manual maintainer workflow outside automated QA and smoke runs.
 
 ## 0.2.0 - 2026-03-05

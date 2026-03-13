@@ -12,6 +12,7 @@ use Creem\Tests\SmokeTestCase;
 
 test('smoke returns a typed stats summary', function (): void {
     /** @var SmokeTestCase $this */
+    $this->requireSmokeApiKey();
     [$start, $end] = $this->smokeWindow();
     $summary = $this->smokeClient()->stats()->summary(
         new GetStatsSummaryRequest(CurrencyCode::USD, $start, $end, StatsInterval::Day),

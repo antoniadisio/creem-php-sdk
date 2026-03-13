@@ -40,11 +40,10 @@ $product = $client->products()->get('prod_123');
 Run `composer test:smoke` for the opt-in network smoke suite against `Environment::Test`.
 
 - `CREEM_TEST_API_KEY` is required.
-- `CREEM_TEST_BASE_URL` and `CREEM_TEST_TIMEOUT` are optional overrides for smoke runs.
-- Optional read-only retrieval checks use existing test-environment records when you provide: `CREEM_TEST_PRODUCT_ID`, `CREEM_TEST_CUSTOMER_ID`, `CREEM_TEST_CUSTOMER_EMAIL`, `CREEM_TEST_TRANSACTION_ID`, `CREEM_TEST_DISCOUNT_ID`, `CREEM_TEST_DISCOUNT_CODE`, `CREEM_TEST_SUBSCRIPTION_ID`, and `CREEM_TEST_CHECKOUT_ID`.
 - The smoke suite is read-only and does not create or persist local state.
-- Baseline smoke coverage with only `CREEM_TEST_API_KEY` is limited to invalid-auth handling plus typed checks for stats summary, products search, customers list, and transactions search.
-- Optional retrieval checks skip cleanly with explicit messages when their corresponding ID or code env var is absent.
+- Smoke coverage is intentionally reduced to one authenticated canary: `stats()->summary(...)`.
+- If `CREEM_TEST_API_KEY` is absent, the smoke suite skips.
+- Endpoint-specific retrieval and all mutating live validation belong in the local `.playground/` harness.
 - Automated smoke coverage does not include create, mutate, billing-portal-link, or license lifecycle flows.
 - Smoke files are split by concern under `tests/Smoke/`, tagged with the Pest groups `smoke` and `network`, and keep page assertions stable when the API legitimately returns zero items.
 - Destructive verification against `Environment::Test` is intentionally manual and documented in [`docs/manual-destructive-verification.md`](docs/manual-destructive-verification.md).
@@ -56,6 +55,7 @@ Automated test layers used in this repository:
 - `Smoke`: opt-in read-only checks against `https://test-api.creem.io`.
 
 Local deterministic coverage is organized around resource-owned integration files and subsystem-focused unit files so contract changes stay easy to trace.
+Maintainers also have a local-only `.playground/` workspace for live calls against `Environment::Test`; it reads `CREEM_TEST_API_KEY` from the local environment, keeps reusable non-sensitive runtime state in `.playground/state.json`, keeps per-operation defaults beside each action file, supports `--set` / `--overrides-file` for ephemeral agent inputs, and can audit harness parity against the SDK surface with `php .playground/run.php --audit`. The harness still drives the real `Creem\Client` resource methods and uses Saloon middleware only to capture redacted transport traces for debugging. See `.playground/README.md` in the repository checkout.
 
 ## Configuration
 
@@ -504,11 +504,10 @@ Notes:
 - `composer install` and `composer update` use the committed Composer platform pin (`php: 8.4.0`) so the lockfile stays aligned with the PHP 8.4 CI target.
 - The public repository intentionally keeps maintainer QA files such as `rector.php`, `phpstan.neon.dist`, `phpunit.xml.dist`, and `composer.lock` committed. Installed package archives stay lean through `.gitattributes export-ignore`.
 - `composer test:smoke` requires `CREEM_TEST_API_KEY`.
-- `CREEM_TEST_BASE_URL` and `CREEM_TEST_TIMEOUT` are optional smoke overrides.
-- `CREEM_TEST_PRODUCT_ID`, `CREEM_TEST_CUSTOMER_ID`, `CREEM_TEST_CUSTOMER_EMAIL`, `CREEM_TEST_TRANSACTION_ID`, `CREEM_TEST_DISCOUNT_ID`, `CREEM_TEST_DISCOUNT_CODE`, `CREEM_TEST_SUBSCRIPTION_ID`, and `CREEM_TEST_CHECKOUT_ID` enable optional read-only retrieval smoke checks.
 - `composer test:smoke` runs Pest in verbose mode (`-v`) so skip, warning, and error lines stay readable.
-- With only `CREEM_TEST_API_KEY`, the smoke suite is intentionally limited to independent read-only checks for invalid auth, stats summary, products search, customers list, and transactions search.
-- Optional retrieval smoke checks skip intentionally when their matching ID or code env var is unset.
+- `composer test:smoke` is intentionally reduced to one authenticated canary: `stats()->summary(...)`.
+- If `CREEM_TEST_API_KEY` is unset, the smoke suite skips.
+- Endpoint-specific retrieval and all mutating live validation belong in the local `.playground/` harness.
 - Smoke coverage is split into small concern-focused files under `tests/Smoke/` so resource ownership stays obvious.
 - Automated smoke coverage excludes create, mutate, billing-portal-link, and license lifecycle flows.
 - Destructive test-environment verification follows the maintainer runbook in [`docs/manual-destructive-verification.md`](docs/manual-destructive-verification.md).
