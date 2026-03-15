@@ -21,6 +21,7 @@ PROJECT_DESCRIPTION.md
 plan/
 .spec/
 spec/
+.codex/
 AGENTS.md
 .gitmessage.txt
 .githooks/

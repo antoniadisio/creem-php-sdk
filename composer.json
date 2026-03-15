@@ -7,7 +7,9 @@
         "creem",
         "sdk",
         "api",
-        "payments"
+        "payments",
+        "mor",
+        "merchant of record"
     ],
     "homepage": "https://github.com/antoniadisio/creem-php",
     "support": {
