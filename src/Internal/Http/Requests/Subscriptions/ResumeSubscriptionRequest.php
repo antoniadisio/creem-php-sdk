@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Creem\Internal\Http\Requests\Subscriptions;
+namespace Antoniadisio\Creem\Internal\Http\Requests\Subscriptions;
 
-use Creem\Internal\Http\Requests\JsonRequest;
-use Creem\Internal\Http\Requests\PathIdentifier;
+use Antoniadisio\Creem\Internal\Http\Requests\JsonRequest;
+use Antoniadisio\Creem\Internal\Http\Requests\PathIdentifier;
 use Saloon\Enums\Method;
 
 use function sprintf;

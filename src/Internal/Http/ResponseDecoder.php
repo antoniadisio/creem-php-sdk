@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Creem\Internal\Http;
+namespace Antoniadisio\Creem\Internal\Http;
 
-use Creem\Exception\TransportException;
+use Antoniadisio\Creem\Exception\TransportException;
 use JsonException;
 use Saloon\Http\Response;
 

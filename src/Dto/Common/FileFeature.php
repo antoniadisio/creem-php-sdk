@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Creem\Dto\Common;
+namespace Antoniadisio\Creem\Dto\Common;
 
-use Creem\Exception\HydrationException;
-use Creem\Internal\Hydration\Payload;
+use Antoniadisio\Creem\Exception\HydrationException;
+use Antoniadisio\Creem\Internal\Hydration\Payload;
 
 use function array_is_list;
 use function is_array;

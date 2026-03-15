@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Creem\Tests;
+namespace Antoniadisio\Creem\Tests;
 
-use Creem\Tests\Support\InteractsWithFixtures;
-use Creem\Tests\Support\InteractsWithMockRequests;
-use Creem\Tests\Support\InteractsWithOpenApiSpec;
+use Antoniadisio\Creem\Tests\Support\Contract\InteractsWithContractSupport;
+use Antoniadisio\Creem\Tests\Support\InteractsWithFixtures;
+use Antoniadisio\Creem\Tests\Support\InteractsWithMockRequests;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
+    use InteractsWithContractSupport;
     use InteractsWithFixtures;
     use InteractsWithMockRequests;
-    use InteractsWithOpenApiSpec;
 }

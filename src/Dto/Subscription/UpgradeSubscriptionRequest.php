@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Creem\Dto\Subscription;
+namespace Antoniadisio\Creem\Dto\Subscription;
 
-use Creem\Enum\SubscriptionUpdateBehavior;
-use Creem\Internal\Serialization\RequestValueNormalizer;
+use Antoniadisio\Creem\Enum\SubscriptionUpdateBehavior;
+use Antoniadisio\Creem\Internal\Serialization\RequestValueNormalizer;
 use InvalidArgumentException;
 
 use function trim;

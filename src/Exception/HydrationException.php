@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Creem\Exception;
+namespace Antoniadisio\Creem\Exception;
 
 use function get_debug_type;
 use function is_scalar;

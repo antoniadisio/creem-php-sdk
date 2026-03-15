@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Creem\Resource;
+namespace Antoniadisio\Creem\Resource;
 
-use Creem\Dto\License\ActivateLicenseRequest;
-use Creem\Dto\License\DeactivateLicenseRequest;
-use Creem\Dto\License\License;
-use Creem\Dto\License\ValidateLicenseRequest;
-use Creem\Internal\Http\Requests\Licenses\ActivateLicenseRequest as ActivateLicenseOperation;
-use Creem\Internal\Http\Requests\Licenses\DeactivateLicenseRequest as DeactivateLicenseOperation;
-use Creem\Internal\Http\Requests\Licenses\ValidateLicenseRequest as ValidateLicenseOperation;
+use Antoniadisio\Creem\Dto\License\ActivateLicenseRequest;
+use Antoniadisio\Creem\Dto\License\DeactivateLicenseRequest;
+use Antoniadisio\Creem\Dto\License\License;
+use Antoniadisio\Creem\Dto\License\ValidateLicenseRequest;
+use Antoniadisio\Creem\Internal\Http\Requests\Licenses\ActivateLicenseRequest as ActivateLicenseOperation;
+use Antoniadisio\Creem\Internal\Http\Requests\Licenses\DeactivateLicenseRequest as DeactivateLicenseOperation;
+use Antoniadisio\Creem\Internal\Http\Requests\Licenses\ValidateLicenseRequest as ValidateLicenseOperation;
 
 final class LicensesResource extends Resource
 {

@@ -1,19 +1,21 @@
 {
-    "name": "antoniadisio/creem-php-sdk",
-    "description": "Handwritten PHP SDK for the Creem API with a typed public facade and Saloon-powered transport.",
+    "name": "antoniadisio/creem-php",
+    "description": "Unofficial but passionate typed PHP SDK for Creem with resource DTOs, webhook helpers, and Saloon-powered transport.",
     "type": "library",
     "license": "MIT",
     "keywords": [
         "creem",
         "sdk",
         "api",
-        "payments"
+        "payments",
+        "mor",
+        "merchant of record"
     ],
-    "homepage": "https://github.com/antoniadisio/creem-php-sdk",
+    "homepage": "https://github.com/antoniadisio/creem-php",
     "support": {
-        "issues": "https://github.com/antoniadisio/creem-php-sdk/issues",
-        "security": "https://github.com/antoniadisio/creem-php-sdk/security/policy",
-        "source": "https://github.com/antoniadisio/creem-php-sdk"
+        "issues": "https://github.com/antoniadisio/creem-php/issues",
+        "security": "https://github.com/antoniadisio/creem-php/security/policy",
+        "source": "https://github.com/antoniadisio/creem-php"
     },
     "authors": [
         {
@@ -34,12 +36,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Creem\\": "src/"
+            "Antoniadisio\\Creem\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Creem\\Tests\\": "tests/"
+            "Antoniadisio\\Creem\\Tests\\": "tests/"
         }
     },
     "scripts": {
@@ -51,7 +53,7 @@
             "@test:unit",
             "@test:integration"
         ],
-        "test:live": "pest --testsuite=Live",
+        "test:smoke": "pest --testsuite=Smoke -v",
         "test": "@test:unit",
         "cs": "pint --test",
         "cs:fix": "pint",

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Creem\Internal\Http;
+namespace Antoniadisio\Creem\Internal\Http;
 
+use Antoniadisio\Creem\Config;
 use Composer\InstalledVersions;
-use Creem\Config;
 
 use function class_exists;
 use function implode;
@@ -15,7 +15,7 @@ final class UserAgent
     public static function forConfig(Config $config): string
     {
         $segments = [
-            'creem-php-sdk/'.self::resolveSdkVersion(),
+            'creem-php/'.self::resolveSdkVersion(),
             'php/'.PHP_VERSION,
         ];
 

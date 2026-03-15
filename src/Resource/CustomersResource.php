@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Creem\Resource;
+namespace Antoniadisio\Creem\Resource;
 
-use Creem\Dto\Common\Page;
-use Creem\Dto\Customer\CreateCustomerBillingPortalLinkRequest;
-use Creem\Dto\Customer\Customer;
-use Creem\Dto\Customer\CustomerLinks;
-use Creem\Dto\Customer\ListCustomersRequest;
-use Creem\Internal\Http\Requests\Customers\GenerateCustomerLinksRequest;
-use Creem\Internal\Http\Requests\Customers\ListCustomersRequest as ListCustomersOperation;
-use Creem\Internal\Http\Requests\Customers\RetrieveCustomerRequest;
-use Creem\Internal\Hydration\Payload;
+use Antoniadisio\Creem\Dto\Common\Page;
+use Antoniadisio\Creem\Dto\Customer\CreateCustomerBillingPortalLinkRequest;
+use Antoniadisio\Creem\Dto\Customer\Customer;
+use Antoniadisio\Creem\Dto\Customer\CustomerLinks;
+use Antoniadisio\Creem\Dto\Customer\ListCustomersRequest;
+use Antoniadisio\Creem\Internal\Http\Requests\Customers\GenerateCustomerLinksRequest;
+use Antoniadisio\Creem\Internal\Http\Requests\Customers\ListCustomersRequest as ListCustomersOperation;
+use Antoniadisio\Creem\Internal\Http\Requests\Customers\RetrieveCustomerRequest;
+use Antoniadisio\Creem\Internal\Hydration\Payload;
 
 final class CustomersResource extends Resource
 {

@@ -1,13 +1,13 @@
 {
-    "id": "sub_123",
+    "id": "sub_fixture_active",
     "mode": "test",
     "object": "subscription",
     "product": {
-        "id": "prod_123",
+        "id": "prod_fixture_subscription",
         "mode": "test",
         "object": "product",
-        "name": "Starter",
-        "description": "Starter plan",
+        "name": "Subscription Fixture Product",
+        "description": "Recurring fixture product for subscription coverage",
         "price": 1900,
         "currency": "USD",
         "billing_type": "recurring",
@@ -15,42 +15,60 @@
         "status": "active",
         "tax_mode": "inclusive",
         "tax_category": "saas",
-        "created_at": "2026-01-01T00:00:00Z",
-        "updated_at": "2026-01-02T00:00:00Z"
+        "default_success_url": null,
+        "created_at": "2026-03-07T06:35:39.943Z",
+        "updated_at": "2026-03-07T06:35:39.943Z"
     },
-    "customer": "cus_123",
+    "customer": {
+        "id": "cust_fixture_primary",
+        "mode": "test",
+        "object": "customer",
+        "email": "customer.fixture@example.test",
+        "name": "Primary Fixture Customer",
+        "country": "US",
+        "created_at": "2026-03-07T06:49:22.500Z",
+        "updated_at": "2026-03-07T06:51:33.311Z"
+    },
     "items": [
         {
-            "id": "item_1",
+            "id": "sitem_fixture_primary",
             "mode": "test",
-            "object": "subscription-item",
-            "product_id": "prod_123",
-            "price_id": "price_123",
-            "units": 2
+            "object": "subscription_item",
+            "product_id": "prod_fixture_subscription",
+            "price_id": "pprice_fixture_monthly",
+            "units": 1,
+            "created_at": "2026-03-07T06:50:41.467Z",
+            "updated_at": "2026-03-07T06:50:46.748Z"
         }
     ],
     "collection_method": "charge_automatically",
     "status": "active",
-    "last_transaction_id": "txn_123",
+    "last_transaction_id": "tran_fixture_invoice",
     "last_transaction": {
-        "id": "txn_123",
+        "id": "tran_fixture_invoice",
         "mode": "test",
         "object": "transaction",
         "amount": 1900,
+        "amount_paid": 1900,
         "currency": "USD",
-        "type": "payment",
+        "type": "invoice",
+        "tax_country": "US",
+        "tax_amount": 0,
         "status": "paid",
-        "created_at": 1700000000
+        "refunded_amount": null,
+        "order": "ord_fixture_primary",
+        "subscription": "sub_fixture_active",
+        "customer": null,
+        "description": "Monthly subscription renewal",
+        "period_start": 1772866238000,
+        "period_end": 1775544638000,
+        "created_at": 1772866243426
     },
-    "last_transaction_date": "2026-01-01T12:00:00Z",
-    "next_transaction_date": "2026-02-01T12:00:00Z",
-    "current_period_start_date": "2026-01-01T00:00:00Z",
-    "current_period_end_date": "2026-02-01T00:00:00Z",
+    "last_transaction_date": "2026-03-07T06:50:38.000Z",
+    "next_transaction_date": "2026-04-07T06:50:38.000Z",
+    "current_period_start_date": "2026-03-07T06:50:38.000Z",
+    "current_period_end_date": "2026-04-07T06:50:38.000Z",
     "canceled_at": null,
-    "created_at": "2026-01-01T00:00:00Z",
-    "updated_at": "2026-01-02T00:00:00Z",
-    "discount": {
-        "code": "LAUNCH",
-        "amount": 1000
-    }
+    "created_at": "2026-03-07T06:50:41.456Z",
+    "updated_at": "2026-03-07T06:51:33.586Z"
 }

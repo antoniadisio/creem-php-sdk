@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Creem\Dto\Common;
+namespace Antoniadisio\Creem\Dto\Common;
 
-use Creem\Enum\ApiMode;
-use Creem\Enum\CurrencyCode;
-use Creem\Enum\OrderStatus;
-use Creem\Enum\OrderType;
-use Creem\Internal\Hydration\Payload;
+use Antoniadisio\Creem\Enum\ApiMode;
+use Antoniadisio\Creem\Enum\CurrencyCode;
+use Antoniadisio\Creem\Enum\OrderStatus;
+use Antoniadisio\Creem\Enum\OrderType;
+use Antoniadisio\Creem\Internal\Hydration\Payload;
 use DateTimeImmutable;
 
 final readonly class Order

@@ -1,37 +1,79 @@
 {
     "items": [
         {
-            "id": "prod_123",
+            "id": "prod_fixture_catalog",
             "mode": "test",
             "object": "product",
-            "name": "Starter",
-            "description": "Starter plan",
-            "image_url": "https://example.com/starter.png",
-            "features": [
-                {
-                    "id": "feat_1",
-                    "type": "licenseKey",
-                    "description": "License access"
-                }
-            ],
-            "price": 1900,
+            "name": "Catalog Fixture Product",
+            "description": "Primary product fixture for catalog coverage",
+            "price": 4900,
             "currency": "USD",
             "billing_type": "recurring",
             "billing_period": "every-month",
             "status": "active",
             "tax_mode": "inclusive",
             "tax_category": "saas",
-            "product_url": "https://creem.io/product/prod_123",
-            "default_success_url": "https://example.com/success",
-            "created_at": "2026-01-01T00:00:00Z",
-            "updated_at": "2026-01-02T00:00:00Z"
+            "product_url": "https://creem.io/test/product/prod_fixture_catalog",
+            "default_success_url": null,
+            "custom_fields": [
+                {
+                    "type": "text",
+                    "key": "team_name",
+                    "label": "Team name",
+                    "optional": false,
+                    "text": {
+                        "max_length": 80,
+                        "minimum_length": 1,
+                        "value": "Catalog Team"
+                    }
+                }
+            ],
+            "created_at": "2026-03-07T06:35:41.762Z",
+            "updated_at": "2026-03-07T06:35:41.762Z"
+        },
+        {
+            "id": "prod_fixture_license",
+            "mode": "test",
+            "object": "product",
+            "name": "License Fixture Product",
+            "description": "One-time fixture product with a license-key feature",
+            "price": 2900,
+            "currency": "USD",
+            "billing_type": "onetime",
+            "billing_period": "once",
+            "status": "active",
+            "tax_mode": "inclusive",
+            "tax_category": "saas",
+            "product_url": "https://creem.io/test/product/prod_fixture_license",
+            "default_success_url": null,
+            "custom_fields": [
+                {
+                    "type": "checkbox",
+                    "key": "reseller_terms",
+                    "label": "Reseller terms",
+                    "optional": true,
+                    "checkbox": {
+                        "label": "I am purchasing for a client",
+                        "value": false
+                    }
+                }
+            ],
+            "created_at": "2026-03-07T06:35:41.762Z",
+            "updated_at": "2026-03-07T06:49:22.500Z",
+            "features": [
+                {
+                    "id": "feat_fixture_license_key",
+                    "type": "licenseKey",
+                    "description": "License Key"
+                }
+            ]
         }
     ],
     "pagination": {
-        "total_records": 1,
-        "total_pages": 1,
-        "current_page": 2,
-        "next_page": null,
-        "prev_page": 1
+        "total_records": 111,
+        "total_pages": 56,
+        "current_page": 1,
+        "next_page": 2,
+        "prev_page": null
     }
 }

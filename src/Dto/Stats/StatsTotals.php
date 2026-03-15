@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Creem\Dto\Stats;
+namespace Antoniadisio\Creem\Dto\Stats;
 
-use Creem\Internal\Hydration\Payload;
+use Antoniadisio\Creem\Internal\Hydration\Payload;
 
 final readonly class StatsTotals
 {

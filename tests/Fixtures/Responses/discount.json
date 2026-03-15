@@ -1,18 +1,18 @@
 {
-    "id": "disc_123",
+    "id": "dis_fixture_active",
     "mode": "test",
     "object": "discount",
+    "store_id": "sto_fixture_primary",
     "status": "active",
-    "name": "Launch",
-    "code": "LAUNCH",
+    "name": "Launch Fixture Discount",
+    "code": "WELCOME10_FIXTURE",
     "type": "fixed",
-    "amount": 1000,
     "currency": "USD",
-    "expiry_date": "2026-12-31T23:59:59Z",
-    "max_redemptions": 100,
+    "amount": 500,
     "duration": "once",
     "applies_to_products": [
-        "prod_123"
+        "prod_fixture_catalog"
     ],
-    "redeem_count": 1
+    "redeem_count": 0,
+    "created_at": "2026-03-10T08:08:03.048Z"
 }

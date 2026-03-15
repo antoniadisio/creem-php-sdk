@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Creem\Dto\Common;
+namespace Antoniadisio\Creem\Dto\Common;
 
-use Creem\Internal\Hydration\Payload;
+use Antoniadisio\Creem\Internal\Hydration\Payload;
 
 final readonly class FeatureFile
 {

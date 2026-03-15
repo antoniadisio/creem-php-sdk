@@ -13,13 +13,15 @@ phpstan.neon
 
 # Local environment files
 .env
-.test-state/
+.playground/
 
 # Maintainer-only planning notes
 IMPLEMENTATION_PLAN.md
 PROJECT_DESCRIPTION.md
 plan/
 .spec/
+spec/
+.codex/
 AGENTS.md
 .gitmessage.txt
 .githooks/

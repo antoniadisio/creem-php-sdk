@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Creem\Dto\Common;
+namespace Antoniadisio\Creem\Dto\Common;
 
-use Creem\Internal\Hydration\StructuredValueNormalizer;
+use Antoniadisio\Creem\Internal\Hydration\StructuredValueNormalizer;
 use IteratorAggregate;
 use Traversable;
 

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Creem\Internal\Http\Requests\Licenses;
+namespace Antoniadisio\Creem\Internal\Http\Requests\Licenses;
 
-use Creem\Internal\Http\Requests\JsonRequest;
+use Antoniadisio\Creem\Internal\Http\Requests\JsonRequest;
 use Saloon\Enums\Method;
 
 final class DeactivateLicenseRequest extends JsonRequest

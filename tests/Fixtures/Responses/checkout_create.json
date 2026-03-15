@@ -1,0 +1,10 @@
+{
+    "id": "ch_fixture_created",
+    "mode": "test",
+    "object": "checkout",
+    "product": "prod_fixture_catalog",
+    "units": 2,
+    "custom_fields": [],
+    "status": "pending",
+    "checkout_url": "https://creem.io/test/checkout/prod_fixture_catalog/ch_fixture_created"
+}

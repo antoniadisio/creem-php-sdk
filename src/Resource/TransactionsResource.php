@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Creem\Resource;
+namespace Antoniadisio\Creem\Resource;
 
-use Creem\Dto\Common\Page;
-use Creem\Dto\Transaction\SearchTransactionsRequest;
-use Creem\Dto\Transaction\Transaction;
-use Creem\Internal\Http\Requests\Transactions\GetTransactionRequest;
-use Creem\Internal\Http\Requests\Transactions\SearchTransactionsRequest as SearchTransactionsOperation;
-use Creem\Internal\Hydration\Payload;
+use Antoniadisio\Creem\Dto\Common\Page;
+use Antoniadisio\Creem\Dto\Transaction\SearchTransactionsRequest;
+use Antoniadisio\Creem\Dto\Transaction\Transaction;
+use Antoniadisio\Creem\Internal\Http\Requests\Transactions\GetTransactionRequest;
+use Antoniadisio\Creem\Internal\Http\Requests\Transactions\SearchTransactionsRequest as SearchTransactionsOperation;
+use Antoniadisio\Creem\Internal\Hydration\Payload;
 
 final class TransactionsResource extends Resource
 {

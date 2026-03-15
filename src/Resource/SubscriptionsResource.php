@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Creem\Resource;
+namespace Antoniadisio\Creem\Resource;
 
-use Creem\Dto\Subscription\CancelSubscriptionRequest;
-use Creem\Dto\Subscription\Subscription;
-use Creem\Dto\Subscription\UpdateSubscriptionRequest;
-use Creem\Dto\Subscription\UpgradeSubscriptionRequest;
-use Creem\Internal\Http\Requests\Subscriptions\CancelSubscriptionRequest as CancelSubscriptionOperation;
-use Creem\Internal\Http\Requests\Subscriptions\PauseSubscriptionRequest;
-use Creem\Internal\Http\Requests\Subscriptions\ResumeSubscriptionRequest;
-use Creem\Internal\Http\Requests\Subscriptions\RetrieveSubscriptionRequest;
-use Creem\Internal\Http\Requests\Subscriptions\UpdateSubscriptionRequest as UpdateSubscriptionOperation;
-use Creem\Internal\Http\Requests\Subscriptions\UpgradeSubscriptionRequest as UpgradeSubscriptionOperation;
+use Antoniadisio\Creem\Dto\Subscription\CancelSubscriptionRequest;
+use Antoniadisio\Creem\Dto\Subscription\Subscription;
+use Antoniadisio\Creem\Dto\Subscription\UpdateSubscriptionRequest;
+use Antoniadisio\Creem\Dto\Subscription\UpgradeSubscriptionRequest;
+use Antoniadisio\Creem\Internal\Http\Requests\Subscriptions\CancelSubscriptionRequest as CancelSubscriptionOperation;
+use Antoniadisio\Creem\Internal\Http\Requests\Subscriptions\PauseSubscriptionRequest;
+use Antoniadisio\Creem\Internal\Http\Requests\Subscriptions\ResumeSubscriptionRequest;
+use Antoniadisio\Creem\Internal\Http\Requests\Subscriptions\RetrieveSubscriptionRequest;
+use Antoniadisio\Creem\Internal\Http\Requests\Subscriptions\UpdateSubscriptionRequest as UpdateSubscriptionOperation;
+use Antoniadisio\Creem\Internal\Http\Requests\Subscriptions\UpgradeSubscriptionRequest as UpgradeSubscriptionOperation;
 
 final class SubscriptionsResource extends Resource
 {

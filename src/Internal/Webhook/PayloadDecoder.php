@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Creem\Internal\Webhook;
+namespace Antoniadisio\Creem\Internal\Webhook;
 
-use Creem\Exception\InvalidWebhookPayloadException;
+use Antoniadisio\Creem\Exception\InvalidWebhookPayloadException;
 use InvalidArgumentException;
 use JsonException;
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Creem\Internal\Webhook;
+namespace Antoniadisio\Creem\Internal\Webhook;
 
 use function hash_equals;
 

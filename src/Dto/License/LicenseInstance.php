@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Creem\Dto\License;
+namespace Antoniadisio\Creem\Dto\License;
 
-use Creem\Enum\ApiMode;
-use Creem\Enum\LicenseInstanceStatus;
-use Creem\Internal\Hydration\Payload;
+use Antoniadisio\Creem\Enum\ApiMode;
+use Antoniadisio\Creem\Enum\LicenseInstanceStatus;
+use Antoniadisio\Creem\Internal\Hydration\Payload;
 use DateTimeImmutable;
 
 final readonly class LicenseInstance

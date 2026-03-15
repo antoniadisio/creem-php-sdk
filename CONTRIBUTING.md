@@ -1,7 +1,7 @@
 # Contributing
 
 ## Scope
-This repository is a public PHP SDK. Keep changes focused on package code and contributor-facing documentation. The consumer entrypoint is the pre-1.0 `Creem\Client` facade; avoid turning internal Saloon transport classes into part of the public contract.
+This repository is a public unofficial PHP SDK. Keep changes focused on package code and contributor-facing documentation. The consumer entrypoint is the stable typed `Antoniadisio\Creem\Client` facade; avoid turning internal Saloon transport classes into part of the public contract.
 The public repo intentionally keeps maintainer QA files such as `rector.php`, `phpstan.neon.dist`, `phpunit.xml.dist`, and `composer.lock` committed at the root. Lean package archives for SDK consumers are handled with `.gitattributes export-ignore`, not by removing those repo files from git.
 
 ## Local Setup
@@ -12,9 +12,13 @@ The public repo intentionally keeps maintainer QA files such as `rector.php`, `p
 ## Development Workflow
 - Keep source changes under `src/` and add matching deterministic tests under `tests/Unit/` and `tests/Integration/` as needed.
 - Update response fixtures in `tests/Fixtures/Responses/` when payload shapes change.
+- Keep committed response fixtures sanitized: use placeholder IDs, reserved-domain URLs, `@example.test` emails, and the canonical timestamp set already used by the fixture corpus.
 - Keep OpenAPI contract work aligned with `tests/Fixtures/OpenApi/creem-openapi.json`.
-- Do not commit local-only planning files or machine-specific files such as `.env`, `.test-state/`, `plan/`, `PROJECT_DESCRIPTION.md`, personal local workflow files, `vendor/`, or IDE settings.
+- Keep the committed OpenAPI fixture aligned with the SDK surface the package intentionally supports; when upstream wording or enum values drift from live behavior, normalize the fixture deliberately instead of preserving stale aliases in the public SDK.
+- Do not commit local-only planning files or machine-specific files such as `.env`, `.playground/`, `.spec/`, `spec/`, `PROJECT_DESCRIPTION.md`, personal local workflow files, `vendor/`, or IDE settings.
 - Keep maintainer-only repo files committed only when they support contributor workflows or CI, and mark files that installed SDK consumers do not need with `.gitattributes export-ignore`.
+- Keep destructive test-environment verification out of Pest and follow [`docs/manual-destructive-verification.md`](docs/manual-destructive-verification.md) when a change must be checked against mutating live behavior.
+- Maintainers can use the local-only `.playground/` workspace for manual live calls against `Environment::Test`; its operator guide lives in `.playground/README.md` and covers named outbound credential profiles plus route-based webhook capture/inspection with per-profile secret env vars.
 
 ## Validation
 Run these commands locally:
@@ -23,9 +27,13 @@ Run these commands locally:
 - `composer qa:check` before opening a pull request.
 - `composer test` when you only need the fast `Unit` suite during iteration.
 - `composer test:integration` when you need deterministic mocked transport coverage only.
+- `composer test:local` when you need all deterministic suites (`Unit` then `Integration`).
+- `composer test:smoke` for the opt-in live smoke canary against `Environment::Test` (requires only `CREEM_TEST_API_KEY`, runs in verbose mode for readable skipped/warning/error lines, skips when the key is absent, and intentionally covers only `stats()->summary(...)`; use the local `.playground/` harness for endpoint-specific retrieval and all mutating live validation).
 - `composer cs` to verify formatting.
 - `composer cs:fix` to apply formatting fixes.
 - `composer stan` to run static analysis on `src` and `tests`.
+
+Keep smoke coverage minimal, keep it as an authenticated connectivity canary only, and keep destructive or endpoint-specific live verification in the local `.playground/` harness and the manual maintainer runbook rather than automated tests or default contributor workflows.
 
 Pull requests should be opened only after `composer qa:check` is green.
 
@@ -39,7 +47,7 @@ Pull requests should be opened only after `composer qa:check` is green.
 - Use enums for closed-set API fields and keep enum-to-string normalization inside the internal request serialization layer.
 - Use `DateTimeImmutable` for spec-defined `format: date-time` fields and for millisecond timestamps only when the contract explicitly documents that unit.
 - Keep public response DTOs concrete: use nested DTOs, typed lists, and `ExpandableResource<T>` instead of `StructuredObject`, `StructuredList`, `ExpandableValue`, or `int|float` unions.
-- Contract violations on required response fields should fail fast with `Creem\Exception\HydrationException`; do not silently coerce malformed required values to `null`.
+- Contract violations on required response fields should fail fast with `Antoniadisio\Creem\Exception\HydrationException`; do not silently coerce malformed required values to `null`.
 
 ## Commits And Pull Requests
 - Write commit subjects in an imperative, outcome-focused style, 72 characters or fewer, with no trailing period.
@@ -51,7 +59,8 @@ Pull requests should be opened only after `composer qa:check` is green.
 - Run `composer validate --strict`.
 - Run `composer qa:check`.
 - Update `CHANGELOG.md` with the exact release version and date.
-- Create an annotated Git tag for that version (for example `git tag -a v0.1.0 -m "Release v0.1.0"`).
+- Keep release notes and installation guidance aligned with the unofficial `antoniadisio/creem-php` package identity.
+- Create an annotated Git tag for that version (for example `git tag -a v0.3.0 -m "Release v0.3.0"`).
 - Push the tag and publish matching GitHub release notes.
 - Keep the Git tag, GitHub release title, and `CHANGELOG.md` entry identical.
 

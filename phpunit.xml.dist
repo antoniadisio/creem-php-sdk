@@ -10,8 +10,8 @@
         <testsuite name="Integration">
             <directory>tests/Integration</directory>
         </testsuite>
-        <testsuite name="Live">
-            <directory>tests/Live</directory>
+        <testsuite name="Smoke">
+            <directory>tests/Smoke</directory>
         </testsuite>
     </testsuites>
 </phpunit>

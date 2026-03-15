@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Creem\Internal\Http\Requests\Discounts;
+namespace Antoniadisio\Creem\Internal\Http\Requests\Discounts;
 
-use Creem\Internal\Http\Requests\PathIdentifier;
-use Creem\Internal\Http\Requests\QueryRequest;
+use Antoniadisio\Creem\Internal\Http\Requests\PathIdentifier;
+use Antoniadisio\Creem\Internal\Http\Requests\QueryRequest;
 use Saloon\Enums\Method;
 
 use function sprintf;

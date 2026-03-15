@@ -2,11 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Creem\Dto\Webhook;
+namespace Antoniadisio\Creem\Dto\Webhook;
 
-use Creem\Dto\Common\StructuredObject;
-use Creem\Internal\Hydration\Payload;
+use Antoniadisio\Creem\Dto\Common\StructuredObject;
+use Antoniadisio\Creem\Exception\HydrationException;
+use Antoniadisio\Creem\Internal\Hydration\Payload;
 use DateTimeImmutable;
+use DateTimeZone;
+
+use function intdiv;
+use function is_int;
 
 final readonly class WebhookEvent
 {
@@ -25,7 +30,7 @@ final readonly class WebhookEvent
     {
         $id = Payload::string($payload, 'id', self::class, true);
         $eventType = Payload::string($payload, 'eventType', self::class, true);
-        $createdAt = Payload::dateTime($payload, 'created_at', self::class, true);
+        $createdAt = self::parseCreatedAt($payload);
         $object = Payload::object($payload, 'object', self::class, true);
 
         /** @var string $id */
@@ -39,6 +44,29 @@ final readonly class WebhookEvent
             $object,
             StructuredObject::fromArray($payload),
         );
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private static function parseCreatedAt(array $payload): DateTimeImmutable
+    {
+        $createdAt = $payload['created_at'] ?? null;
+
+        if (is_int($createdAt)) {
+            $epochSeconds = $createdAt > 9_999_999_999 ? intdiv($createdAt, 1000) : $createdAt;
+
+            return new DateTimeImmutable('@'.$epochSeconds)
+                ->setTimezone(new DateTimeZone('UTC'));
+        }
+
+        $parsedCreatedAt = Payload::dateTime($payload, 'created_at', self::class, true);
+
+        if (! $parsedCreatedAt instanceof \DateTimeImmutable) {
+            throw HydrationException::missingField(self::class, 'created_at');
+        }
+
+        return $parsedCreatedAt;
     }
 
     public function id(): string

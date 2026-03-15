@@ -2,6 +2,6 @@
 
 declare(strict_types=1);
 
-namespace Creem\Exception;
+namespace Antoniadisio\Creem\Exception;
 
 class WebhookException extends CreemException {}

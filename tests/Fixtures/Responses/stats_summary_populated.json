@@ -1,0 +1,20 @@
+{
+    "totals": {
+        "totalProducts": 12,
+        "totalSubscriptions": 48,
+        "totalCustomers": 35,
+        "totalPayments": 62,
+        "activeSubscriptions": 21,
+        "totalRevenue": 553939,
+        "totalNetRevenue": 478094,
+        "netMonthlyRecurringRevenue": 89500,
+        "monthlyRecurringRevenue": 94200
+    },
+    "periods": [
+        {
+            "timestamp": 1763337600000,
+            "grossRevenue": 2999,
+            "netRevenue": 2909
+        }
+    ]
+}

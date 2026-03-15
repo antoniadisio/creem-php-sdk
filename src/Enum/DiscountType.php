@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Creem\Enum;
+namespace Antoniadisio\Creem\Enum;
 
 enum DiscountType: string
 {

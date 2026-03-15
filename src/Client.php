@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Creem;
+namespace Antoniadisio\Creem;
 
-use Creem\Internal\Http\CreemConnector;
-use Creem\Resource\CheckoutsResource;
-use Creem\Resource\CustomersResource;
-use Creem\Resource\DiscountsResource;
-use Creem\Resource\LicensesResource;
-use Creem\Resource\ProductsResource;
-use Creem\Resource\StatsResource;
-use Creem\Resource\SubscriptionsResource;
-use Creem\Resource\TransactionsResource;
+use Antoniadisio\Creem\Internal\Http\CreemConnector;
+use Antoniadisio\Creem\Resource\CheckoutsResource;
+use Antoniadisio\Creem\Resource\CustomersResource;
+use Antoniadisio\Creem\Resource\DiscountsResource;
+use Antoniadisio\Creem\Resource\LicensesResource;
+use Antoniadisio\Creem\Resource\ProductsResource;
+use Antoniadisio\Creem\Resource\StatsResource;
+use Antoniadisio\Creem\Resource\SubscriptionsResource;
+use Antoniadisio\Creem\Resource\TransactionsResource;
 
 final class Client
 {

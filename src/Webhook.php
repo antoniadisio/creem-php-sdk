@@ -2,21 +2,34 @@
 
 declare(strict_types=1);
 
-namespace Creem;
+namespace Antoniadisio\Creem;
 
-use Creem\Dto\Webhook\WebhookEvent;
-use Creem\Exception\HydrationException;
-use Creem\Exception\InvalidWebhookPayloadException;
-use Creem\Exception\InvalidWebhookSignatureException;
-use Creem\Internal\Webhook\PayloadDecoder;
-use Creem\Internal\Webhook\SecureComparer;
-use Creem\Internal\Webhook\Signature;
+use Antoniadisio\Creem\Dto\Webhook\WebhookEvent;
+use Antoniadisio\Creem\Exception\HydrationException;
+use Antoniadisio\Creem\Exception\InvalidWebhookPayloadException;
+use Antoniadisio\Creem\Exception\InvalidWebhookSignatureException;
+use Antoniadisio\Creem\Internal\Webhook\PayloadDecoder;
+use Antoniadisio\Creem\Internal\Webhook\SecureComparer;
+use Antoniadisio\Creem\Internal\Webhook\Signature;
 
 use function trim;
 
 final class Webhook
 {
     private function __construct() {}
+
+    public static function verifySignatureForProfile(
+        string $payload,
+        string $signatureHeader,
+        string $profileName,
+        CredentialProfiles $profiles,
+    ): void {
+        self::verifySignature(
+            $payload,
+            $signatureHeader,
+            $profiles->webhookSecret($profileName),
+        );
+    }
 
     public static function verifySignature(string $payload, string $signatureHeader, #[\SensitiveParameter]
         string $secret): void
@@ -32,13 +45,9 @@ final class Webhook
             throw InvalidWebhookSignatureException::missingSecret();
         }
 
-        $verifiedHeader = Signature::parseHeader($normalizedSignature);
+        $expectedSignature = Signature::compute($payload, $normalizedSecret);
 
-        Signature::validateTimestamp($verifiedHeader['timestamp']);
-
-        $expectedSignature = Signature::compute($payload, $normalizedSecret, $verifiedHeader['timestamp']);
-
-        if (! SecureComparer::equals($expectedSignature, $verifiedHeader['signature'])) {
+        if (! SecureComparer::equals($expectedSignature, $normalizedSignature)) {
             throw InvalidWebhookSignatureException::invalidSignature();
         }
     }
@@ -64,5 +73,20 @@ final class Webhook
         }
 
         return $event;
+    }
+
+    public static function constructEventForProfile(
+        string $payload,
+        string $signatureHeader,
+        string $profileName,
+        CredentialProfiles $profiles,
+        ?callable $isReplay = null,
+    ): WebhookEvent {
+        return self::constructEvent(
+            $payload,
+            $signatureHeader,
+            $profiles->webhookSecret($profileName),
+            $isReplay,
+        );
     }
 }

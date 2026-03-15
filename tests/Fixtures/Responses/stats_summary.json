@@ -1,20 +1,14 @@
 {
     "totals": {
-        "totalProducts": 2,
-        "totalSubscriptions": 3,
-        "totalCustomers": 4,
-        "totalPayments": 5,
-        "activeSubscriptions": 2,
-        "totalRevenue": 12000,
-        "totalNetRevenue": 11500,
-        "netMonthlyRecurringRevenue": 9000,
-        "monthlyRecurringRevenue": 9500
+        "totalProducts": 111,
+        "totalSubscriptions": 0,
+        "totalCustomers": 0,
+        "totalPayments": 0,
+        "activeSubscriptions": 0,
+        "totalRevenue": 0,
+        "totalNetRevenue": 0,
+        "netMonthlyRecurringRevenue": 12304,
+        "monthlyRecurringRevenue": 13300
     },
-    "periods": [
-        {
-            "timestamp": 1700000000000,
-            "grossRevenue": 12000,
-            "netRevenue": 11500
-        }
-    ]
+    "periods": []
 }

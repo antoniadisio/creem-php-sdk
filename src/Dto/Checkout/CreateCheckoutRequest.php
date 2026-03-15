@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Creem\Dto\Checkout;
+namespace Antoniadisio\Creem\Dto\Checkout;
 
-use Creem\Dto\Common\CustomFieldInput;
-use Creem\Internal\Serialization\RequestValueNormalizer;
+use Antoniadisio\Creem\Dto\Common\CustomFieldInput;
+use Antoniadisio\Creem\Internal\Serialization\RequestValueNormalizer;
 use InvalidArgumentException;
 
 use function array_is_list;

@@ -1,32 +1,31 @@
 {
     "items": [
         {
-            "id": "txn_123",
+            "id": "tran_fixture_invoice",
             "mode": "test",
             "object": "transaction",
             "amount": 1900,
             "amount_paid": 1900,
-            "discount_amount": 0,
             "currency": "USD",
-            "type": "payment",
+            "type": "invoice",
             "tax_country": "US",
-            "tax_amount": 300,
+            "tax_amount": 0,
             "status": "paid",
-            "refunded_amount": 0,
-            "order": "ord_123",
-            "subscription": "sub_123",
-            "customer": "cus_123",
-            "description": "Starter renewal",
-            "period_start": 1700000000,
-            "period_end": 1702592000,
-            "created_at": 1700000000
+            "refunded_amount": null,
+            "order": "ord_fixture_primary",
+            "subscription": "sub_fixture_active",
+            "customer": "cust_fixture_primary",
+            "description": "Monthly subscription renewal",
+            "period_start": 1772866238000,
+            "period_end": 1775544638000,
+            "created_at": 1772866243426
         }
     ],
     "pagination": {
-        "total_records": 1,
-        "total_pages": 1,
-        "current_page": 3,
-        "next_page": null,
-        "prev_page": 2
+        "total_records": 44,
+        "total_pages": 44,
+        "current_page": 1,
+        "next_page": 2,
+        "prev_page": null
     }
 }

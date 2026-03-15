@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Creem\Dto\Common;
+namespace Antoniadisio\Creem\Dto\Common;
 
-use Creem\Enum\CustomFieldType;
-use Creem\Internal\Serialization\RequestValueNormalizer;
+use Antoniadisio\Creem\Enum\CustomFieldType;
+use Antoniadisio\Creem\Internal\Serialization\RequestValueNormalizer;
 
 final readonly class CustomFieldInput
 {

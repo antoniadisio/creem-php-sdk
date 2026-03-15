@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Creem\Dto\Subscription;
+namespace Antoniadisio\Creem\Dto\Subscription;
 
-use Creem\Enum\SubscriptionCancellationAction;
-use Creem\Enum\SubscriptionCancellationMode;
-use Creem\Internal\Serialization\RequestValueNormalizer;
+use Antoniadisio\Creem\Enum\SubscriptionCancellationAction;
+use Antoniadisio\Creem\Enum\SubscriptionCancellationMode;
+use Antoniadisio\Creem\Internal\Serialization\RequestValueNormalizer;
 
 final readonly class CancelSubscriptionRequest
 {

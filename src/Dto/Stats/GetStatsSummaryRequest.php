@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Creem\Dto\Stats;
+namespace Antoniadisio\Creem\Dto\Stats;
 
-use Creem\Enum\CurrencyCode;
-use Creem\Enum\StatsInterval;
-use Creem\Internal\Serialization\RequestValueNormalizer;
+use Antoniadisio\Creem\Enum\CurrencyCode;
+use Antoniadisio\Creem\Enum\StatsInterval;
+use Antoniadisio\Creem\Internal\Serialization\RequestValueNormalizer;
 use DateTimeImmutable;
 
 final readonly class GetStatsSummaryRequest

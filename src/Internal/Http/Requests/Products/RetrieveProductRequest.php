@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Creem\Internal\Http\Requests\Products;
+namespace Antoniadisio\Creem\Internal\Http\Requests\Products;
 
-use Creem\Internal\Http\Requests\QueryRequest;
+use Antoniadisio\Creem\Internal\Http\Requests\QueryRequest;
 use Saloon\Enums\Method;
 
 final class RetrieveProductRequest extends QueryRequest

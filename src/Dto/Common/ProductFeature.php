@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Creem\Dto\Common;
+namespace Antoniadisio\Creem\Dto\Common;
 
-use Creem\Dto\License\License;
-use Creem\Enum\ProductFeatureType;
-use Creem\Internal\Hydration\Payload;
+use Antoniadisio\Creem\Dto\License\License;
+use Antoniadisio\Creem\Enum\ProductFeatureType;
+use Antoniadisio\Creem\Internal\Hydration\Payload;
 
 final readonly class ProductFeature
 {

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Creem\Dto\Customer;
+namespace Antoniadisio\Creem\Dto\Customer;
 
-use Creem\Internal\Hydration\Payload;
+use Antoniadisio\Creem\Internal\Hydration\Payload;
 
 final readonly class CustomerLinks
 {

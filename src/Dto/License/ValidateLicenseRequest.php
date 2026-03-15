@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Creem\Dto\License;
+namespace Antoniadisio\Creem\Dto\License;
 
-use Creem\Internal\Serialization\RequestValueNormalizer;
+use Antoniadisio\Creem\Internal\Serialization\RequestValueNormalizer;
 use InvalidArgumentException;
 
 use function trim;

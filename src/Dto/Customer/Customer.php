@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Creem\Dto\Customer;
+namespace Antoniadisio\Creem\Dto\Customer;
 
-use Creem\Enum\ApiMode;
-use Creem\Internal\Hydration\Payload;
+use Antoniadisio\Creem\Enum\ApiMode;
+use Antoniadisio\Creem\Internal\Hydration\Payload;
 use DateTimeImmutable;
 
 final readonly class Customer

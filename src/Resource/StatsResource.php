@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Creem\Resource;
+namespace Antoniadisio\Creem\Resource;
 
-use Creem\Dto\Stats\GetStatsSummaryRequest;
-use Creem\Dto\Stats\StatsSummary;
-use Creem\Internal\Http\Requests\Stats\GetMetricsSummaryRequest;
+use Antoniadisio\Creem\Dto\Stats\GetStatsSummaryRequest;
+use Antoniadisio\Creem\Dto\Stats\StatsSummary;
+use Antoniadisio\Creem\Internal\Http\Requests\Stats\GetMetricsSummaryRequest;
 
 final class StatsResource extends Resource
 {

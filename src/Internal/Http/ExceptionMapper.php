@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Creem\Internal\Http;
+namespace Antoniadisio\Creem\Internal\Http;
 
-use Creem\Exception\AuthenticationException;
-use Creem\Exception\CreemException;
-use Creem\Exception\NotFoundException;
-use Creem\Exception\RateLimitException;
-use Creem\Exception\ServerException;
-use Creem\Exception\ValidationException;
+use Antoniadisio\Creem\Exception\AuthenticationException;
+use Antoniadisio\Creem\Exception\CreemException;
+use Antoniadisio\Creem\Exception\NotFoundException;
+use Antoniadisio\Creem\Exception\RateLimitException;
+use Antoniadisio\Creem\Exception\ServerException;
+use Antoniadisio\Creem\Exception\ValidationException;
 use Saloon\Http\Response;
 
 use function array_is_list;
@@ -212,6 +212,12 @@ final class ExceptionMapper
                 continue;
             }
 
+            if (is_array($value)) {
+                $sanitized[$key] = self::sanitizeValue($value, 0, true);
+
+                continue;
+            }
+
             if (is_int($value) || is_float($value) || is_bool($value)) {
                 $sanitized[$key] = $value;
             }
@@ -276,6 +282,10 @@ final class ExceptionMapper
 
     private static function meaningfulMessageOrNull(mixed $value): ?string
     {
+        if (is_array($value)) {
+            return self::firstMeaningfulMessageFromArray($value, 0);
+        }
+
         if (! is_string($value)) {
             return null;
         }
@@ -287,6 +297,40 @@ final class ExceptionMapper
         }
 
         return $value;
+    }
+
+    /**
+     * @param  array<array-key, mixed>  $value
+     */
+    private static function firstMeaningfulMessageFromArray(array $value, int $depth): ?string
+    {
+        if ($depth >= self::MAX_ERROR_DEPTH) {
+            return null;
+        }
+
+        foreach (array_slice($value, 0, self::MAX_CONTEXT_ITEMS, true) as $key => $item) {
+            if (! array_is_list($value) && is_string($key) && ! self::isSafeErrorScalarKey($key)) {
+                continue;
+            }
+
+            if (is_array($item)) {
+                $nestedMessage = self::firstMeaningfulMessageFromArray($item, $depth + 1);
+
+                if ($nestedMessage !== null) {
+                    return $nestedMessage;
+                }
+
+                continue;
+            }
+
+            $message = self::meaningfulMessageOrNull($item);
+
+            if ($message !== null) {
+                return $message;
+            }
+        }
+
+        return null;
     }
 
     private static function truncate(string $value): string

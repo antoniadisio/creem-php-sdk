@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Creem\Dto\Discount;
+namespace Antoniadisio\Creem\Dto\Discount;
 
-use Creem\Enum\ApiMode;
-use Creem\Enum\CurrencyCode;
-use Creem\Enum\DiscountDuration;
-use Creem\Enum\DiscountStatus;
-use Creem\Enum\DiscountType;
-use Creem\Exception\HydrationException;
-use Creem\Internal\Hydration\Payload;
+use Antoniadisio\Creem\Enum\ApiMode;
+use Antoniadisio\Creem\Enum\CurrencyCode;
+use Antoniadisio\Creem\Enum\DiscountDuration;
+use Antoniadisio\Creem\Enum\DiscountStatus;
+use Antoniadisio\Creem\Enum\DiscountType;
+use Antoniadisio\Creem\Exception\HydrationException;
+use Antoniadisio\Creem\Internal\Hydration\Payload;
 use DateTimeImmutable;
 
 final readonly class Discount

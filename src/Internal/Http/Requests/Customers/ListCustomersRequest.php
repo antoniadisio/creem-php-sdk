@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Creem\Internal\Http\Requests\Customers;
+namespace Antoniadisio\Creem\Internal\Http\Requests\Customers;
 
-use Creem\Internal\Http\Requests\QueryRequest;
+use Antoniadisio\Creem\Internal\Http\Requests\QueryRequest;
 use Saloon\Enums\Method;
 
 final class ListCustomersRequest extends QueryRequest

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Creem\Internal\Http\Requests;
+namespace Antoniadisio\Creem\Internal\Http\Requests;
 
 use InvalidArgumentException;
 use Saloon\Contracts\Body\HasBody;

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Creem\Dto\Discount;
+namespace Antoniadisio\Creem\Dto\Discount;
 
-use Creem\Enum\CurrencyCode;
-use Creem\Enum\DiscountDuration;
-use Creem\Enum\DiscountType;
-use Creem\Internal\Serialization\RequestValueNormalizer;
+use Antoniadisio\Creem\Enum\CurrencyCode;
+use Antoniadisio\Creem\Enum\DiscountDuration;
+use Antoniadisio\Creem\Enum\DiscountType;
+use Antoniadisio\Creem\Internal\Serialization\RequestValueNormalizer;
 use DateTimeImmutable;
 use InvalidArgumentException;
 
@@ -136,7 +136,7 @@ final readonly class CreateDiscountRequest
                 throw new InvalidArgumentException('The percentage discount amount must be omitted.');
             }
 
-            if ($currency instanceof \Creem\Enum\CurrencyCode) {
+            if ($currency instanceof \Antoniadisio\Creem\Enum\CurrencyCode) {
                 throw new InvalidArgumentException('The percentage discount currency must be omitted.');
             }
         }

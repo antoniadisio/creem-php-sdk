@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Creem\Internal\Http\Requests\Subscriptions;
+namespace Antoniadisio\Creem\Internal\Http\Requests\Subscriptions;
 
-use Creem\Internal\Http\Requests\QueryRequest;
+use Antoniadisio\Creem\Internal\Http\Requests\QueryRequest;
 use Saloon\Enums\Method;
 
 final class RetrieveSubscriptionRequest extends QueryRequest

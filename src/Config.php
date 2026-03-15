@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Creem;
+namespace Antoniadisio\Creem;
 
 use const FILTER_VALIDATE_URL;
 use const PHP_URL_HOST;
 use const PHP_URL_SCHEME;
 
-use Creem\Enum\Environment;
-use Creem\Internal\Http\UserAgent;
+use Antoniadisio\Creem\Enum\Environment;
+use Antoniadisio\Creem\Internal\Http\UserAgent;
 use InvalidArgumentException;
 use LogicException;
 

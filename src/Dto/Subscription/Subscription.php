@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Creem\Dto\Subscription;
+namespace Antoniadisio\Creem\Dto\Subscription;
 
-use Creem\Dto\Common\ExpandableResource;
-use Creem\Dto\Customer\Customer;
-use Creem\Dto\Product\Product;
-use Creem\Dto\Transaction\Transaction;
-use Creem\Enum\ApiMode;
-use Creem\Enum\SubscriptionCollectionMethod;
-use Creem\Enum\SubscriptionStatus;
-use Creem\Exception\HydrationException;
-use Creem\Internal\Hydration\Payload;
+use Antoniadisio\Creem\Dto\Common\ExpandableResource;
+use Antoniadisio\Creem\Dto\Customer\Customer;
+use Antoniadisio\Creem\Dto\Product\Product;
+use Antoniadisio\Creem\Dto\Transaction\Transaction;
+use Antoniadisio\Creem\Enum\ApiMode;
+use Antoniadisio\Creem\Enum\SubscriptionCollectionMethod;
+use Antoniadisio\Creem\Enum\SubscriptionStatus;
+use Antoniadisio\Creem\Exception\HydrationException;
+use Antoniadisio\Creem\Internal\Hydration\Payload;
 use DateTimeImmutable;
 
 use function array_is_list;

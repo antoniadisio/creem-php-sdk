@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Creem\Tests\Support;
+namespace Antoniadisio\Creem\Tests\Support;
 
-use Creem\Config;
-use Creem\Internal\Http\CreemConnector;
+use Antoniadisio\Creem\Config;
+use Antoniadisio\Creem\Internal\Http\CreemConnector;
 use JsonException;
 use Psr\Http\Message\RequestInterface;
 use Saloon\Enums\Method;

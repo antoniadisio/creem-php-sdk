@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Creem\Internal\Http;
+namespace Antoniadisio\Creem\Internal\Http;
 
-use Creem\Config;
-use Creem\Exception\TransportException;
+use Antoniadisio\Creem\Config;
+use Antoniadisio\Creem\Exception\TransportException;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Http\Connector;
 use Saloon\Http\Faking\MockClient;

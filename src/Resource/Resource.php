@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Creem\Resource;
+namespace Antoniadisio\Creem\Resource;
 
-use Creem\Internal\Http\CreemConnector;
-use Creem\Internal\Http\ResponseDecoder;
+use Antoniadisio\Creem\Internal\Http\CreemConnector;
+use Antoniadisio\Creem\Internal\Http\ResponseDecoder;
 use Saloon\Http\Request;
 
 abstract class Resource

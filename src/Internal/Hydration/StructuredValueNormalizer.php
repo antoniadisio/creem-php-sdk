@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Creem\Internal\Hydration;
+namespace Antoniadisio\Creem\Internal\Hydration;
 
-use Creem\Dto\Common\StructuredList;
-use Creem\Dto\Common\StructuredObject;
+use Antoniadisio\Creem\Dto\Common\StructuredList;
+use Antoniadisio\Creem\Dto\Common\StructuredObject;
 
 use function array_is_list;
 use function is_array;

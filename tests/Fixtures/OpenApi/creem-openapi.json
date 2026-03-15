@@ -1288,8 +1288,7 @@
         "description": "String representing the environment.",
         "enum": [
           "test",
-          "prod",
-          "sandbox"
+          "prod"
         ]
       },
       "ProductFeatureType": {
@@ -1443,6 +1442,13 @@
             "description": "The URL to which the user will be redirected after successfull payment.",
             "example": "https://example.com/?status=successful",
             "nullable": true
+          },
+          "custom_fields": {
+            "description": "Additional information collected from your customer during checkout.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomField"
+            }
           },
           "created_at": {
             "format": "date-time",
@@ -2944,6 +2950,7 @@
             "description": "The status of the discount (e.g., active, inactive).",
             "enum": [
               "active",
+              "deleted",
               "draft",
               "expired",
               "scheduled"

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Creem\Resource;
+namespace Antoniadisio\Creem\Resource;
 
-use Creem\Dto\Checkout\Checkout;
-use Creem\Dto\Checkout\CreateCheckoutRequest;
-use Creem\Internal\Http\Requests\Checkouts\CreateCheckoutRequest as CreateCheckoutOperation;
-use Creem\Internal\Http\Requests\Checkouts\RetrieveCheckoutRequest;
+use Antoniadisio\Creem\Dto\Checkout\Checkout;
+use Antoniadisio\Creem\Dto\Checkout\CreateCheckoutRequest;
+use Antoniadisio\Creem\Internal\Http\Requests\Checkouts\CreateCheckoutRequest as CreateCheckoutOperation;
+use Antoniadisio\Creem\Internal\Http\Requests\Checkouts\RetrieveCheckoutRequest;
 
 final class CheckoutsResource extends Resource
 {

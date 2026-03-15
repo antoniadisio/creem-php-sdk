@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Creem\Dto\Common;
+namespace Antoniadisio\Creem\Dto\Common;
 
 final readonly class Pagination
 {

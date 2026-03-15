@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Creem\Dto\Product;
+namespace Antoniadisio\Creem\Dto\Product;
 
-use Creem\Internal\Serialization\RequestValueNormalizer;
+use Antoniadisio\Creem\Internal\Serialization\RequestValueNormalizer;
 
 final readonly class SearchProductsRequest
 {

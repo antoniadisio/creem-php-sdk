@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Creem\Resource;
+namespace Antoniadisio\Creem\Resource;
 
-use Creem\Dto\Discount\CreateDiscountRequest;
-use Creem\Dto\Discount\Discount;
-use Creem\Internal\Http\Requests\Discounts\CreateDiscountRequest as CreateDiscountOperation;
-use Creem\Internal\Http\Requests\Discounts\DeleteDiscountRequest;
-use Creem\Internal\Http\Requests\Discounts\RetrieveDiscountRequest;
+use Antoniadisio\Creem\Dto\Discount\CreateDiscountRequest;
+use Antoniadisio\Creem\Dto\Discount\Discount;
+use Antoniadisio\Creem\Internal\Http\Requests\Discounts\CreateDiscountRequest as CreateDiscountOperation;
+use Antoniadisio\Creem\Internal\Http\Requests\Discounts\DeleteDiscountRequest;
+use Antoniadisio\Creem\Internal\Http\Requests\Discounts\RetrieveDiscountRequest;
 
 final class DiscountsResource extends Resource
 {

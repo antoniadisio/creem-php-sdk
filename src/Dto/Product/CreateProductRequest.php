@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Creem\Dto\Product;
+namespace Antoniadisio\Creem\Dto\Product;
 
-use Creem\Dto\Common\CustomFieldInput;
-use Creem\Enum\BillingPeriod;
-use Creem\Enum\BillingType;
-use Creem\Enum\CurrencyCode;
-use Creem\Enum\TaxCategory;
-use Creem\Enum\TaxMode;
-use Creem\Internal\Serialization\RequestValueNormalizer;
+use Antoniadisio\Creem\Dto\Common\CustomFieldInput;
+use Antoniadisio\Creem\Enum\BillingPeriod;
+use Antoniadisio\Creem\Enum\BillingType;
+use Antoniadisio\Creem\Enum\CurrencyCode;
+use Antoniadisio\Creem\Enum\TaxCategory;
+use Antoniadisio\Creem\Enum\TaxMode;
+use Antoniadisio\Creem\Internal\Serialization\RequestValueNormalizer;
 use InvalidArgumentException;
 
 use function array_is_list;

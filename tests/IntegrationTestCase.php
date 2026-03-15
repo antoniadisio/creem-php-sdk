@@ -2,6 +2,6 @@
 
 declare(strict_types=1);
 
-namespace Creem\Tests;
+namespace Antoniadisio\Creem\Tests;
 
 abstract class IntegrationTestCase extends TestCase {}

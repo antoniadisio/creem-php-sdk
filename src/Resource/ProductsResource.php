@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Creem\Resource;
+namespace Antoniadisio\Creem\Resource;
 
-use Creem\Dto\Common\Page;
-use Creem\Dto\Product\CreateProductRequest;
-use Creem\Dto\Product\Product;
-use Creem\Dto\Product\SearchProductsRequest;
-use Creem\Internal\Http\Requests\Products\CreateProductRequest as CreateProductOperation;
-use Creem\Internal\Http\Requests\Products\RetrieveProductRequest;
-use Creem\Internal\Http\Requests\Products\SearchProductsRequest as SearchProductsOperation;
-use Creem\Internal\Hydration\Payload;
+use Antoniadisio\Creem\Dto\Common\Page;
+use Antoniadisio\Creem\Dto\Product\CreateProductRequest;
+use Antoniadisio\Creem\Dto\Product\Product;
+use Antoniadisio\Creem\Dto\Product\SearchProductsRequest;
+use Antoniadisio\Creem\Internal\Http\Requests\Products\CreateProductRequest as CreateProductOperation;
+use Antoniadisio\Creem\Internal\Http\Requests\Products\RetrieveProductRequest;
+use Antoniadisio\Creem\Internal\Http\Requests\Products\SearchProductsRequest as SearchProductsOperation;
+use Antoniadisio\Creem\Internal\Hydration\Payload;
 
 final class ProductsResource extends Resource
 {

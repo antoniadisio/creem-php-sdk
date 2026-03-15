@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Creem\Dto\Customer;
+namespace Antoniadisio\Creem\Dto\Customer;
 
-use Creem\Internal\Serialization\RequestValueNormalizer;
+use Antoniadisio\Creem\Internal\Serialization\RequestValueNormalizer;
 
 final readonly class ListCustomersRequest
 {

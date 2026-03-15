@@ -1,19 +1,19 @@
 {
-    "id": "lic_123",
+    "id": "lk_fixture_primary",
     "mode": "test",
     "object": "license",
     "status": "active",
-    "key": "lic_key",
-    "activation": 2,
-    "activation_limit": 3,
-    "expires_at": "2027-01-01T00:00:00Z",
-    "created_at": "2026-01-01T00:00:00Z",
+    "key": "LICENSE-FIXTURE-PRIMARY",
+    "activation": 1,
+    "activation_limit": 1,
+    "expires_at": null,
+    "created_at": "2026-03-07T06:49:26.257Z",
     "instance": {
-        "id": "ins_123",
+        "id": "lki_fixture_active",
         "mode": "test",
         "object": "license-instance",
-        "name": "macbook",
+        "name": "fixture-workstation-primary",
         "status": "active",
-        "created_at": "2026-01-01T00:00:00Z"
+        "created_at": "2026-03-10T08:43:11.285Z"
     }
 }

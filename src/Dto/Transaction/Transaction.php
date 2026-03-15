@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Creem\Dto\Transaction;
+namespace Antoniadisio\Creem\Dto\Transaction;
 
-use Creem\Enum\ApiMode;
-use Creem\Enum\CurrencyCode;
-use Creem\Enum\TransactionStatus;
-use Creem\Enum\TransactionType;
-use Creem\Internal\Hydration\Payload;
+use Antoniadisio\Creem\Enum\ApiMode;
+use Antoniadisio\Creem\Enum\CurrencyCode;
+use Antoniadisio\Creem\Enum\TransactionStatus;
+use Antoniadisio\Creem\Enum\TransactionType;
+use Antoniadisio\Creem\Internal\Hydration\Payload;
 
 final readonly class Transaction
 {

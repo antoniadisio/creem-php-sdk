@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Creem\Dto\Subscription;
+namespace Antoniadisio\Creem\Dto\Subscription;
 
-use Creem\Enum\ApiMode;
-use Creem\Internal\Hydration\Payload;
+use Antoniadisio\Creem\Enum\ApiMode;
+use Antoniadisio\Creem\Internal\Hydration\Payload;
 
 final readonly class SubscriptionItem
 {

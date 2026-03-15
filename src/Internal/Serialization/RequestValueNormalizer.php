@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Creem\Internal\Serialization;
+namespace Antoniadisio\Creem\Internal\Serialization;
 
 use BackedEnum;
 use DateTimeInterface;
