@@ -13,7 +13,10 @@ phpstan.neon
 
 # Local environment files
 .env
-.playground/
+/playground/state.json
+/playground/state.local.json
+/playground/captures/
+/playground/*.local.json
 
 # Maintainer-only planning notes
 IMPLEMENTATION_PLAN.md
