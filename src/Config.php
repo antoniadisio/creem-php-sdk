@@ -57,63 +57,10 @@ final readonly class Config implements \Stringable
         ?string $userAgentSuffix = null,
         bool $allowUnsafeBaseUrlOverride = false,
     ) {
-        $apiKey = trim($apiKey);
-
-        if ($apiKey === '') {
-            throw new InvalidArgumentException('The Creem API key cannot be empty.');
-        }
-
-        if (! preg_match(self::API_KEY_PATTERN, $apiKey)) {
-            throw new InvalidArgumentException('The Creem API key must start with "sk_" or "creem_".');
-        }
-
-        if ($timeout !== null && $timeout <= 0) {
-            throw new InvalidArgumentException('The Creem request timeout must be greater than zero.');
-        }
-
-        $normalizedBaseUrl = $baseUrl === null ? null : rtrim(trim($baseUrl), '/');
-
-        if ($normalizedBaseUrl === '') {
-            throw new InvalidArgumentException('The Creem base URL override cannot be blank.');
-        }
-
-        $baseUrlScheme = $normalizedBaseUrl === null ? null : parse_url($normalizedBaseUrl, PHP_URL_SCHEME);
-        $baseUrlHost = $normalizedBaseUrl === null ? null : parse_url($normalizedBaseUrl, PHP_URL_HOST);
-
-        if (
-            $normalizedBaseUrl !== null
-            && (
-                filter_var($normalizedBaseUrl, FILTER_VALIDATE_URL) === false
-                || ! is_string($baseUrlScheme)
-                || ! is_string($baseUrlHost)
-                || strtolower($baseUrlScheme) !== 'https'
-            )
-        ) {
-            throw new InvalidArgumentException('The Creem base URL override must be a valid HTTPS URL.');
-        }
-
-        if (
-            $normalizedBaseUrl !== null
-            && ! $this->isTrustedBaseUrlHost($baseUrlHost)
-            && ! $allowUnsafeBaseUrlOverride
-        ) {
-            throw new InvalidArgumentException(
-                'The Creem base URL override host is not trusted. Pass allowUnsafeBaseUrlOverride: true to allow non-Creem hosts.',
-            );
-        }
-
-        $normalizedSuffix = $userAgentSuffix === null
-            ? null
-            : trim((string) (preg_replace('/[\x00-\x1F\x7F]+/', '', $userAgentSuffix) ?? ''));
-
-        if ($normalizedSuffix === '') {
-            $normalizedSuffix = null;
-        }
-
-        $this->apiKey = $apiKey;
-        $this->baseUrl = $normalizedBaseUrl;
-        $this->timeout = $timeout === null ? null : (float) $timeout;
-        $this->userAgentSuffix = $normalizedSuffix;
+        $this->apiKey = $this->normalizeApiKey($apiKey);
+        $this->baseUrl = $this->normalizeBaseUrl($baseUrl, $allowUnsafeBaseUrlOverride);
+        $this->timeout = $this->normalizeTimeout($timeout);
+        $this->userAgentSuffix = $this->normalizeUserAgentSuffix($userAgentSuffix);
     }
 
     public function apiKey(): string
@@ -216,6 +163,79 @@ final readonly class Config implements \Stringable
         }
 
         return 'sk_****' . $visibleSuffix;
+    }
+
+    private function normalizeApiKey(#[\SensitiveParameter] string $apiKey): string
+    {
+        $apiKey = trim($apiKey);
+
+        if ($apiKey === '') {
+            throw new InvalidArgumentException('The Creem API key cannot be empty.');
+        }
+
+        if (! preg_match(self::API_KEY_PATTERN, $apiKey)) {
+            throw new InvalidArgumentException('The Creem API key must start with "sk_" or "creem_".');
+        }
+
+        return $apiKey;
+    }
+
+    private function normalizeBaseUrl(?string $baseUrl, bool $allowUnsafeBaseUrlOverride): ?string
+    {
+        if ($baseUrl === null) {
+            return null;
+        }
+
+        $normalizedBaseUrl = rtrim(trim($baseUrl), '/');
+
+        if ($normalizedBaseUrl === '') {
+            throw new InvalidArgumentException('The Creem base URL override cannot be blank.');
+        }
+
+        $baseUrlScheme = parse_url($normalizedBaseUrl, PHP_URL_SCHEME);
+        $baseUrlHost = parse_url($normalizedBaseUrl, PHP_URL_HOST);
+
+        if (
+            filter_var($normalizedBaseUrl, FILTER_VALIDATE_URL) === false
+            || ! is_string($baseUrlScheme)
+            || ! is_string($baseUrlHost)
+            || strtolower($baseUrlScheme) !== 'https'
+        ) {
+            throw new InvalidArgumentException('The Creem base URL override must be a valid HTTPS URL.');
+        }
+
+        if (! $allowUnsafeBaseUrlOverride && ! $this->isTrustedBaseUrlHost($baseUrlHost)) {
+            throw new InvalidArgumentException(
+                'The Creem base URL override host is not trusted. Pass allowUnsafeBaseUrlOverride: true to allow non-Creem hosts.',
+            );
+        }
+
+        return $normalizedBaseUrl;
+    }
+
+    private function normalizeTimeout(int|float|null $timeout): ?float
+    {
+        if ($timeout === null) {
+            return null;
+        }
+
+        if ($timeout <= 0) {
+            throw new InvalidArgumentException('The Creem request timeout must be greater than zero.');
+        }
+
+        return (float) $timeout;
+    }
+
+    private function normalizeUserAgentSuffix(?string $userAgentSuffix): ?string
+    {
+        if ($userAgentSuffix === null) {
+            return null;
+        }
+
+        $normalizedSuffix = preg_replace('/[\x00-\x1F\x7F]+/', '', $userAgentSuffix);
+        $normalizedSuffix = is_string($normalizedSuffix) ? trim($normalizedSuffix) : '';
+
+        return $normalizedSuffix === '' ? null : $normalizedSuffix;
     }
 
     private function isTrustedBaseUrlHost(string $host): bool

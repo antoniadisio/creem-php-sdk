@@ -4,11 +4,7 @@ declare(strict_types=1);
 
 namespace Antoniadisio\Creem\Internal\Http\Requests;
 
-use InvalidArgumentException;
 use Saloon\Http\Request;
-
-use function preg_match;
-use function trim;
 
 /** @internal */
 abstract class QueryRequest extends Request
@@ -22,7 +18,7 @@ abstract class QueryRequest extends Request
         private readonly array $queryParameters = [],
         ?string $idempotencyKey = null,
     ) {
-        $this->idempotencyKey = self::normalizeIdempotencyKey($idempotencyKey);
+        $this->idempotencyKey = IdempotencyKey::normalize($idempotencyKey);
     }
 
     /**
@@ -38,29 +34,6 @@ abstract class QueryRequest extends Request
      */
     protected function defaultHeaders(): array
     {
-        if ($this->idempotencyKey === null) {
-            return [];
-        }
-
-        return ['Idempotency-Key' => $this->idempotencyKey];
-    }
-
-    protected static function normalizeIdempotencyKey(?string $idempotencyKey): ?string
-    {
-        if ($idempotencyKey === null) {
-            return null;
-        }
-
-        $idempotencyKey = trim($idempotencyKey);
-
-        if ($idempotencyKey === '') {
-            throw new InvalidArgumentException('The Creem idempotency key cannot be blank.');
-        }
-
-        if (preg_match('/[\x00-\x1F\x7F]/', $idempotencyKey)) {
-            throw new InvalidArgumentException('The Creem idempotency key cannot contain control characters.');
-        }
-
-        return $idempotencyKey;
+        return IdempotencyKey::header($this->idempotencyKey);
     }
 }
