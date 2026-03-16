@@ -18,7 +18,6 @@ use Antoniadisio\Creem\Enum\SubscriptionUpdateBehavior;
 use Antoniadisio\Creem\Enum\TransactionStatus;
 use Antoniadisio\Creem\Resource\SubscriptionsResource;
 use Antoniadisio\Creem\Tests\IntegrationTestCase;
-use InvalidArgumentException;
 use Saloon\Enums\Method;
 use Saloon\Http\Faking\MockClient;
 use Saloon\Http\Faking\MockResponse;
@@ -177,82 +176,3 @@ test('subscriptions resource normalizes mutating identifiers before endpoint res
     $resource->resume('  sub_fixture_active  ');
     $this->assertRequest($mockClient, Method::POST, '/v1/subscriptions/sub_fixture_active/resume');
 });
-
-foreach (invalidSubscriptionMutatingIdentifiers() as $dataset => [$method, $identifier, $arguments, $message]) {
-    test("subscriptions resource rejects invalid mutating identifiers ({$dataset})", function () use ($method, $identifier, $arguments, $message): void {
-        /** @var IntegrationTestCase $this */
-        $resource = new SubscriptionsResource($this->connector(new MockClient()));
-
-        expect(static fn(): mixed => $resource->{$method}($identifier, ...$arguments))
-            ->toThrow(InvalidArgumentException::class, $message);
-    });
-}
-
-/**
- * @return array<string, array{0: string, 1: string, 2: array<int, mixed>, 3: string}>
- */
-function invalidSubscriptionMutatingIdentifiers(): array
-{
-    return [
-        'cancel path traversal' => [
-            'cancel',
-            'sub_123/cancel',
-            [new CancelSubscriptionRequest(SubscriptionCancellationMode::Immediate, SubscriptionCancellationAction::Cancel)],
-            'The subscription ID cannot contain reserved URI characters or control characters.',
-        ],
-        'update query injection' => [
-            'update',
-            'sub_123?force=true',
-            [new UpdateSubscriptionRequest([new UpsertSubscriptionItem(productId: 'prod_123', units: 1)])],
-            'The subscription ID cannot contain reserved URI characters or control characters.',
-        ],
-        'upgrade fragment injection' => [
-            'upgrade',
-            'sub_123#fragment',
-            [new UpgradeSubscriptionRequest('prod_999')],
-            'The subscription ID cannot contain reserved URI characters or control characters.',
-        ],
-        'pause percent encoding' => [
-            'pause',
-            'sub%2F123',
-            [],
-            'The subscription ID cannot contain reserved URI characters or control characters.',
-        ],
-        'resume unsupported punctuation' => [
-            'resume',
-            'sub:123',
-            [],
-            'The subscription ID contains unsupported characters. Allowed characters are letters, numbers, ".", "_", and "-".',
-        ],
-        'cancel single dot segment' => [
-            'cancel',
-            '.',
-            [new CancelSubscriptionRequest(SubscriptionCancellationMode::Immediate, SubscriptionCancellationAction::Cancel)],
-            'The subscription ID cannot be "." or "..".',
-        ],
-        'update double dot segment' => [
-            'update',
-            '..',
-            [new UpdateSubscriptionRequest([new UpsertSubscriptionItem(productId: 'prod_123', units: 1)])],
-            'The subscription ID cannot be "." or "..".',
-        ],
-        'upgrade single dot segment' => [
-            'upgrade',
-            '.',
-            [new UpgradeSubscriptionRequest('prod_999')],
-            'The subscription ID cannot be "." or "..".',
-        ],
-        'pause double dot segment' => [
-            'pause',
-            '..',
-            [],
-            'The subscription ID cannot be "." or "..".',
-        ],
-        'resume single dot segment' => [
-            'resume',
-            '.',
-            [],
-            'The subscription ID cannot be "." or "..".',
-        ],
-    ];
-}

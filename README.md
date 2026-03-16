@@ -38,27 +38,16 @@ Product responses expose `custom_fields` as typed `Antoniadisio\Creem\Dto\Common
 
 `Antoniadisio\Creem\Config` defaults to `Environment::Production`. If you are using test API keys or test resource IDs, set `Environment::Test` explicitly. Creem's marketing/docs may also call the test environment "sandbox", but the SDK does not expose a separate sandbox environment.
 
-## Smoke Suite
+## Testing
 
-Run `composer test:smoke` for the opt-in network smoke suite against `Environment::Test`.
+Repository testing is split by audience:
 
-- `CREEM_TEST_API_KEY` is required.
-- The smoke suite is read-only and does not create or persist local state.
-- Smoke coverage is intentionally reduced to one authenticated canary: `stats()->summary(...)`.
-- If `CREEM_TEST_API_KEY` is absent, the smoke suite skips.
-- Endpoint-specific retrieval and all mutating live validation belong in the contributor `playground/` harness.
-- Automated smoke coverage does not include create, mutate, billing-portal-link, or license lifecycle flows.
-- Smoke files are split by concern under `tests/Smoke/`, tagged with the Pest groups `smoke` and `network`, and keep page assertions stable when the API legitimately returns zero items.
-- Destructive verification against `Environment::Test` is intentionally manual and documented in [`playground/README.md`](playground/README.md).
+- `composer test` runs the fast contributor inner loop and excludes repo-policy checks.
+- `composer test:repo` runs repo guardrails such as contract, fixture, playground, and export-policy coverage.
+- `composer test:integration` runs deterministic mocked transport coverage.
+- `composer test:smoke` is an opt-in authenticated canary against `Environment::Test` and requires `CREEM_TEST_API_KEY`.
 
-Automated test layers used in this repository:
-
-- `Unit`: fast deterministic checks with no network access.
-- `Integration`: deterministic mocked transport checks with no network access.
-- `Smoke`: opt-in read-only checks against `https://test-api.creem.io`.
-
-Local deterministic coverage is organized around resource-owned integration files and subsystem-focused unit files so contract changes stay easy to trace.
-Contributors can use the committed `playground/` workspace for live calls against `Environment::Test`; it keeps non-sensitive runtime state in ignored `playground/state.local.json`, bootstraps that file from committed `playground/state.example.json`, resolves actual API keys and webhook secrets from env vars, exposes machine-readable discovery through `php playground/run.php --list`, `--describe`, and `--audit`, and accepts one JSON input envelope through `--input-file` or piped stdin for live runs. Write-capable operations require `allow_write: true` inside that envelope. The harness still drives the real `Antoniadisio\Creem\Client` resource methods and uses Saloon middleware only to capture redacted transport traces for debugging. See [`playground/README.md`](playground/README.md) in the repository checkout.
+The full contributor command guide lives in [`CONTRIBUTING.md`](CONTRIBUTING.md). Live and destructive verification against the test environment lives in [`playground/README.md`](playground/README.md).
 
 ## Configuration
 
@@ -554,56 +543,11 @@ Closed-set response fields are hydrated to `Antoniadisio\Creem\Enum\*` cases, sp
 
 ## Development
 
-If you are contributing to the SDK itself:
-
-```bash
-composer qa
-```
-
-Before opening a pull request or cutting a release:
-
-```bash
-composer qa:check
-```
-
-Command guide:
-
-- `composer qa` runs the fix-first local QA flow: Rector, Pint fixes, PHPStan, then the local Pest suites (`Unit` then `Integration`).
-- `composer qa:check` runs the same flow without changing files.
-- `composer test` runs the fast `Unit` suite only.
-- `composer test:integration` runs the deterministic `Integration` suite with Saloon mocks.
-- `composer test:local` runs `Unit` then `Integration`.
-- `composer test:smoke` runs the opt-in read-only `Smoke` suite against the Creem test environment and is intentionally excluded from the default QA flow.
-
-Notes:
-
-- The committed Rector config intentionally skips automatic type-declaration inference on `Antoniadisio\Creem\Client`, `Antoniadisio\Creem\Config`, and `Antoniadisio\Creem\Resource\*` so public signatures stay under manual review.
-- `composer stan` uses the committed `phpstan.neon.dist` configuration and the repository-defined memory limit.
-- `composer install` and `composer update` use the committed Composer platform pin (`php: 8.4.0`) so the lockfile stays aligned with the PHP 8.4 CI target.
-- The public repository intentionally keeps maintainer QA files such as `rector.php`, `phpstan.neon.dist`, `phpunit.xml.dist`, and `composer.lock` committed. Installed package archives stay lean through `.gitattributes export-ignore`.
-- `composer test:smoke` requires `CREEM_TEST_API_KEY`.
-- `composer test:smoke` runs Pest in verbose mode (`-v`) so skip, warning, and error lines stay readable.
-- `composer test:smoke` is intentionally reduced to one authenticated canary: `stats()->summary(...)`.
-- If `CREEM_TEST_API_KEY` is unset, the smoke suite skips.
-- Endpoint-specific retrieval and all mutating live validation belong in the contributor `playground/` harness.
-- Smoke coverage is split into small concern-focused files under `tests/Smoke/` so resource ownership stays obvious.
-- Automated smoke coverage excludes create, mutate, billing-portal-link, and license lifecycle flows.
-- Destructive test-environment verification follows the maintainer runbook in [`playground/README.md`](playground/README.md).
-
-## Test Policy
-
-- Deterministic SDK contract checks run in normal QA (`composer qa` and `composer qa:check`) with no network access.
-- The `Smoke` suite runs opt-in through `composer test:smoke` and targets `Environment::Test` only.
-- Destructive verification is intentionally outside the automated Pest suites.
-- Production environment execution is never part of automated tests.
-
-Migration note:
-
-- Repository terminology now uses `Unit`, `Integration`, and `Smoke` as the only automated suite names.
+If you are contributing to the SDK, run `composer qa` during implementation and `composer qa:check` before opening a pull request or cutting a release. The canonical contributor workflow, deterministic test matrix, and fixture rules live in [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## Contributing
 
-Contributor workflows, fixture maintenance rules, and release steps live in `CONTRIBUTING.md`. The maintainer runbook for destructive test-environment verification lives in [`playground/README.md`](playground/README.md).
+Contributor workflows, fixture maintenance rules, release steps, and the deterministic test command matrix live in [`CONTRIBUTING.md`](CONTRIBUTING.md). The maintainer runbook for live and destructive test-environment verification lives in [`playground/README.md`](playground/README.md).
 Stable releases follow a simple cutover: update `CHANGELOG.md` with the exact version/date, keep the release notes aligned with the unofficial `antoniadisio/creem-php` package identity, then create the matching annotated Git tag and GitHub release.
 
 The package metadata in `composer.json` is suitable for Packagist publication: it includes package name, description, license, keywords, support links, and PSR-4 autoload configuration.

@@ -47,10 +47,11 @@
     "scripts": {
         "rector": "rector process",
         "rector:check": "rector process --dry-run",
-        "test:unit": "pest --testsuite=Unit",
+        "test:unit": "pest --testsuite=Unit --exclude-group=repo",
+        "test:repo": "pest --testsuite=Unit --group=repo",
         "test:integration": "pest --testsuite=Integration",
         "test:local": [
-            "@test:unit",
+            "pest --testsuite=Unit",
             "@test:integration"
         ],
         "test:smoke": "pest --testsuite=Smoke -v",

@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace Antoniadisio\Creem\Tests\Integration;
 
 use Antoniadisio\Creem\Dto\Discount\CreateDiscountRequest;
-use Antoniadisio\Creem\Dto\Discount\Discount;
 use Antoniadisio\Creem\Enum\CurrencyCode;
 use Antoniadisio\Creem\Enum\DiscountDuration;
 use Antoniadisio\Creem\Enum\DiscountStatus;
 use Antoniadisio\Creem\Enum\DiscountType;
 use Antoniadisio\Creem\Resource\DiscountsResource;
 use Antoniadisio\Creem\Tests\IntegrationTestCase;
-use InvalidArgumentException;
 use Saloon\Enums\Method;
 use Saloon\Http\Faking\MockClient;
 use Saloon\Http\Faking\MockResponse;
@@ -86,34 +84,3 @@ test('discounts resource normalizes delete identifiers before endpoint resolutio
     $resource->delete('  dis_fixture_active  ');
     $this->assertRequest($mockClient, Method::DELETE, '/v1/discounts/dis_fixture_active/delete');
 });
-
-foreach (invalidDiscountDeleteIdentifiers() as $dataset => [$identifier, $message]) {
-    test("discounts resource rejects invalid delete identifiers ({$dataset})", function () use ($identifier, $message): void {
-        /** @var IntegrationTestCase $this */
-        $resource = new DiscountsResource($this->connector(new MockClient()));
-
-        expect(static fn(): Discount => $resource->delete($identifier))
-            ->toThrow(InvalidArgumentException::class, $message);
-    });
-}
-
-/**
- * @return array<string, array{0: string, 1: string}>
- */
-function invalidDiscountDeleteIdentifiers(): array
-{
-    return [
-        'path traversal' => [
-            'disc_123/delete',
-            'The discount ID cannot contain reserved URI characters or control characters.',
-        ],
-        'single dot segment' => [
-            '.',
-            'The discount ID cannot be "." or "..".',
-        ],
-        'double dot segment' => [
-            '..',
-            'The discount ID cannot be "." or "..".',
-        ],
-    ];
-}

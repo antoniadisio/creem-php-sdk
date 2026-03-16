@@ -2,7 +2,7 @@
 
 ## Scope
 This repository is a public unofficial PHP SDK. Keep changes focused on package code and contributor-facing documentation. The consumer entrypoint is the stable typed `Antoniadisio\Creem\Client` facade; avoid turning internal Saloon transport classes into part of the public contract.
-The public repo intentionally keeps maintainer QA files such as `rector.php`, `phpstan.neon.dist`, `phpunit.xml.dist`, and `composer.lock` committed at the root. Lean package archives for SDK consumers are handled with `.gitattributes export-ignore`, not by removing those repo files from git.
+The public repo intentionally keeps maintainer QA files such as `rector.php`, `phpstan.neon.dist`, `phpunit.xml.dist`, and `composer.lock` committed at the root. Lean package archives for SDK consumers are handled with `.gitattributes export-ignore`, not by removing those repo files from git. The exported consumer archive is intentionally limited to the runtime package surface: `src/`, `composer.json`, `README.md`, and `LICENSE`.
 
 ## Local Setup
 - Run `composer install` to install PHP dependencies.
@@ -11,6 +11,7 @@ The public repo intentionally keeps maintainer QA files such as `rector.php`, `p
 
 ## Development Workflow
 - Keep source changes under `src/` and add matching deterministic tests under `tests/Unit/` and `tests/Integration/` as needed.
+- Keep contributor inner-loop tests in the default `Unit` flow and keep repository guardrails under the Pest `repo` group. `tests/Unit/Contract/*`, `tests/Unit/Playground/*`, and export-policy coverage are repo guardrails, not default contributor behavior tests.
 - Update response fixtures in `tests/Fixtures/Responses/` when payload shapes change.
 - Keep committed response fixtures sanitized: use placeholder IDs, reserved-domain URLs, `@example.test` emails, and the canonical timestamp set already used by the fixture corpus.
 - Keep OpenAPI contract work aligned with `tests/Fixtures/OpenApi/creem-openapi.json`.
@@ -22,11 +23,12 @@ The public repo intentionally keeps maintainer QA files such as `rector.php`, `p
 ## Validation
 Run these commands locally:
 
+- `composer test` or `composer test:unit` for the fast contributor inner loop. Both run the `Unit` suite excluding the Pest `repo` group.
+- `composer test:repo` for repo guardrails such as OpenAPI coverage, fixture policy, playground audit coverage, and export-policy checks.
+- `composer test:integration` when you need deterministic mocked transport coverage only.
+- `composer test:local` when you need the full deterministic suite: all `Unit` coverage including `repo`, then `Integration`.
 - `composer qa` after each completed task, and keep fixing until the full local QA flow passes.
 - `composer qa:check` before opening a pull request.
-- `composer test` when you only need the fast `Unit` suite during iteration.
-- `composer test:integration` when you need deterministic mocked transport coverage only.
-- `composer test:local` when you need all deterministic suites (`Unit` then `Integration`).
 - `composer test:smoke` for the opt-in live smoke canary against `Environment::Test` (requires only `CREEM_TEST_API_KEY`, runs in verbose mode for readable skipped/warning/error lines, skips when the key is absent, and intentionally covers only `stats()->summary(...)`; use the committed `playground/` harness for endpoint-specific retrieval and all mutating live validation).
 - `composer cs` to verify formatting.
 - `composer cs:fix` to apply formatting fixes.
