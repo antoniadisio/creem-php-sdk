@@ -1,0 +1,204 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Creem Playground Operation Describe Output",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "ok",
+        "kind",
+        "operation",
+        "resource",
+        "action",
+        "operation_mode",
+        "sdk_call",
+        "method",
+        "path",
+        "write_requires_allow_write",
+        "required_values",
+        "idempotency_key_path",
+        "persisted_outputs",
+        "defaults",
+        "inputs",
+        "input_envelope",
+        "state",
+        "schemas",
+        "error"
+    ],
+    "properties": {
+        "ok": {
+            "type": "boolean"
+        },
+        "kind": {
+            "const": "operation_describe"
+        },
+        "operation": {
+            "type": "string"
+        },
+        "resource": {
+            "type": "string"
+        },
+        "action": {
+            "type": "string"
+        },
+        "operation_mode": {
+            "type": "string"
+        },
+        "sdk_call": {
+            "type": "string"
+        },
+        "method": {
+            "type": "string"
+        },
+        "path": {
+            "type": "string"
+        },
+        "write_requires_allow_write": {
+            "type": "boolean"
+        },
+        "required_values": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "idempotency_key_path": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "persisted_outputs": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "path",
+                    "source"
+                ],
+                "properties": {
+                    "path": {
+                        "type": "string"
+                    },
+                    "source": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "defaults": {
+            "type": "object"
+        },
+        "inputs": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "path",
+                    "label",
+                    "type",
+                    "nullable",
+                    "required",
+                    "choices",
+                    "enum",
+                    "default"
+                ],
+                "properties": {
+                    "path": {
+                        "type": "string"
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "nullable": {
+                        "type": "boolean"
+                    },
+                    "required": {
+                        "type": "boolean"
+                    },
+                    "choices": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "enum": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "default": {}
+                }
+            }
+        },
+        "input_envelope": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "profile": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "allow_write": {
+                    "type": "boolean"
+                },
+                "values": {
+                    "type": "object"
+                }
+            }
+        },
+        "state": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "local_path",
+                "example_path",
+                "auto_bootstrap"
+            ],
+            "properties": {
+                "local_path": {
+                    "type": "string"
+                },
+                "example_path": {
+                    "type": "string"
+                },
+                "auto_bootstrap": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "schemas": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "run_input",
+                "run_output",
+                "operation_describe"
+            ],
+            "properties": {
+                "run_input": {
+                    "type": "string"
+                },
+                "run_output": {
+                    "type": "string"
+                },
+                "operation_describe": {
+                    "type": "string"
+                }
+            }
+        },
+        "error": {
+            "type": [
+                "object",
+                "null"
+            ]
+        }
+    }
+}

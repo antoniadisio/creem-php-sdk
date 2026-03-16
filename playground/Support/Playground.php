@@ -69,7 +69,9 @@ final class Playground
      *     workspace_path: string,
      *     readme_path: string,
      *     state_path: string,
+     *     state_example_path: string,
      *     support_path: string,
+     *     schemas_path: string,
      *     fixtures_path: string,
      *     operations_glob: string
      * }
@@ -79,8 +81,16 @@ final class Playground
         return [
             'workspace_path' => $workspacePath,
             'readme_path' => $workspacePath.'/README.md',
-            'state_path' => $workspacePath.'/state.json',
+            'state_path' => self::workspacePathOverride(
+                'CREEM_PLAYGROUND_STATE_PATH',
+                $workspacePath.'/state.local.json',
+            ),
+            'state_example_path' => self::workspacePathOverride(
+                'CREEM_PLAYGROUND_STATE_EXAMPLE_PATH',
+                $workspacePath.'/state.example.json',
+            ),
             'support_path' => $workspacePath.'/Support',
+            'schemas_path' => $workspacePath.'/schemas',
             'fixtures_path' => dirname($workspacePath).'/tests/Fixtures/Responses',
             'operations_glob' => $workspacePath.'/*/*.php',
         ];
@@ -97,7 +107,7 @@ final class Playground
         $operations = [];
 
         foreach ($paths as $path) {
-            if (basename(dirname($path)) === 'Support') {
+            if (in_array(basename(dirname($path)), ['Support', 'webhooks'], true)) {
                 continue;
             }
 
@@ -159,6 +169,130 @@ final class Playground
     }
 
     /**
+     * @param  array<string, array<string, mixed>>  $operations
+     * @return array<string, mixed>
+     */
+    public static function listOperationsPayload(array $operations): array
+    {
+        return self::commandEnvelope('operation_list', [
+            'operations' => array_values(array_map(
+                static fn (array $operation): array => self::operationSummary($operation),
+                $operations,
+            )),
+            'schemas' => self::schemaCatalog(),
+        ]);
+    }
+
+    /**
+     * @param  array<string, mixed>  $operation
+     * @param  array<string, mixed>  $workspace
+     * @return array<string, mixed>
+     */
+    public static function describeOperationPayload(array $operation, array $workspace): array
+    {
+        $defaults = self::mergeValues(self::baseValues(), $operation['defaults']);
+        $requiredValues = $operation['required_values'];
+        $inputFields = [];
+
+        foreach ($operation['inputs'] as $field) {
+            self::assertInputField($field);
+
+            $path = $field['path'];
+
+            if (! is_string($path)) {
+                throw new PlaygroundException('Input field paths must be strings.');
+            }
+
+            $inputFields[] = [
+                'path' => $path,
+                'label' => $field['label'],
+                'type' => $field['type'],
+                'nullable' => $field['nullable'],
+                'required' => in_array($path, $requiredValues, true),
+                'choices' => $field['choices'],
+                'enum' => $field['enum'],
+                'default' => self::normalize(self::value($defaults, $path)),
+            ];
+        }
+
+        return self::commandEnvelope('operation_describe', [
+            'operation' => $operation['_name'],
+            'resource' => $operation['resource'],
+            'action' => $operation['action'],
+            'operation_mode' => $operation['operation_mode'],
+            'sdk_call' => $operation['sdk_call'],
+            'method' => $operation['http_method'],
+            'path' => $operation['path'],
+            'write_requires_allow_write' => $operation['operation_mode'] === 'write',
+            'required_values' => self::normalize($requiredValues),
+            'idempotency_key_path' => $operation['idempotency_key_path'],
+            'persisted_outputs' => self::normalize($operation['persist_outputs']),
+            'defaults' => self::normalize($operation['defaults']),
+            'inputs' => $inputFields,
+            'input_envelope' => self::defaultInputEnvelope(),
+            'state' => [
+                'local_path' => $workspace['state_path'],
+                'example_path' => $workspace['state_example_path'],
+                'auto_bootstrap' => true,
+            ],
+            'schemas' => self::schemaCatalog(),
+        ]);
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
+     */
+    public static function commandEnvelope(string $kind, array $payload = [], ?Throwable $exception = null): array
+    {
+        return array_merge(
+            [
+                'ok' => $exception === null,
+                'kind' => $kind,
+            ],
+            $payload,
+            [
+                'error' => $exception === null ? null : [
+                    'class' => $exception::class,
+                    'message' => $exception->getMessage(),
+                    'status_code' => self::statusCode($exception),
+                    'context' => self::context($exception),
+                ],
+            ],
+        );
+    }
+
+    /**
+     * @param  array<string, mixed>  $operation
+     * @return array<string, mixed>
+     */
+    public static function operationSummary(array $operation): array
+    {
+        return [
+            'operation' => $operation['_name'],
+            'resource' => $operation['resource'],
+            'action' => $operation['action'],
+            'operation_mode' => $operation['operation_mode'],
+            'sdk_call' => $operation['sdk_call'],
+            'method' => $operation['http_method'],
+            'path' => $operation['path'],
+            'write_requires_allow_write' => $operation['operation_mode'] === 'write',
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function schemaCatalog(): array
+    {
+        return [
+            'run_input' => 'playground/schemas/run-input.schema.json',
+            'run_output' => 'playground/schemas/run-output.schema.json',
+            'operation_describe' => 'playground/schemas/operation-describe.schema.json',
+        ];
+    }
+
+    /**
      * @param  array<string>  $choices
      * @return array{
      *     path: string,
@@ -201,69 +335,96 @@ final class Playground
     /**
      * @return array<string, mixed>
      */
-    public static function loadOverrideValues(string $path): array
+    public static function defaultInputEnvelope(): array
     {
-        if (! file_exists($path)) {
-            throw new PlaygroundException(sprintf('Overrides file [%s] does not exist.', $path));
+        return [
+            'profile' => null,
+            'allow_write' => false,
+            'values' => [],
+        ];
+    }
+
+    /**
+     * @return array{
+     *     profile: string|null,
+     *     allow_write: bool,
+     *     values: array<string, mixed>
+     * }
+     */
+    public static function loadInputEnvelope(?string $inputFile = null, ?string $stdinPayload = null): array
+    {
+        if ($inputFile !== null && $stdinPayload !== null) {
+            throw new PlaygroundException('Provide playground JSON input through --input-file or stdin, not both.');
         }
 
-        $contents = file_get_contents($path);
-
-        if ($contents === false) {
-            throw new PlaygroundException(sprintf('Unable to read overrides file [%s].', $path));
+        if ($inputFile === null && $stdinPayload === null) {
+            return self::defaultInputEnvelope();
         }
 
-        try {
-            $decoded = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
-        } catch (JsonException $exception) {
-            throw new PlaygroundException(
-                sprintf('Overrides file [%s] contains invalid JSON.', $path),
-                previous: $exception,
-            );
+        $decoded = $inputFile !== null
+            ? self::loadJsonObjectFile($inputFile, 'Input file')
+            : self::decodeJsonObject($stdinPayload, 'STDIN JSON input');
+
+        $allowedKeys = ['profile', 'allow_write', 'values'];
+
+        foreach (array_keys($decoded) as $key) {
+            if (! in_array($key, $allowedKeys, true)) {
+                throw new PlaygroundException(sprintf(
+                    'Unknown playground input envelope key [%s].',
+                    $key,
+                ));
+            }
         }
 
-        if (! is_array($decoded) || array_is_list($decoded)) {
+        $profile = $decoded['profile'] ?? null;
+
+        if ($profile !== null) {
+            $profile = self::stringValue($profile, 'profile');
+        }
+
+        $allowWrite = $decoded['allow_write'] ?? false;
+
+        if (! is_bool($allowWrite)) {
             throw new PlaygroundException(sprintf(
-                'Overrides file [%s] must contain a JSON object.',
-                $path,
+                'Expected [allow_write] to be a bool, %s given.',
+                get_debug_type($allowWrite),
             ));
         }
 
-        return $decoded;
+        $values = $decoded['values'] ?? [];
+
+        if (! is_array($values) || array_is_list($values)) {
+            throw new PlaygroundException('Playground input envelope [values] must be a JSON object.');
+        }
+
+        return [
+            'profile' => $profile,
+            'allow_write' => $allowWrite,
+            'values' => $values,
+        ];
     }
 
     /**
      * @return array<string, mixed>
      */
-    public static function loadState(string $path): array
+    public static function loadState(string $path, ?string $templatePath = null): array
     {
         if (! file_exists($path)) {
-            return [];
+            $state = self::baseValues();
+
+            if ($templatePath !== null && file_exists($templatePath)) {
+                $state = self::mergeValues(
+                    $state,
+                    self::loadJsonObjectFile($templatePath, 'State template file'),
+                );
+            }
+
+            self::writeState($path, $state);
+
+            return $state;
         }
 
-        $contents = file_get_contents($path);
-
-        if ($contents === false) {
-            throw new PlaygroundException(sprintf('Unable to read state file [%s].', $path));
-        }
-
-        try {
-            $decoded = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
-        } catch (JsonException $exception) {
-            throw new PlaygroundException(
-                sprintf('State file [%s] contains invalid JSON.', $path),
-                previous: $exception,
-            );
-        }
-
-        if (! is_array($decoded) || array_is_list($decoded)) {
-            throw new PlaygroundException(sprintf(
-                'State file [%s] must contain a JSON object.',
-                $path,
-            ));
-        }
-
-        return $decoded;
+        return self::loadJsonObjectFile($path, 'State file');
     }
 
     /**
@@ -279,6 +440,8 @@ final class Playground
         } catch (JsonException $exception) {
             throw new PlaygroundException('Unable to encode state JSON.', previous: $exception);
         }
+
+        self::ensureDirectory(dirname($path));
 
         if (file_put_contents($path, $contents."\n") === false) {
             throw new PlaygroundException(sprintf('Unable to write state file [%s].', $path));
@@ -316,15 +479,13 @@ final class Playground
     /**
      * @param  array<string, mixed>  $state
      * @param  array<string, mixed>  $operation
-     * @param  array<string, mixed>  $fileOverrides
-     * @param  array<string, mixed>  $setOverrides
+     * @param  array<string, mixed>  $inputValues
      * @return array<string, mixed>
      */
     public static function buildEffectiveValues(
         array $state,
         array $operation,
-        array $fileOverrides = [],
-        array $setOverrides = [],
+        array $inputValues = [],
         ?string $activeProfile = null,
     ): array {
         $defaults = $operation['defaults'] ?? [];
@@ -336,12 +497,8 @@ final class Playground
         $values = self::mergeValues(self::baseValues(), $defaults);
         $values = self::mergeValues($values, $state);
 
-        if ($fileOverrides !== []) {
-            $values = self::mergeValues($values, $fileOverrides);
-        }
-
-        if ($setOverrides !== []) {
-            $values = self::mergeValues($values, $setOverrides);
+        if ($inputValues !== []) {
+            $values = self::mergeValues($values, $inputValues);
         }
 
         if ($activeProfile !== null) {
@@ -374,50 +531,6 @@ final class Playground
         }
 
         return self::applyActiveProfileConfiguration($values, $allowPlaceholderApiKeys);
-    }
-
-    /**
-     * @param  list<string>  $assignments
-     * @return array<string, mixed>
-     */
-    public static function parseSetAssignments(array $operation, array $assignments): array
-    {
-        $fieldsByPath = self::fieldsByPath($operation['inputs'] ?? []);
-        $overrides = [];
-
-        foreach ($assignments as $assignment) {
-            if (! is_string($assignment) || $assignment === '') {
-                throw new PlaygroundException('The --set option requires a non-empty path=value assignment.');
-            }
-
-            $parts = explode('=', $assignment, 2);
-
-            if (count($parts) !== 2) {
-                throw new PlaygroundException(sprintf(
-                    'Invalid --set assignment [%s]. Expected path=value.',
-                    $assignment,
-                ));
-            }
-
-            [$path, $rawValue] = $parts;
-            $path = trim($path);
-
-            if ($path === '') {
-                throw new PlaygroundException(sprintf(
-                    'Invalid --set assignment [%s]. The path cannot be blank.',
-                    $assignment,
-                ));
-            }
-
-            $field = $fieldsByPath[$path] ?? null;
-            $value = is_array($field)
-                ? self::parseDeclaredInputValue($field, $rawValue)
-                : $rawValue;
-
-            $overrides = self::withValue($overrides, $path, $value);
-        }
-
-        return $overrides;
     }
 
     /**
@@ -1026,34 +1139,39 @@ final class Playground
 
     /**
      * @param  array<string, mixed>|null  $operation
-     * @param  array<string, mixed>  $savedValues
+     * @param  array<string, mixed>  $stateChanges
      * @return array<string, mixed>
      */
     public static function jsonEnvelope(
         ?array $operation,
+        ?string $profile,
         mixed $inputs,
         mixed $requestPayload,
         mixed $exampleResponse,
         mixed $liveResponse,
-        array $savedState = [],
+        array $stateChanges = [],
         ?string $idempotencyKey = null,
         array $transport = [],
         ?Throwable $exception = null,
     ): array {
         return [
             'ok' => $exception === null,
+            'kind' => 'operation_result',
             'operation' => is_array($operation) && is_string($operation['_name'] ?? null) ? $operation['_name'] : null,
             'operation_mode' => is_array($operation) && is_string($operation['operation_mode'] ?? null) ? $operation['operation_mode'] : null,
+            'profile' => $profile,
             'sdk_call' => is_array($operation) && is_string($operation['sdk_call'] ?? null) ? $operation['sdk_call'] : null,
-            'method' => is_array($operation) && is_string($operation['http_method'] ?? null) ? $operation['http_method'] : null,
-            'path' => is_array($operation) && is_string($operation['path'] ?? null) ? $operation['path'] : null,
-            'idempotency_key' => $idempotencyKey,
-            'inputs' => self::normalize($inputs),
-            'request_payload' => self::normalize($requestPayload),
+            'request' => [
+                'method' => is_array($operation) && is_string($operation['http_method'] ?? null) ? $operation['http_method'] : null,
+                'path' => is_array($operation) && is_string($operation['path'] ?? null) ? $operation['path'] : null,
+                'idempotency_key' => $idempotencyKey,
+                'inputs' => self::normalize($inputs),
+                'payload' => self::normalize($requestPayload),
+            ],
             'example_response' => self::normalize($exampleResponse),
-            'transport' => self::normalize($transport),
             'live_response' => self::normalize($liveResponse),
-            'saved_state' => self::normalize($savedState),
+            'transport' => self::normalize($transport),
+            'state_changes' => self::normalize($stateChanges),
             'error' => $exception === null ? null : [
                 'class' => $exception::class,
                 'message' => $exception->getMessage(),
@@ -1160,81 +1278,6 @@ final class Playground
         }
 
         return [];
-    }
-
-    public static function parseDeclaredInputValue(array $field, string $input): mixed
-    {
-        $type = $field['type'];
-        $nullable = $field['nullable'] ?? false;
-
-        if (! is_string($type) || ! is_bool($nullable)) {
-            throw new PlaygroundException('Input field types must be strings and declare nullable as a bool.');
-        }
-
-        if ($nullable && strtolower(trim($input)) === 'null') {
-            return null;
-        }
-
-        return match ($type) {
-            'string', 'nullable-string' => trim($input),
-            'int', 'nullable-int' => self::parseIntInput($input),
-            'bool' => self::parseBoolInput($input),
-            'json' => self::parseJsonInput($input),
-            'choice' => self::parseChoiceInput($field, $input),
-            'enum' => self::parseEnumInput($field, $input),
-            default => throw new PlaygroundException(sprintf('Unsupported input field type [%s].', $type)),
-        };
-    }
-
-    private static function parseIntInput(string $input): int
-    {
-        if (! preg_match('/^-?\d+$/', $input)) {
-            throw new PlaygroundException('Expected an integer.');
-        }
-
-        return (int) $input;
-    }
-
-    private static function parseBoolInput(string $input): bool
-    {
-        return match (strtolower($input)) {
-            '1', 'true', 'yes', 'y' => true,
-            '0', 'false', 'no', 'n' => false,
-            default => throw new PlaygroundException('Expected true/false, yes/no, or 1/0.'),
-        };
-    }
-
-    private static function parseJsonInput(string $input): mixed
-    {
-        try {
-            return json_decode($input, true, 512, JSON_THROW_ON_ERROR);
-        } catch (JsonException $exception) {
-            throw new PlaygroundException('Expected valid JSON.', previous: $exception);
-        }
-    }
-
-    private static function parseChoiceInput(array $field, string $input): string
-    {
-        $choices = $field['choices'] ?? [];
-
-        if (! is_array($choices) || ! in_array($input, $choices, true)) {
-            throw new PlaygroundException('Expected one of the declared choices.');
-        }
-
-        return $input;
-    }
-
-    private static function parseEnumInput(array $field, string $input): string
-    {
-        $enumClass = $field['enum'] ?? null;
-
-        if (! is_string($enumClass) || ! enum_exists($enumClass)) {
-            throw new PlaygroundException('Input enum fields must declare a valid enum class.');
-        }
-
-        $enum = self::enumValue($enumClass, $input, 'input.enum');
-
-        return $enum instanceof BackedEnum ? (string) $enum->value : $enum->name;
     }
 
     /**
@@ -1357,6 +1400,73 @@ final class Playground
         $value = trim($value);
 
         return $value === '' ? null : $value;
+    }
+
+    private static function workspacePathOverride(string $envName, string $default): string
+    {
+        $value = getenv($envName);
+
+        if (! is_string($value)) {
+            return $default;
+        }
+
+        $value = trim($value);
+
+        return $value === '' ? $default : $value;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function loadJsonObjectFile(string $path, string $label): array
+    {
+        if (! file_exists($path)) {
+            throw new PlaygroundException(sprintf('%s [%s] does not exist.', $label, $path));
+        }
+
+        $contents = file_get_contents($path);
+
+        if ($contents === false) {
+            throw new PlaygroundException(sprintf('Unable to read %s [%s].', strtolower($label), $path));
+        }
+
+        return self::decodeJsonObject($contents, $label.' ['.$path.']');
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function decodeJsonObject(?string $contents, string $label): array
+    {
+        if ($contents === null) {
+            throw new PlaygroundException(sprintf('%s is missing.', $label));
+        }
+
+        try {
+            $decoded = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $exception) {
+            throw new PlaygroundException(
+                sprintf('%s contains invalid JSON.', $label),
+                previous: $exception,
+            );
+        }
+
+        if (! is_array($decoded) || array_is_list($decoded)) {
+            throw new PlaygroundException(sprintf('%s must contain a JSON object.', $label));
+        }
+
+        return $decoded;
+    }
+
+    private static function ensureDirectory(string $path): void
+    {
+        if ($path === '' || is_dir($path)) {
+            return;
+        }
+
+        if (! mkdir($path, 0777, true) && ! is_dir($path)) {
+            throw new PlaygroundException(sprintf('Unable to create directory [%s].', $path));
+        }
     }
 
     private static function normalizeWebhookPath(string $path): string

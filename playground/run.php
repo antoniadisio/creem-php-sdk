@@ -11,19 +11,20 @@ $operations = Playground::discoverOperations($bootstrap['operations_glob']);
 $arguments = array_slice($argv, 1);
 $showUsage = false;
 $auditMode = false;
-$allowWrite = false;
+$listMode = false;
+$describeOperationName = null;
+$inputFile = null;
 $operationName = null;
 $profileName = null;
-$overridesFile = null;
-$setAssignments = [];
 $operation = null;
 $inputs = null;
 $requestPayload = null;
 $exampleResponse = null;
 $liveResponse = null;
-$savedState = [];
+$stateChanges = [];
 $transport = [];
 $idempotencyKey = null;
+$commandKind = 'operation_result';
 
 try {
     for ($index = 0; $index < count($arguments); $index++) {
@@ -41,75 +42,54 @@ try {
             continue;
         }
 
-        if ($argument === '--allow-write') {
-            $allowWrite = true;
+        if ($argument === '--list') {
+            $listMode = true;
 
             continue;
         }
 
-        if ($argument === '--profile') {
+        if ($argument === '--describe') {
             $index++;
-            $profileName = $arguments[$index] ?? null;
+            $describeOperationName = $arguments[$index] ?? null;
 
-            if (! is_string($profileName) || trim($profileName) === '' || str_starts_with($profileName, '--')) {
-                throw new RuntimeException('The --profile option requires a profile name.');
+            if (
+                ! is_string($describeOperationName)
+                || trim($describeOperationName) === ''
+                || str_starts_with($describeOperationName, '--')
+            ) {
+                throw new RuntimeException('The --describe option requires an operation name.');
             }
 
             continue;
         }
 
-        if (str_starts_with($argument, '--profile=')) {
-            $profileName = trim((string) substr($argument, 10));
+        if (str_starts_with($argument, '--describe=')) {
+            $describeOperationName = trim((string) substr($argument, 11));
 
-            if ($profileName === '') {
-                throw new RuntimeException('The --profile option requires a profile name.');
+            if ($describeOperationName === '') {
+                throw new RuntimeException('The --describe option requires an operation name.');
             }
 
             continue;
         }
 
-        if ($argument === '--overrides-file') {
+        if ($argument === '--input-file') {
             $index++;
-            $overridesFile = $arguments[$index] ?? null;
+            $inputFile = $arguments[$index] ?? null;
 
-            if (! is_string($overridesFile) || trim($overridesFile) === '' || str_starts_with($overridesFile, '--')) {
-                throw new RuntimeException('The --overrides-file option requires a path.');
+            if (! is_string($inputFile) || trim($inputFile) === '' || str_starts_with($inputFile, '--')) {
+                throw new RuntimeException('The --input-file option requires a path.');
             }
 
             continue;
         }
 
-        if (str_starts_with($argument, '--overrides-file=')) {
-            $overridesFile = trim((string) substr($argument, 17));
+        if (str_starts_with($argument, '--input-file=')) {
+            $inputFile = trim((string) substr($argument, 13));
 
-            if ($overridesFile === '') {
-                throw new RuntimeException('The --overrides-file option requires a path.');
+            if ($inputFile === '') {
+                throw new RuntimeException('The --input-file option requires a path.');
             }
-
-            continue;
-        }
-
-        if ($argument === '--set') {
-            $index++;
-            $assignment = $arguments[$index] ?? null;
-
-            if (! is_string($assignment) || trim($assignment) === '' || str_starts_with($assignment, '--')) {
-                throw new RuntimeException('The --set option requires a path=value assignment.');
-            }
-
-            $setAssignments[] = $assignment;
-
-            continue;
-        }
-
-        if (str_starts_with($argument, '--set=')) {
-            $assignment = trim((string) substr($argument, 6));
-
-            if ($assignment === '') {
-                throw new RuntimeException('The --set option requires a path=value assignment.');
-            }
-
-            $setAssignments[] = $assignment;
 
             continue;
         }
@@ -125,14 +105,35 @@ try {
         $operationName = $argument;
     }
 
-    if ($showUsage || ($operationName === null && ! $auditMode)) {
+    $selectedModes = ($auditMode ? 1 : 0) + ($listMode ? 1 : 0) + ($describeOperationName !== null ? 1 : 0);
+
+    if ($selectedModes > 1) {
+        throw new RuntimeException('Use only one of --audit, --list, or --describe at a time.');
+    }
+
+    if ($inputFile !== null && ($auditMode || $listMode || $describeOperationName !== null)) {
+        throw new RuntimeException('The --input-file option may only be used when running an operation.');
+    }
+
+    if ($auditMode) {
+        $commandKind = 'audit';
+    } elseif ($listMode) {
+        $commandKind = 'operation_list';
+    } elseif ($describeOperationName !== null) {
+        $commandKind = 'operation_describe';
+    }
+
+    if ($showUsage || ($operationName === null && ! $auditMode && ! $listMode && $describeOperationName === null)) {
         fwrite(STDOUT, "Usage\n");
-        fwrite(STDOUT, "php playground/run.php <resource>/<action> [--profile <name>] [--allow-write] [--set path=value] [--overrides-file <path>]\n");
-        fwrite(STDOUT, "php playground/run.php --audit\n\n");
+        fwrite(STDOUT, "php playground/run.php --list\n");
+        fwrite(STDOUT, "php playground/run.php --describe <resource>/<action>\n");
+        fwrite(STDOUT, "php playground/run.php --audit\n");
+        fwrite(STDOUT, "php playground/run.php <resource>/<action> [--input-file <path>]\n\n");
         fwrite(STDOUT, "Notes\n");
-        fwrite(STDOUT, "- JSON is the default output contract.\n");
-        fwrite(STDOUT, "- Named profiles resolve API keys and client settings from local state plus env vars.\n");
-        fwrite(STDOUT, "- Write-capable operations require --allow-write.\n\n");
+        fwrite(STDOUT, "- JSON is the default output contract for list, describe, audit, and run commands.\n");
+        fwrite(STDOUT, "- Run input accepts one JSON envelope with profile, allow_write, and values.\n");
+        fwrite(STDOUT, "- The same envelope may be provided through --input-file or piped stdin.\n");
+        fwrite(STDOUT, "- Write-capable operations require input.allow_write=true.\n\n");
         fwrite(STDOUT, "Available operations\n");
 
         foreach (Playground::operationNames($operations) as $name) {
@@ -155,13 +156,37 @@ try {
         exit($audit['ok'] ? 0 : 1);
     }
 
+    if ($listMode) {
+        if ($operationName !== null) {
+            throw new RuntimeException('Do not provide an operation when using --list.');
+        }
+
+        Playground::printJson(Playground::listOperationsPayload($operations));
+
+        exit(0);
+    }
+
+    if ($describeOperationName !== null) {
+        if ($operationName !== null) {
+            throw new RuntimeException('Do not provide a positional operation when using --describe.');
+        }
+
+        $operation = Playground::resolveOperation($operations, $describeOperationName);
+        Playground::printJson(Playground::describeOperationPayload($operation, $bootstrap));
+
+        exit(0);
+    }
+
     $operation = Playground::resolveOperation($operations, (string) $operationName);
-    $state = Playground::loadState($bootstrap['state_path']);
-    $fileOverrides = is_string($overridesFile)
-        ? Playground::loadOverrideValues($overridesFile)
-        : [];
-    $setOverrides = Playground::parseSetAssignments($operation, $setAssignments);
-    $values = Playground::buildEffectiveValues($state, $operation, $fileOverrides, $setOverrides, $profileName);
+    $state = Playground::loadState($bootstrap['state_path'], $bootstrap['state_example_path']);
+    $inputEnvelope = Playground::loadInputEnvelope($inputFile, playgroundPipedStdinPayload());
+    $values = Playground::buildEffectiveValues(
+        $state,
+        $operation,
+        $inputEnvelope['values'],
+        $inputEnvelope['profile'],
+    );
+    $profileName = Playground::activeProfileName($values);
     $resolvedIdempotency = Playground::resolveGeneratedIdempotencyKey($operation, $values);
     $values = $resolvedIdempotency['values'];
     $idempotencyKey = $resolvedIdempotency['idempotencyKey'];
@@ -174,9 +199,9 @@ try {
     $requestPayload = $operation['build_request_payload']($values);
     $exampleResponse = Playground::loadFixtures($bootstrap['fixtures_path'], $operation['fixtures']);
 
-    if ($operation['operation_mode'] === 'write' && ! $allowWrite) {
+    if ($operation['operation_mode'] === 'write' && ! $inputEnvelope['allow_write']) {
         throw new PlaygroundException(
-            'Write-capable playground operations require --allow-write.',
+            'Write-capable playground operations require input.allow_write=true.',
             context: [
                 'operation' => $operation['_name'],
                 'operation_mode' => $operation['operation_mode'],
@@ -190,7 +215,7 @@ try {
         $client = Playground::createClient($values);
         $liveResponse = $operation['run']($client, $values);
         $persisted = Playground::persistResponseValues($state, $operation['persist_outputs'], $liveResponse);
-        $savedState = $persisted['changes'];
+        $stateChanges = $persisted['changes'];
 
         if ($persisted['changes'] !== []) {
             Playground::writeState($bootstrap['state_path'], $persisted['values']);
@@ -205,28 +230,55 @@ try {
 
     Playground::printJson(Playground::jsonEnvelope(
         $operation,
+        $profileName,
         $inputs,
         $requestPayload,
         $exampleResponse,
         $liveResponse,
-        $savedState,
+        $stateChanges,
         $idempotencyKey,
         $transport,
     ));
 
     exit(0);
 } catch (Throwable $exception) {
-    Playground::printJson(Playground::jsonEnvelope(
-        $operation,
-        $inputs,
-        $requestPayload,
-        $exampleResponse,
-        $liveResponse,
-        $savedState,
-        $idempotencyKey,
-        $transport,
-        $exception,
-    ));
+    if ($commandKind === 'operation_result') {
+        Playground::printJson(Playground::jsonEnvelope(
+            $operation,
+            $profileName,
+            $inputs,
+            $requestPayload,
+            $exampleResponse,
+            $liveResponse,
+            $stateChanges,
+            $idempotencyKey,
+            $transport,
+            $exception,
+        ));
+    } elseif ($commandKind === 'operation_describe') {
+        Playground::printJson(Playground::commandEnvelope(
+            'operation_describe',
+            ['operation' => $describeOperationName],
+            $exception,
+        ));
+    } else {
+        Playground::printJson(Playground::commandEnvelope($commandKind, [], $exception));
+    }
 
     exit(1);
+}
+
+function playgroundPipedStdinPayload(): ?string
+{
+    if (function_exists('stream_isatty') && stream_isatty(STDIN)) {
+        return null;
+    }
+
+    $contents = stream_get_contents(STDIN);
+
+    if ($contents === false) {
+        throw new RuntimeException('Unable to read playground stdin input.');
+    }
+
+    return trim($contents) === '' ? null : $contents;
 }

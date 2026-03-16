@@ -18,7 +18,7 @@ The public repo intentionally keeps maintainer QA files such as `rector.php`, `p
 - Do not commit local-only planning files or machine-specific files such as `.env`, `.spec/`, `spec/`, `PROJECT_DESCRIPTION.md`, personal local workflow files, `vendor/`, or IDE settings.
 - Keep maintainer-only repo files committed only when they support contributor workflows or CI, and mark files that installed SDK consumers do not need with `.gitattributes export-ignore`.
 - Keep destructive test-environment verification out of Pest and follow [`docs/manual-destructive-verification.md`](docs/manual-destructive-verification.md) when a change must be checked against mutating live behavior.
-- Contributors can use the committed `playground/` workspace for manual live calls against `Environment::Test`; its operator guide lives in [`playground/README.md`](playground/README.md), while runtime files such as `playground/state.json` and `playground/captures/` remain ignored locally.
+- Contributors can use the committed `playground/` workspace for manual live calls against `Environment::Test`; its operator guide lives in [`playground/README.md`](playground/README.md), while runtime files such as `playground/state.local.json` and `playground/captures/` remain ignored locally.
 
 ## Validation
 Run these commands locally:

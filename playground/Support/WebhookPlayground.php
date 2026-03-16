@@ -336,8 +336,10 @@ final class WebhookPlayground
         ?string $profileName = null,
         ?string $path = null,
     ): array {
+        $workspace = Playground::workspace($workspacePath);
+
         return Playground::buildProfileValues(
-            Playground::loadState($workspacePath.'/state.json'),
+            Playground::loadState($workspace['state_path'], $workspace['state_example_path']),
             $profileName,
             $path,
             true,

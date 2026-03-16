@@ -1,241 +1,202 @@
 # Live Harness
 
-`playground/` is a committed contributor harness for real requests against `Antoniadisio\Creem\Enum\Environment::Test` and for local webhook capture/inspection during live test-environment verification.
+`playground/` is the committed contributor harness for real requests against `Antoniadisio\Creem\Enum\Environment::Test` and for local webhook capture during live verification.
 
-It is agent-first. The CLI remains because agents need a deterministic executable boundary with stable stdout, exit codes, and repeatable inputs.
-
-The harness still exercises the real SDK path:
+It stays on the real SDK path:
 
 1. instantiate `Antoniadisio\Creem\Client`
 2. call the public resource method
 3. let the SDK build the Saloon request
 4. send the real HTTP call
-5. capture both raw transport data and normalized SDK output
+5. capture redacted transport evidence plus normalized SDK output
 
 It does not bypass the SDK with handcrafted HTTP requests.
 
-## Before You Run Anything
+## First Run
 
 1. Install dependencies with `composer install`.
-2. Export the env vars referenced by your active profile in `playground/state.json`. The default profile uses `CREEM_TEST_API_KEY` and `CREEM_TEST_WEBHOOK_SECRET`.
-3. Seed or review non-sensitive runtime values in `playground/state.json`.
-4. Use `--set` for one-off overrides and `--overrides-file` only for complex nested overrides.
-5. Add `--allow-write` only when the user explicitly wants a mutating live request.
-6. Add named profiles and `webhookRoutes` in `playground/state.json` when you need more than one API key or webhook secret.
+2. Export the env vars referenced by the profile you plan to use. The committed template defaults to `CREEM_TEST_API_KEY` and `CREEM_TEST_WEBHOOK_SECRET`.
+3. Inspect the available operations with `php playground/run.php --list`.
+4. Inspect one operation contract with `php playground/run.php --describe <resource>/<action>`.
+5. Run an operation. The first run auto-creates ignored `playground/state.local.json` from committed `playground/state.example.json`.
 
-## Commands
+## Discovery Commands
 
-Audit SDK-to-harness parity:
+List every supported outbound operation:
+
+```bash
+php playground/run.php --list
+```
+
+Describe one operation, including inputs, defaults, required values, persisted outputs, and schema paths:
+
+```bash
+php playground/run.php --describe products/create
+```
+
+Audit the committed action definitions against the current public SDK surface:
 
 ```bash
 php playground/run.php --audit
 ```
 
-Run a read operation:
+All three commands emit JSON to stdout.
+
+## Run Contract
+
+Outbound runs accept one JSON envelope with three top-level keys:
+
+- `profile`
+- `allow_write`
+- `values`
+
+Provide that envelope through `--input-file`:
 
 ```bash
-php playground/run.php stats/summary
+php playground/run.php stats/summary --input-file /tmp/stats-summary.json
 ```
 
-Run a read operation with an explicit named profile:
+Example read envelope:
+
+```json
+{
+  "profile": "default",
+  "values": {
+    "stats": {
+      "summary": {
+        "currency": "USD",
+        "interval": "month"
+      }
+    }
+  }
+}
+```
+
+Or pipe the same envelope through stdin:
 
 ```bash
-php playground/run.php stats/summary --profile cashier
+cat /tmp/products-create.json | php playground/run.php products/create
 ```
 
-Run a read operation with an ephemeral ID override:
+Example write envelope:
 
-```bash
-php playground/run.php checkouts/get --set shared.checkoutId=ch_XJCn5WrHjMpUqFDCgvJFl
+```json
+{
+  "profile": "cashier",
+  "allow_write": true,
+  "values": {
+    "products": {
+      "create": {
+        "name": "SDK Harness Product"
+      }
+    }
+  }
+}
 ```
 
-Run a write operation:
+Write-capable operations are blocked unless `allow_write` is explicitly `true`.
 
-```bash
-php playground/run.php products/create --allow-write --set products.create.name="SDK Harness Product"
-```
+If you omit input entirely, the runner uses an empty envelope and falls back to operation defaults plus local state.
 
-Run with a nested override file:
+## State
 
-```bash
-php playground/run.php subscriptions/update --allow-write --overrides-file /tmp/playground-update.json
-```
+`playground/state.example.json` is the committed sanitized template.
 
-Show usage:
+`playground/state.local.json` is ignored, auto-created on first run, and safe to edit locally for reusable non-sensitive IDs and profile metadata.
 
-```bash
-php playground/run.php --help
-```
+Rules:
 
-JSON output is the default. There is no separate human-mode runner.
+- Secrets stay env-driven only. Store env var names under `profiles.<name>.apiKeyEnv` and `profiles.<name>.webhookSecretEnv`, never raw secrets.
+- `shared.activeProfile` is the fallback outbound profile when the input envelope omits `profile`.
+- `webhookRoutes` maps inbound webhook paths to profile names.
+- Successful runs persist only declared `persist_outputs` mappings back into `state.local.json`.
+- Action-local request defaults stay in the action definition files, not in local state.
+
+Run-time merge order is:
+
+1. base playground values
+2. action-local `defaults`
+3. `playground/state.local.json`
+4. input envelope `values`
+
+After the merge, profile-derived shared credentials such as `shared.apiKey` are resolved from env vars.
+
+## Output Contract
+
+Operation runs print one JSON object to stdout with:
+
+- `ok`
+- `kind`
+- `operation`
+- `operation_mode`
+- `profile`
+- `sdk_call`
+- `request`
+- `example_response`
+- `live_response`
+- `transport`
+- `state_changes`
+- `error`
+
+Success and failure use the same envelope. Failures exit non-zero.
+
+`request` contains:
+
+- `method`
+- `path`
+- `idempotency_key`
+- `inputs`
+- `payload`
+
+## Schemas
+
+Committed machine-readable schemas live under `playground/schemas/`:
+
+- `playground/schemas/run-input.schema.json`
+- `playground/schemas/run-output.schema.json`
+- `playground/schemas/operation-describe.schema.json`
+
+Use `--describe` first when an agent needs the exact input field list, defaults, write mode, or persisted output mappings for one operation.
 
 ## Webhook Commands
 
-Start the local webhook receiver with PHP's built-in server:
+Inbound webhook tooling remains separate from `php playground/run.php`.
+
+Start the local receiver:
 
 ```bash
 php -S 127.0.0.1:8765 playground/webhooks/receive.php
 ```
 
-Check the receiver health:
+Check health:
 
 ```bash
 curl http://127.0.0.1:8765/health
 ```
 
-Inspect the latest captured webhook:
+Inspect the latest capture:
 
 ```bash
 php playground/webhooks/inspect.php --latest
 ```
 
-Inspect a recent capture window:
+Inspect a recent window:
 
 ```bash
 php playground/webhooks/inspect.php --limit 20
 ```
 
-Inspect a capture with an explicit profile override:
+Inspect using an explicit webhook profile override:
 
 ```bash
 php playground/webhooks/inspect.php --latest --profile cashier
 ```
 
-The webhook receiver is intentionally separate from `php playground/run.php`. Inbound webhook capture is not part of the outbound SDK method audit surface.
-
-## State And Overrides
-
-`playground/state.json` is the machine-managed local state store.
-
-Rules:
-
-- Credentials are profile-driven. `shared.apiKey`, `shared.baseUrl`, `shared.timeout`, and `shared.userAgentSuffix` are derived from the selected profile.
-- The default synthesized profile reads `CREEM_TEST_API_KEY` and `CREEM_TEST_WEBHOOK_SECRET`.
-- Additional profiles should store env var names, not raw secrets, under `profiles.<name>.apiKeyEnv` and `profiles.<name>.webhookSecretEnv`.
-- `shared.activeProfile` selects the outbound profile when `--profile` is not provided.
-- `webhookRoutes` maps inbound request paths to profile names; exact path match wins, then the receiver falls back to `shared.activeProfile`.
-- `state.json` stores reusable runtime values such as IDs, codes, and license instance state.
-- Action-local request defaults live in the action definition files, not in `state.json`.
-- `--set path=value` never persists.
-- `--overrides-file` never persists.
-- Successful runs may persist declared `saved_state` values back into `state.json`.
-
-Example profile state:
-
-```json
-{
-  "shared": {
-    "activeProfile": "default"
-  },
-  "profiles": {
-    "default": {
-      "environment": "test",
-      "apiKeyEnv": "CREEM_TEST_API_KEY",
-      "webhookSecretEnv": "CREEM_TEST_WEBHOOK_SECRET",
-      "timeout": 30,
-      "userAgentSuffix": "playground/agent"
-    },
-    "cashier": {
-      "environment": "test",
-      "apiKeyEnv": "CREEM_CASHIER_API_KEY",
-      "webhookSecretEnv": "CREEM_CASHIER_WEBHOOK_SECRET",
-      "timeout": 30,
-      "userAgentSuffix": "playground/cashier"
-    }
-  },
-  "webhookRoutes": {
-    "/": "default",
-    "/creem/webhook": "cashier"
-  }
-}
-```
-
-Merge order:
-
-1. base runtime values from the environment
-2. action-local `defaults`
-3. `playground/state.json`
-4. `--overrides-file`
-5. `--set`
-
-## Output Contract
-
-Successful runs print one JSON object to stdout with:
-
-- `ok`
-- `operation`
-- `operation_mode`
-- `sdk_call`
-- `method`
-- `path`
-- `idempotency_key`
-- `inputs`
-- `request_payload`
-- `example_response`
-- `transport`
-- `live_response`
-- `saved_state`
-- `error`
-
-`transport` contains redacted raw request/response evidence captured from Saloon middleware after the SDK has built the request:
-
-- `transport.request.url`
-- `transport.request.headers`
-- `transport.request.body`
-- `transport.response.status_code`
-- `transport.response.headers`
-- `transport.response.body`
-
-Failures keep the same JSON envelope and exit non-zero.
-
-Webhook capture files are stored locally under `playground/captures/webhooks/`. They are ignored and must never be copied into committed fixtures.
-
-## Action Contract
-
-Each `playground/<resource>/<action>.php` file returns one associative array with:
-
-- `resource`
-- `action`
-- `operation_mode`
-- `sdk_call`
-- `http_method`
-- `path`
-- `fixtures`
-- `required_values`
-- `defaults`
-- `inputs`
-- `idempotency_key_path`
-- `persist_outputs`
-- `build_inputs`
-- `build_request_payload`
-- `run`
-
-Write-capable operations must:
-
-- declare `operation_mode` as `write`
-- expose an idempotency key input
-- declare `idempotency_key_path`
-- require `--allow-write`
-
-If a write action does not receive an idempotency key, the harness generates one and returns it in `idempotency_key`.
-
-## Webhook Workflow
-
-Use the webhook receiver when you need live inbound evidence:
-
-1. Start `php -S 127.0.0.1:8765 playground/webhooks/receive.php`.
-2. Expose that local port with your tunnel of choice.
-3. Register the public URL in Creem test webhooks and map each path to the intended profile in `webhookRoutes`.
-4. Trigger a live test event with the outbound harness.
-5. Run `php playground/webhooks/inspect.php --latest` to inspect the resolved profile, verification status, event type, and extracted `mode` paths.
-
-The receiver always stores the raw headers and payload first. It resolves the intended profile from `webhookRoutes` or `shared.activeProfile`, then attempts verification through the real `Antoniadisio\Creem\Webhook::constructEventForProfile(...)` helper when that profile's webhook secret env var is configured.
+Captured webhook payloads stay ignored under `playground/captures/webhooks/`.
 
 ## Working Rules
 
-- Any add, remove, or behavior/signature change to an outbound SDK endpoint must be mirrored in the matching `playground/` action definition in the same task.
-- Use `php playground/run.php --audit` after endpoint work to catch missing or orphaned actions.
-- Use `--profile <name>` when you need to drive a non-default outbound credential set.
-- Prefer `--set` for agent-driven one-off checks.
-- Use `--overrides-file` only when a scalar `--set` override is not enough.
-- Keep runtime artifacts local-only through the ignored `playground/` runtime files.
+- Any add, remove, or behavior/signature change to an outbound SDK endpoint must be mirrored in the matching `playground/<resource>/<action>.php` definition in the same task.
+- Keep `php playground/run.php --audit` clean after endpoint work.
+- Keep the outbound harness on the real `Antoniadisio\Creem\Client` resource-method path.
+- Keep webhook capture and inspection separate from the outbound audit surface.
