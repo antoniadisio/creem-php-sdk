@@ -4,20 +4,16 @@ declare(strict_types=1);
 
 namespace Antoniadisio\Creem\Internal\Http\Requests;
 
-use InvalidArgumentException;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Http\Request;
 use Saloon\Traits\Body\HasJsonBody;
-
-use function preg_match;
-use function trim;
 
 /** @internal */
 abstract class JsonRequest extends Request implements HasBody
 {
     use HasJsonBody;
 
-    private ?string $idempotencyKey;
+    private readonly ?string $idempotencyKey;
 
     /**
      * @param  array<string, mixed>  $payload
@@ -26,7 +22,7 @@ abstract class JsonRequest extends Request implements HasBody
         private readonly array $payload = [],
         ?string $idempotencyKey = null,
     ) {
-        $this->idempotencyKey = self::normalizeIdempotencyKey($idempotencyKey);
+        $this->idempotencyKey = IdempotencyKey::normalize($idempotencyKey);
     }
 
     /**
@@ -42,29 +38,6 @@ abstract class JsonRequest extends Request implements HasBody
      */
     protected function defaultHeaders(): array
     {
-        if ($this->idempotencyKey === null) {
-            return [];
-        }
-
-        return ['Idempotency-Key' => $this->idempotencyKey];
-    }
-
-    protected static function normalizeIdempotencyKey(?string $idempotencyKey): ?string
-    {
-        if ($idempotencyKey === null) {
-            return null;
-        }
-
-        $idempotencyKey = trim($idempotencyKey);
-
-        if ($idempotencyKey === '') {
-            throw new InvalidArgumentException('The Creem idempotency key cannot be blank.');
-        }
-
-        if (preg_match('/[\x00-\x1F\x7F]/', $idempotencyKey)) {
-            throw new InvalidArgumentException('The Creem idempotency key cannot contain control characters.');
-        }
-
-        return $idempotencyKey;
+        return IdempotencyKey::header($this->idempotencyKey);
     }
 }

@@ -256,6 +256,7 @@ final class ExceptionMapper
         }
 
         $sanitized = [];
+        $isList = array_is_list($value);
 
         foreach (array_slice($value, 0, self::MAX_CONTEXT_ITEMS, true) as $key => $item) {
             if (is_array($item)) {
@@ -264,7 +265,7 @@ final class ExceptionMapper
                 continue;
             }
 
-            if (array_is_list($value)) {
+            if ($isList) {
                 $sanitized[$key] = self::sanitizeValue($item, $depth + 1, true);
 
                 continue;
@@ -315,8 +316,10 @@ final class ExceptionMapper
             return null;
         }
 
+        $isList = array_is_list($value);
+
         foreach (array_slice($value, 0, self::MAX_CONTEXT_ITEMS, true) as $key => $item) {
-            if (! array_is_list($value) && is_string($key) && ! self::isSafeErrorScalarKey($key)) {
+            if (! $isList && is_string($key) && ! self::isSafeErrorScalarKey($key)) {
                 continue;
             }
 

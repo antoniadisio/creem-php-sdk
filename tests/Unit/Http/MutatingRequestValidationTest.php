@@ -15,6 +15,8 @@ use InvalidArgumentException;
 
 test('mutating requests reject invalid idempotency keys', function (): void {
     expect(static fn(): CreateProductOperation => new CreateProductOperation([], " \r\n "))
+        ->toThrow(InvalidArgumentException::class, 'The Creem idempotency key cannot be blank.')
+        ->and(static fn(): DeleteDiscountRequest => new DeleteDiscountRequest('disc_123', " \r\n "))
         ->toThrow(InvalidArgumentException::class, 'The Creem idempotency key cannot be blank.');
 });
 

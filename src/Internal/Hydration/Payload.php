@@ -114,7 +114,7 @@ final class Payload
             return null;
         }
 
-        if (! is_array($value) || array_is_list($value)) {
+        if (! self::isObjectArray($value)) {
             if (! self::isStrict($dto, $required)) {
                 return null;
             }
@@ -137,7 +137,7 @@ final class Payload
             return StructuredList::fromArray([]);
         }
 
-        if (! is_array($value) || ! array_is_list($value)) {
+        if (! self::isListArray($value)) {
             if (! self::isStrict($dto, $required)) {
                 return StructuredList::fromArray([]);
             }
@@ -145,6 +145,7 @@ final class Payload
             throw HydrationException::invalidField(self::dtoName($dto), $key, 'list', $value);
         }
 
+        /** @var list<mixed> $value */
         return StructuredList::fromArray($value);
     }
 
@@ -160,7 +161,7 @@ final class Payload
             return null;
         }
 
-        if (! is_array($value) || array_is_list($value)) {
+        if (! self::isObjectArray($value)) {
             throw HydrationException::invalidField($dto, $key, 'object', $value);
         }
 
@@ -218,19 +219,20 @@ final class Payload
         bool $required = false,
     ): ?BackedEnum {
         $value = self::value($payload, $key, $dto, $required);
+        $expectedValue = sprintf('valid %s', $enumClass);
 
         if ($value === null) {
             return null;
         }
 
         if (! is_string($value) && ! is_int($value)) {
-            throw HydrationException::invalidField($dto, $key, sprintf('valid %s', $enumClass), $value);
+            throw HydrationException::invalidField($dto, $key, $expectedValue, $value);
         }
 
         $enum = $enumClass::tryFrom($value);
 
         if ($enum === null) {
-            throw HydrationException::invalidField($dto, $key, sprintf('valid %s', $enumClass), $value);
+            throw HydrationException::invalidField($dto, $key, $expectedValue, $value);
         }
 
         return $enum;
@@ -319,7 +321,7 @@ final class Payload
             return null;
         }
 
-        if (! is_array($value) || array_is_list($value)) {
+        if (! self::isObjectArray($value)) {
             throw HydrationException::invalidField($dto, $key, 'object', $value);
         }
 
@@ -349,12 +351,13 @@ final class Payload
             return [];
         }
 
-        if (! is_array($value) || ! array_is_list($value)) {
+        if (! self::isListArray($value)) {
             throw HydrationException::invalidField($dto, $key, 'list', $value);
         }
 
         $mapped = [];
 
+        /** @var list<mixed> $value */
         foreach ($value as $item) {
             $mapped[] = $mapper($item);
         }
@@ -388,7 +391,7 @@ final class Payload
             return $resource;
         }
 
-        if (! is_array($value) || array_is_list($value)) {
+        if (! self::isObjectArray($value)) {
             throw HydrationException::invalidField($dto, $key, 'expandable resource string or object', $value);
         }
 
@@ -418,7 +421,7 @@ final class Payload
             'items',
             Page::class,
             static function (mixed $item) use ($mapper): mixed {
-                if (! is_array($item) || array_is_list($item)) {
+                if (! self::isObjectArray($item)) {
                     throw HydrationException::invalidField(Page::class, 'items', 'object', $item);
                 }
 
@@ -481,5 +484,18 @@ final class Payload
     private static function isStrict(?string $dto, bool $required): bool
     {
         return $dto !== null || $required;
+    }
+
+    private static function isObjectArray(mixed $value): bool
+    {
+        return is_array($value) && ! array_is_list($value);
+    }
+
+    /**
+     * @phpstan-assert-if-true list<mixed> $value
+     */
+    private static function isListArray(mixed $value): bool
+    {
+        return is_array($value) && array_is_list($value);
     }
 }
