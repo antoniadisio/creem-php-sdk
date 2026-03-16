@@ -87,7 +87,7 @@ Example write envelope:
 
 ```json
 {
-  "profile": "cashier",
+  "profile": "playground",
   "allow_write": true,
   "values": {
     "products": {
@@ -112,6 +112,7 @@ If you omit input entirely, the runner uses an empty envelope and falls back to 
 Rules:
 
 - Secrets stay env-driven only. Store env var names under `profiles.<name>.apiKeyEnv` and `profiles.<name>.webhookSecretEnv`, never raw secrets.
+- The committed template maps `playground` to the same `CREEM_TEST_API_KEY` as `default`, but gives it its own `CREEM_PLAYGROUND_WEBHOOK_SECRET` so `/creem/webhook` can verify against a different secret.
 - `shared.activeProfile` is the fallback outbound profile when the input envelope omits `profile`.
 - `webhookRoutes` maps inbound webhook paths to profile names.
 - Successful runs persist only declared `persist_outputs` mappings back into `state.local.json`.
@@ -200,7 +201,7 @@ php playground/webhooks/inspect.php --limit 20
 Inspect using an explicit webhook profile override:
 
 ```bash
-php playground/webhooks/inspect.php --latest --profile cashier
+php playground/webhooks/inspect.php --latest --profile playground
 ```
 
 Captured webhook payloads stay ignored under `playground/captures/webhooks/`.
@@ -216,7 +217,7 @@ Suggested flow:
 2. Start `ngrok http 8765` and copy the public HTTPS base URL.
 3. Configure each dashboard webhook endpoint against the matching public route:
    - default profile: `<ngrok-url>/`
-   - cashier profile from the committed template: `<ngrok-url>/creem/webhook`
+   - playground profile from the committed template: `<ngrok-url>/creem/webhook`
 4. In the Creem dashboard, send one test webhook for each configured route/profile using any event type the dashboard currently offers.
 5. After each send, inspect the latest capture with `php playground/webhooks/inspect.php --latest` or force a profile with `--profile <name>` when you need to re-evaluate one capture against a specific secret.
 6. Confirm the capture reports the expected route, resolved profile, `verified: true`, and the exact selected `event_type`.

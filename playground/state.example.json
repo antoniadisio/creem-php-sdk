@@ -1,11 +1,11 @@
 {
     "profiles": {
-        "cashier": {
-            "apiKeyEnv": "CREEM_CASHIER_API_KEY",
+        "playground": {
+            "apiKeyEnv": "CREEM_TEST_API_KEY",
             "environment": "test",
             "timeout": 30,
-            "userAgentSuffix": "playground/cashier",
-            "webhookSecretEnv": "CREEM_CASHIER_WEBHOOK_SECRET"
+            "userAgentSuffix": "playground/secondary",
+            "webhookSecretEnv": "CREEM_PLAYGROUND_WEBHOOK_SECRET"
         },
         "default": {
             "apiKeyEnv": "CREEM_TEST_API_KEY",
@@ -33,6 +33,6 @@
     },
     "webhookRoutes": {
         "/": "default",
-        "/creem/webhook": "cashier"
+        "/creem/webhook": "playground"
     }
 }

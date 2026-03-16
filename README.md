@@ -116,16 +116,16 @@ $profiles = new CredentialProfiles([
         environment: Environment::Test,
         webhookSecret: $_ENV['CREEM_WEBHOOK_SECRET'],
     ),
-    'cashier' => new CredentialProfile(
-        apiKey: $_ENV['CREEM_CASHIER_API_KEY'],
+    'playground' => new CredentialProfile(
+        apiKey: $_ENV['CREEM_PLAYGROUND_API_KEY'],
         environment: Environment::Test,
-        webhookSecret: $_ENV['CREEM_CASHIER_WEBHOOK_SECRET'],
+        webhookSecret: $_ENV['CREEM_PLAYGROUND_WEBHOOK_SECRET'],
     ),
 ]);
 
 $factory = new ClientFactory($profiles);
 
-$merchantClient = $factory->forProfile('cashier');
+$merchantClient = $factory->forProfile('playground');
 $product = $merchantClient->products()->get('prod_123');
 ```
 
@@ -225,14 +225,14 @@ $profiles = new CredentialProfiles([
         environment: Environment::Test,
         webhookSecret: $_ENV['CREEM_WEBHOOK_SECRET'],
     ),
-    'cashier' => new CredentialProfile(
-        apiKey: $_ENV['CREEM_CASHIER_API_KEY'],
+    'playground' => new CredentialProfile(
+        apiKey: $_ENV['CREEM_PLAYGROUND_API_KEY'],
         environment: Environment::Test,
-        webhookSecret: $_ENV['CREEM_CASHIER_WEBHOOK_SECRET'],
+        webhookSecret: $_ENV['CREEM_PLAYGROUND_WEBHOOK_SECRET'],
     ),
 ]);
 
-$profile = $request->is('creem/webhook') ? 'cashier' : 'default';
+$profile = $request->is('creem/webhook') ? 'playground' : 'default';
 
 $event = Webhook::constructEventForProfile(
     $payload,

@@ -73,7 +73,7 @@ test('playground run reads JSON from --input-file and bootstraps local state', f
         $error = playgroundMapValue($payload, 'error');
         $sharedState = playgroundMapValue($bootstrappedState, 'shared');
         $profiles = playgroundMapValue($bootstrappedState, 'profiles');
-        $cashierProfile = playgroundMapValue($profiles, 'cashier');
+        $playgroundProfile = playgroundMapValue($profiles, 'playground');
 
         expect($result['exitCode'])->toBe(1)
             ->and($payload)->toMatchArray([
@@ -85,7 +85,7 @@ test('playground run reads JSON from --input-file and bootstraps local state', f
             ->and(playgroundStringValue($error, 'message'))->toContain('Invalid enum value for [stats.summary.currency].')
             ->and(file_exists($statePath))->toBeTrue()
             ->and(playgroundStringValue($sharedState, 'activeProfile'))->toBe('default')
-            ->and(playgroundStringValue($cashierProfile, 'apiKeyEnv'))->toBe('CREEM_CASHIER_API_KEY');
+            ->and(playgroundStringValue($playgroundProfile, 'apiKeyEnv'))->toBe('CREEM_TEST_API_KEY');
     } finally {
         playgroundRemoveDirectory($tempDir);
     }
@@ -99,7 +99,7 @@ test('playground run reads JSON from stdin and blocks writes without allow_write
         $result = playgroundRunCli(
             ['products/create'],
             json_encode([
-                'profile' => 'cashier',
+                'profile' => 'playground',
                 'values' => [
                     'products' => [
                         'create' => [
@@ -110,7 +110,7 @@ test('playground run reads JSON from stdin and blocks writes without allow_write
             ], JSON_THROW_ON_ERROR),
             [
                 'CREEM_PLAYGROUND_STATE_PATH' => $statePath,
-                'CREEM_CASHIER_API_KEY' => 'sk_test_cashier_placeholder',
+                'CREEM_TEST_API_KEY' => 'sk_test_playground_placeholder',
             ],
         );
         $payload = playgroundDecodeJson($result['stdout']);
@@ -124,12 +124,12 @@ test('playground run reads JSON from stdin and blocks writes without allow_write
                 'ok' => false,
                 'kind' => 'operation_result',
                 'operation' => 'products/create',
-                'profile' => 'cashier',
+                'profile' => 'playground',
             ])
             ->and(playgroundStringValue($requestPayload, 'name'))->toBe('CLI Product')
             ->and(playgroundStringValue($error, 'message'))->toBe('Write-capable playground operations require input.allow_write=true.')
             ->and($payload['state_changes'])->toBe([])
-            ->and($bootstrappedStateJson)->not->toContain('sk_test_cashier_placeholder');
+            ->and($bootstrappedStateJson)->not->toContain('sk_test_playground_placeholder');
     } finally {
         playgroundRemoveDirectory($tempDir);
     }
@@ -143,7 +143,7 @@ test('playground product create omits billing period for one-time payloads', fun
         $result = playgroundRunCli(
             ['products/create'],
             json_encode([
-                'profile' => 'cashier',
+                'profile' => 'playground',
                 'values' => [
                     'products' => [
                         'create' => [
@@ -156,7 +156,7 @@ test('playground product create omits billing period for one-time payloads', fun
             ], JSON_THROW_ON_ERROR),
             [
                 'CREEM_PLAYGROUND_STATE_PATH' => $statePath,
-                'CREEM_CASHIER_API_KEY' => 'sk_test_cashier_placeholder',
+                'CREEM_TEST_API_KEY' => 'sk_test_playground_placeholder',
             ],
         );
         $payload = playgroundDecodeJson($result['stdout']);

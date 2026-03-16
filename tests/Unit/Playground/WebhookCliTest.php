@@ -16,7 +16,7 @@ test('webhook receive entrypoint serves health and captures routed deliveries', 
         ]);
         $signature = WebhookTestSupport::signatureHeader(
             $payload,
-            $environment['CREEM_CASHIER_WEBHOOK_SECRET'],
+            $environment['CREEM_PLAYGROUND_WEBHOOK_SECRET'],
         );
         $capture = webhookReceiveRequest(
             $environment,
@@ -40,7 +40,7 @@ test('webhook receive entrypoint serves health and captures routed deliveries', 
         expect($capture['json'])->toMatchArray([
             'ok' => true,
             'path' => '/creem/webhook',
-            'profile' => 'cashier',
+            'profile' => 'playground',
             'verified' => true,
             'event_type' => 'license.created.partner_sync',
             'parse_error' => null,
@@ -81,8 +81,8 @@ test('webhook inspect entrypoint supports latest limit and profile overrides', f
             throw new RuntimeException('Unable to create webhook capture directory.');
         }
 
-        $cashierPayload = WebhookTestSupport::eventPayload([
-            'id' => 'evt_fixture_cashier',
+        $playgroundPayload = WebhookTestSupport::eventPayload([
+            'id' => 'evt_fixture_playground',
             'eventType' => 'checkout.completed',
         ]);
         $defaultPayload = WebhookTestSupport::eventPayload();
@@ -92,10 +92,10 @@ test('webhook inspect entrypoint supports latest limit and profile overrides', f
             webhookCliCaptureRecord(
                 path: '/creem/webhook',
                 signature: WebhookTestSupport::signatureHeader(
-                    $cashierPayload,
-                    $environment['CREEM_CASHIER_WEBHOOK_SECRET'],
+                    $playgroundPayload,
+                    $environment['CREEM_PLAYGROUND_WEBHOOK_SECRET'],
                 ),
-                payload: $cashierPayload,
+                payload: $playgroundPayload,
             ),
         );
         PlaygroundTestSupport::writeJsonFile(
@@ -116,7 +116,7 @@ test('webhook inspect entrypoint supports latest limit and profile overrides', f
         $limited = PlaygroundTestSupport::runPhpScript($script, ['--limit', '1'], env: $environment);
         $overridden = PlaygroundTestSupport::runPhpScript(
             $script,
-            ['--latest', '--profile', 'cashier'],
+            ['--latest', '--profile', 'playground'],
             env: $environment,
         );
 
@@ -144,7 +144,7 @@ test('webhook inspect entrypoint supports latest limit and profile overrides', f
         ]);
         expect($overriddenCaptures[0])->toMatchArray([
             'file' => '20260316-120001-bbbb.json',
-            'profile' => 'cashier',
+            'profile' => 'playground',
             'verified' => false,
             'event_id' => 'evt_fixture_subscription_active',
             'event_type' => 'subscription.active',
@@ -274,10 +274,9 @@ function webhookCliEnvironment(string $tempDir): array
         'CREEM_PLAYGROUND_STATE_PATH' => $tempDir . '/state.local.json',
         'CREEM_PLAYGROUND_STATE_EXAMPLE_PATH' => PlaygroundTestSupport::stateExamplePath(),
         'CREEM_PLAYGROUND_WEBHOOK_CAPTURE_PATH' => $tempDir . '/captures/webhooks',
-        'CREEM_TEST_API_KEY' => 'sk_test_default_placeholder',
-        'CREEM_CASHIER_API_KEY' => 'sk_test_cashier_placeholder',
+        'CREEM_TEST_API_KEY' => 'sk_test_playground_placeholder',
         'CREEM_TEST_WEBHOOK_SECRET' => 'whsec_test_secret',
-        'CREEM_CASHIER_WEBHOOK_SECRET' => 'whsec_cashier_secret',
+        'CREEM_PLAYGROUND_WEBHOOK_SECRET' => 'whsec_playground_secret',
     ];
 }
 

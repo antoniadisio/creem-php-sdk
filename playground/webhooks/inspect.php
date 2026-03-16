@@ -53,7 +53,7 @@ for ($index = 0; $index < count($arguments); $index++) {
         fwrite(STDOUT, "Examples\n");
         fwrite(STDOUT, "php playground/webhooks/inspect.php --latest\n");
         fwrite(STDOUT, "php playground/webhooks/inspect.php --limit 20\n");
-        fwrite(STDOUT, "php playground/webhooks/inspect.php --latest --profile cashier\n");
+        fwrite(STDOUT, "php playground/webhooks/inspect.php --latest --profile playground\n");
 
         exit(0);
     }

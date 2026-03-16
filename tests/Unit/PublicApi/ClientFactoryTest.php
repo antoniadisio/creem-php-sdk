@@ -16,24 +16,24 @@ test('client factory caches clients per profile and keeps configs distinct', fun
             apiKey: 'sk_test_default_1234',
             environment: Environment::Test,
         ),
-        'cashier' => new CredentialProfile(
-            apiKey: 'sk_test_cashier_5678',
+        'playground' => new CredentialProfile(
+            apiKey: 'sk_test_playground_5678',
             environment: Environment::Production,
         ),
     ]);
     $factory = new ClientFactory($profiles);
 
     $defaultClient = $factory->forProfile('default');
-    $cashierClient = $factory->forProfile('cashier');
+    $playgroundClient = $factory->forProfile('playground');
 
     expect($factory->profiles())->toBe($profiles)
         ->and($defaultClient)->toBeInstanceOf(Client::class)
-        ->and($cashierClient)->toBeInstanceOf(Client::class)
+        ->and($playgroundClient)->toBeInstanceOf(Client::class)
         ->and($defaultClient)->toBe($factory->forProfile('default'))
-        ->and($cashierClient)->toBe($factory->forProfile('cashier'))
-        ->and($defaultClient)->not->toBe($cashierClient)
+        ->and($playgroundClient)->toBe($factory->forProfile('playground'))
+        ->and($defaultClient)->not->toBe($playgroundClient)
         ->and($defaultClient->config()->apiKey())->toBe('sk_test_default_1234')
         ->and($defaultClient->config()->environment())->toBe(Environment::Test)
-        ->and($cashierClient->config()->apiKey())->toBe('sk_test_cashier_5678')
-        ->and($cashierClient->config()->environment())->toBe(Environment::Production);
+        ->and($playgroundClient->config()->apiKey())->toBe('sk_test_playground_5678')
+        ->and($playgroundClient->config()->environment())->toBe(Environment::Production);
 });
