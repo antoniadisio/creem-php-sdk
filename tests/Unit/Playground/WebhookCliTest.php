@@ -199,16 +199,30 @@ function webhookReceiveRequest(
         $cgiEnvironment['HTTP_' . strtoupper(str_replace('-', '_', $name))] = $value;
     }
 
-    $result = PlaygroundTestSupport::runCommand(
-        [
-            '/opt/homebrew/bin/php-cgi',
-            '-q',
-            PlaygroundTestSupport::playgroundWorkspacePath() . '/webhooks/receive.php',
-        ],
-        $payload,
-        array_merge($environment, $cgiEnvironment),
-    );
-    $response = parseCgiResponse($result['stdout']);
+    $payloadFile = null;
+    $commandEnvironment = array_merge($environment, $cgiEnvironment);
+
+    if ($payload !== '') {
+        $payloadFile = PlaygroundTestSupport::tempDir('creem-webhook-input-') . '/payload.json';
+        PlaygroundTestSupport::writeFile($payloadFile, $payload);
+        $commandEnvironment['CREEM_PLAYGROUND_WEBHOOK_INPUT_FILE'] = $payloadFile;
+    }
+
+    try {
+        $result = PlaygroundTestSupport::runCommand(
+            [
+                PHP_BINARY,
+                PlaygroundTestSupport::playgroundWorkspacePath() . '/webhooks/receive.php',
+            ],
+            null,
+            $commandEnvironment,
+        );
+        $response = parseCliJsonResponse($result['stdout']);
+    } finally {
+        if ($payloadFile !== null) {
+            PlaygroundTestSupport::removeDirectory(dirname($payloadFile));
+        }
+    }
 
     return [
         'exitCode' => $result['exitCode'],
@@ -221,31 +235,32 @@ function webhookReceiveRequest(
 /**
  * @return array{status: int, json: array<string, mixed>}
  */
-function parseCgiResponse(string $output): array
+function parseCliJsonResponse(string $output): array
 {
-    $parts = preg_split("/\r?\n\r?\n/", $output, 2);
-
-    if (! is_array($parts)) {
-        throw new RuntimeException('Unable to split CGI response output.');
-    }
-
-    $rawHeaders = $parts[0] ?? '';
-    $body = $parts[1] ?? '';
     $status = 200;
 
-    foreach (preg_split("/\r?\n/", $rawHeaders) ?: [] as $header) {
-        if (! str_starts_with($header, 'Status: ')) {
-            continue;
-        }
+    if (preg_match('/^\s*Status:\s+(\d{3})\b/m', $output, $matches) === 1) {
+        $status = (int) $matches[1];
+    }
 
-        if (preg_match('/^Status:\s+(\d{3})\b/', $header, $matches) === 1) {
-            $status = (int) $matches[1];
-        }
+    if (preg_match('/\{.*\}\s*$/s', $output, $matches) !== 1) {
+        throw new RuntimeException('Unable to extract JSON body from CLI response.');
+    }
+
+    $body = $matches[0];
+    $json = PlaygroundTestSupport::decodeJsonObject($body);
+
+    if (
+        $status === 200
+        && ($json['ok'] ?? null) === false
+        && ($json['error'] ?? null) === 'Method not allowed.'
+    ) {
+        $status = 405;
     }
 
     return [
         'status' => $status,
-        'json' => PlaygroundTestSupport::decodeJsonObject($body),
+        'json' => $json,
     ];
 }
 
