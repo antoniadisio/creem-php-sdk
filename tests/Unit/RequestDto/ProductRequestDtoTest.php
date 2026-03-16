@@ -88,6 +88,28 @@ test('product request dtos serialize pagination and typed custom fields', functi
     expect($request->toArray())->not->toHaveKey('custom_field');
 });
 
+test('product request dtos omit billing period for one-time products', function (): void {
+    $request = new CreateProductRequest(
+        'One-Time',
+        2900,
+        CurrencyCode::USD,
+        BillingType::OneTime,
+        billingPeriod: BillingPeriod::Once,
+    );
+
+    $payload = $request->toArray();
+
+    expect($payload)->toBe([
+        'name' => 'One-Time',
+        'price' => 2900,
+        'currency' => 'USD',
+        'billing_type' => 'onetime',
+        'custom_fields' => [],
+    ]);
+
+    expect($payload)->not->toHaveKey('billing_period');
+});
+
 foreach (invalidProductRequestInputs() as $dataset => [$factory, $message]) {
     test("product request dtos reject invalid input ({$dataset})", function () use ($factory, $message): void {
         expect($factory)->toThrow(InvalidArgumentException::class, $message);

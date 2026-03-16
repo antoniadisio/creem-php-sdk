@@ -15,10 +15,9 @@ The public repo intentionally keeps maintainer QA files such as `rector.php`, `p
 - Keep committed response fixtures sanitized: use placeholder IDs, reserved-domain URLs, `@example.test` emails, and the canonical timestamp set already used by the fixture corpus.
 - Keep OpenAPI contract work aligned with `tests/Fixtures/OpenApi/creem-openapi.json`.
 - Keep the committed OpenAPI fixture aligned with the SDK surface the package intentionally supports; when upstream wording or enum values drift from live behavior, normalize the fixture deliberately instead of preserving stale aliases in the public SDK.
-- Do not commit local-only planning files or machine-specific files such as `.env`, `.playground/`, `.spec/`, `spec/`, `PROJECT_DESCRIPTION.md`, personal local workflow files, `vendor/`, or IDE settings.
+- Do not commit local-only planning files or machine-specific files such as `.env`, `.spec/`, `spec/`, `PROJECT_DESCRIPTION.md`, personal local workflow files, `vendor/`, or IDE settings.
 - Keep maintainer-only repo files committed only when they support contributor workflows or CI, and mark files that installed SDK consumers do not need with `.gitattributes export-ignore`.
-- Keep destructive test-environment verification out of Pest and follow [`docs/manual-destructive-verification.md`](docs/manual-destructive-verification.md) when a change must be checked against mutating live behavior.
-- Maintainers can use the local-only `.playground/` workspace for manual live calls against `Environment::Test`; its operator guide lives in `.playground/README.md` and covers named outbound credential profiles plus route-based webhook capture/inspection with per-profile secret env vars.
+- Keep destructive test-environment verification out of Pest and use the committed [`playground/README.md`](playground/README.md) as the operator guide for manual live calls against `Environment::Test`. Runtime files such as `playground/state.local.json` and `playground/captures/` remain ignored locally.
 
 ## Validation
 Run these commands locally:
@@ -28,12 +27,12 @@ Run these commands locally:
 - `composer test` when you only need the fast `Unit` suite during iteration.
 - `composer test:integration` when you need deterministic mocked transport coverage only.
 - `composer test:local` when you need all deterministic suites (`Unit` then `Integration`).
-- `composer test:smoke` for the opt-in live smoke canary against `Environment::Test` (requires only `CREEM_TEST_API_KEY`, runs in verbose mode for readable skipped/warning/error lines, skips when the key is absent, and intentionally covers only `stats()->summary(...)`; use the local `.playground/` harness for endpoint-specific retrieval and all mutating live validation).
+- `composer test:smoke` for the opt-in live smoke canary against `Environment::Test` (requires only `CREEM_TEST_API_KEY`, runs in verbose mode for readable skipped/warning/error lines, skips when the key is absent, and intentionally covers only `stats()->summary(...)`; use the committed `playground/` harness for endpoint-specific retrieval and all mutating live validation).
 - `composer cs` to verify formatting.
 - `composer cs:fix` to apply formatting fixes.
 - `composer stan` to run static analysis on `src` and `tests`.
 
-Keep smoke coverage minimal, keep it as an authenticated connectivity canary only, and keep destructive or endpoint-specific live verification in the local `.playground/` harness and the manual maintainer runbook rather than automated tests or default contributor workflows.
+Keep smoke coverage minimal, keep it as an authenticated connectivity canary only, and keep destructive or endpoint-specific live verification in the committed `playground/` harness and the manual maintainer runbook rather than automated tests or default contributor workflows.
 
 Pull requests should be opened only after `composer qa:check` is green.
 

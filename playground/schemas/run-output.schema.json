@@ -1,0 +1,124 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Creem Playground Run Output",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "ok",
+        "kind",
+        "operation",
+        "operation_mode",
+        "profile",
+        "sdk_call",
+        "request",
+        "example_response",
+        "live_response",
+        "transport",
+        "state_changes",
+        "error"
+    ],
+    "properties": {
+        "ok": {
+            "type": "boolean"
+        },
+        "kind": {
+            "const": "operation_result"
+        },
+        "operation": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "operation_mode": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "profile": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "sdk_call": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "request": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "method",
+                "path",
+                "idempotency_key",
+                "inputs",
+                "payload"
+            ],
+            "properties": {
+                "method": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "path": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "idempotency_key": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "inputs": {},
+                "payload": {}
+            }
+        },
+        "example_response": {},
+        "live_response": {},
+        "transport": {
+            "type": "object"
+        },
+        "state_changes": {
+            "type": "object"
+        },
+        "error": {
+            "type": [
+                "object",
+                "null"
+            ],
+            "additionalProperties": false,
+            "required": [
+                "class",
+                "message",
+                "status_code",
+                "context"
+            ],
+            "properties": {
+                "class": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status_code": {
+                    "type": [
+                        "integer",
+                        "string",
+                        "null"
+                    ]
+                },
+                "context": {
+                    "type": "object"
+                }
+            }
+        }
+    }
+}

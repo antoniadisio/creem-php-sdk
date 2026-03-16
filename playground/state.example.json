@@ -1,0 +1,38 @@
+{
+    "profiles": {
+        "cashier": {
+            "apiKeyEnv": "CREEM_CASHIER_API_KEY",
+            "environment": "test",
+            "timeout": 30,
+            "userAgentSuffix": "playground/cashier",
+            "webhookSecretEnv": "CREEM_CASHIER_WEBHOOK_SECRET"
+        },
+        "default": {
+            "apiKeyEnv": "CREEM_TEST_API_KEY",
+            "environment": "test",
+            "timeout": 30,
+            "userAgentSuffix": "playground/agent",
+            "webhookSecretEnv": "CREEM_TEST_WEBHOOK_SECRET"
+        }
+    },
+    "shared": {
+        "activeProfile": "default",
+        "checkoutId": "ch_example_checkout_id",
+        "customerEmail": "playground@example.test",
+        "customerId": "cust_example_customer_id",
+        "discountCode": "PLAYGROUND15",
+        "discountId": "dis_example_discount_id",
+        "licenseInstanceId": "lki_example_license_instance_id",
+        "licenseInstanceName": "Playground Example License Instance",
+        "licenseKey": "AAAAA-BBBBB-CCCCC-DDDDD-EEEEE",
+        "priceId": "pprice_example_price_id",
+        "productId": "prod_example_product_id",
+        "subscriptionId": "sub_example_subscription_id",
+        "subscriptionItemId": "sitem_example_subscription_item_id",
+        "transactionId": "tran_example_transaction_id"
+    },
+    "webhookRoutes": {
+        "/": "default",
+        "/creem/webhook": "cashier"
+    }
+}
