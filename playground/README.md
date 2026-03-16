@@ -198,6 +198,40 @@ php playground/webhooks/inspect.php --latest --profile cashier
 
 Captured webhook payloads stay ignored under `playground/captures/webhooks/`.
 
+## Destructive Verification
+
+Destructive verification against `Antoniadisio\Creem\Enum\Environment::Test` stays manual and should run through the committed playground harness whenever you need live SDK request and response evidence.
+
+Guardrails:
+
+- Use `Environment::Test` only.
+- Use a dedicated test account and API key.
+- Prefer unique names and idempotency keys so created resources are easy to trace.
+- Capture request and response data when a contract change depends on live behavior.
+- Sanitize any captured values before committing fixture updates.
+
+Suggested flow:
+
+- Product creation:
+  Create one recurring product and one one-time product with unique names. For raw manual requests in Try It or another HTTP client, omit `billing_period` on one-time product creation. The live API currently rejects `billing_period` for one-time creates even though product responses still include `billing_period: "once"`.
+- Billing portal links:
+  Use a customer created from a prior checkout, call `customers()->createBillingPortalLink(...)`, and verify the returned URL opens the expected test customer portal.
+- One-time checkout creation:
+  Use the one-time product, call `checkouts()->create(...)` with a unique `requestId` and idempotency key, complete the checkout, and confirm the resulting customer, order, and transaction.
+- Discount flows:
+  Create a discount, verify `get(...)` and `getByCode(...)`, redeem it in a checkout, then call `delete(...)` and confirm the returned deleted state.
+- Subscription update, upgrade, and cancel:
+  Create a baseline recurring product and an upgrade target, complete a recurring checkout, then verify `update(...)`, `upgrade(...)`, and `cancel(...)`. For seat updates, prefer `price_id` and include the current subscription item `id`. For immediate seat changes, record the chosen `update_behavior`.
+- License activate, validate, and deactivate:
+  Use a license-key product, complete a checkout that yields a fresh license key, then verify `activate(...)`, `validate(...)`, and `deactivate(...)`.
+
+Cleanup:
+
+- Expire or delete discounts created for the run.
+- Cancel subscriptions that should not remain active.
+- Archive or otherwise mark temporary products so later runs can ignore them.
+- Remove any local scratch scripts or raw captures that should not be committed.
+
 ## Working Rules
 
 - Any add, remove, or behavior/signature change to an outbound SDK endpoint must be mirrored in the matching `playground/<resource>/<action>.php` definition in the same task.

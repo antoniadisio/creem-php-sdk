@@ -49,7 +49,7 @@ Run `composer test:smoke` for the opt-in network smoke suite against `Environmen
 - Endpoint-specific retrieval and all mutating live validation belong in the contributor `playground/` harness.
 - Automated smoke coverage does not include create, mutate, billing-portal-link, or license lifecycle flows.
 - Smoke files are split by concern under `tests/Smoke/`, tagged with the Pest groups `smoke` and `network`, and keep page assertions stable when the API legitimately returns zero items.
-- Destructive verification against `Environment::Test` is intentionally manual and documented in [`docs/manual-destructive-verification.md`](docs/manual-destructive-verification.md).
+- Destructive verification against `Environment::Test` is intentionally manual and documented in [`playground/README.md`](playground/README.md).
 
 Automated test layers used in this repository:
 
@@ -587,7 +587,7 @@ Notes:
 - Endpoint-specific retrieval and all mutating live validation belong in the contributor `playground/` harness.
 - Smoke coverage is split into small concern-focused files under `tests/Smoke/` so resource ownership stays obvious.
 - Automated smoke coverage excludes create, mutate, billing-portal-link, and license lifecycle flows.
-- Destructive test-environment verification follows the maintainer runbook in [`docs/manual-destructive-verification.md`](docs/manual-destructive-verification.md).
+- Destructive test-environment verification follows the maintainer runbook in [`playground/README.md`](playground/README.md).
 
 ## Test Policy
 
@@ -602,7 +602,7 @@ Migration note:
 
 ## Contributing
 
-Contributor workflows, fixture maintenance rules, and release steps live in `CONTRIBUTING.md`. The maintainer runbook for destructive test-environment verification lives in [`docs/manual-destructive-verification.md`](docs/manual-destructive-verification.md).
+Contributor workflows, fixture maintenance rules, and release steps live in `CONTRIBUTING.md`. The maintainer runbook for destructive test-environment verification lives in [`playground/README.md`](playground/README.md).
 Stable releases follow a simple cutover: update `CHANGELOG.md` with the exact version/date, keep the release notes aligned with the unofficial `antoniadisio/creem-php` package identity, then create the matching annotated Git tag and GitHub release.
 
 The package metadata in `composer.json` is suitable for Packagist publication: it includes package name, description, license, keywords, support links, and PSR-4 autoload configuration.
