@@ -205,7 +205,6 @@ final class Payload
 
     /**
      * @template TEnum of BackedEnum
-     *
      * @param  array<string, mixed>  $payload
      * @param  class-string<TEnum>  $enumClass
      * @return TEnum|null
@@ -302,7 +301,6 @@ final class Payload
 
     /**
      * @template TObject of object
-     *
      * @param  array<string, mixed>  $payload
      * @param  callable(array<string, mixed>): TObject  $mapper
      * @return TObject|null
@@ -333,7 +331,6 @@ final class Payload
 
     /**
      * @template TItem
-     *
      * @param  array<string, mixed>  $payload
      * @param  callable(mixed): TItem  $mapper
      * @return list<TItem>
@@ -366,7 +363,6 @@ final class Payload
 
     /**
      * @template TObject of object
-     *
      * @param  array<string, mixed>  $payload
      * @param  callable(array<string, mixed>): TObject  $mapper
      * @return ExpandableResource<TObject>|null
@@ -410,7 +406,6 @@ final class Payload
 
     /**
      * @template TItem
-     *
      * @param  array<string, mixed>  $payload
      * @param  callable(array<string, mixed>): TItem  $mapper
      * @return Page<TItem>

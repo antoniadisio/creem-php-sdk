@@ -82,7 +82,6 @@ trait InteractsWithMockRequests
 
     /**
      * @return array<string, mixed>
-     *
      * @throws JsonException
      */
     public function jsonBody(RequestInterface $request): array

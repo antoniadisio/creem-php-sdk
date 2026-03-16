@@ -11,7 +11,6 @@ use function count;
 
 /**
  * @template TItem
- *
  * @implements IteratorAggregate<int, TItem>
  */
 final readonly class Page implements IteratorAggregate

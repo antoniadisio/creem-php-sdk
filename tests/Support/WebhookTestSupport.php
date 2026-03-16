@@ -37,7 +37,6 @@ final class WebhookTestSupport
 
     /**
      * @param  array<string, mixed>  $overrides
-     *
      * @throws JsonException
      */
     public static function eventPayload(array $overrides = []): string
@@ -47,7 +46,6 @@ final class WebhookTestSupport
 
     /**
      * @param  array<string, mixed>  $payload
-     *
      * @throws JsonException
      */
     public static function encodePayload(array $payload): string

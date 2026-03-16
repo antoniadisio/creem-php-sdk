@@ -16,7 +16,6 @@ trait InteractsWithFixtures
 {
     /**
      * @return array<string, mixed>
-     *
      * @throws JsonException
      */
     public function fixture(string $name): array
@@ -34,7 +33,6 @@ trait InteractsWithFixtures
     /**
      * @param  array<string, mixed>  $overrides
      * @return array<string, mixed>
-     *
      * @throws JsonException
      */
     public function responseFixture(string $fixture, array $overrides = []): array

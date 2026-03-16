@@ -27,7 +27,6 @@ final readonly class ExpandableResource
 
     /**
      * @template TExpanded of object
-     *
      * @param  TExpanded  $resource
      * @return self<TExpanded>
      */

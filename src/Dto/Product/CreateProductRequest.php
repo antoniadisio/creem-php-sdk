@@ -89,8 +89,6 @@ final readonly class CreateProductRequest
             'price' => $this->price,
             'currency' => $this->currency,
             'billing_type' => $this->billingType,
-            // The live API rejects billing_period for one-time creates even though
-            // product responses still hydrate billing_period=once.
             'billing_period' => $this->billingType === BillingType::OneTime ? null : $this->billingPeriod,
             'tax_mode' => $this->taxMode,
             'tax_category' => $this->taxCategory,
