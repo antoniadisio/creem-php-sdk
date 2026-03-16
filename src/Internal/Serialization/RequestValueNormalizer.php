@@ -12,6 +12,7 @@ use function is_array;
 use function is_object;
 use function method_exists;
 
+/** @internal */
 final class RequestValueNormalizer
 {
     /**

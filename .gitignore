@@ -24,6 +24,8 @@ plan/
 .spec/
 spec/
 .codex/
+
+# Local automation and git helper files
 AGENTS.md
 .gitmessage.txt
 .githooks/

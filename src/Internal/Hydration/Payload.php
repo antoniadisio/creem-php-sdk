@@ -26,6 +26,7 @@ use function is_numeric;
 use function is_string;
 use function sprintf;
 
+/** @internal */
 final class Payload
 {
     /**

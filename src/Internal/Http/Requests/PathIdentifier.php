@@ -11,6 +11,7 @@ use function preg_match;
 use function sprintf;
 use function trim;
 
+/** @internal */
 final class PathIdentifier
 {
     private const string RESERVED_OR_CONTROL_PATTERN = '/[\/\\\\?#%\x00-\x1F\x7F]/';

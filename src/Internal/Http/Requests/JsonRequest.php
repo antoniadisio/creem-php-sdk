@@ -12,6 +12,7 @@ use Saloon\Traits\Body\HasJsonBody;
 use function preg_match;
 use function trim;
 
+/** @internal */
 abstract class JsonRequest extends Request implements HasBody
 {
     use HasJsonBody;

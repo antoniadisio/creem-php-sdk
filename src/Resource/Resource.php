@@ -8,6 +8,7 @@ use Antoniadisio\Creem\Internal\Http\CreemConnector;
 use Antoniadisio\Creem\Internal\Http\ResponseDecoder;
 use Saloon\Http\Request;
 
+/** @internal */
 abstract class Resource
 {
     public function __construct(

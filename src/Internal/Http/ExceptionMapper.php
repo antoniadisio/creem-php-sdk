@@ -35,6 +35,7 @@ use function substr;
 use function time;
 use function trim;
 
+/** @internal */
 final class ExceptionMapper
 {
     private const string REDACTED_PLACEHOLDER = '[redacted]';

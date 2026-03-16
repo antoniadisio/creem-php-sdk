@@ -15,7 +15,15 @@ composer require antoniadisio/creem-php
 Requires PHP 8.4 or newer.
 The runtime namespace is `Antoniadisio\Creem\`.
 
-Release history and migration notes live in [`CHANGELOG.md`](CHANGELOG.md).
+Release history and migration notes live in [the GitHub changelog](https://github.com/antoniadisio/creem-php/blob/main/CHANGELOG.md).
+
+## Audience
+
+- Integrators: use this README and the supported public API in `Antoniadisio\Creem\Client`, `Config`, `Webhook`, `Resource\*`, `Dto\*`, `Enum\*`, and `Exception\*`.
+- Contributors: use [the GitHub contributor guide](https://github.com/antoniadisio/creem-php/blob/main/CONTRIBUTING.md).
+- Maintainers: use [the maintainer docs](https://github.com/antoniadisio/creem-php/blob/main/docs/maintainers/README.md) and the [live playground runbook](https://github.com/antoniadisio/creem-php/blob/main/playground/README.md).
+
+Everything under `Antoniadisio\Creem\Internal\*` is shipped for runtime support only and is not part of the supported consumer-facing API.
 
 ## Quick Start
 
@@ -37,17 +45,6 @@ $product = $client->products()->get('prod_123');
 Product responses expose `custom_fields` as typed `Antoniadisio\Creem\Dto\Common\CustomField` objects via `$product->customFields`.
 
 `Antoniadisio\Creem\Config` defaults to `Environment::Production`. If you are using test API keys or test resource IDs, set `Environment::Test` explicitly. Creem's marketing/docs may also call the test environment "sandbox", but the SDK does not expose a separate sandbox environment.
-
-## Testing
-
-Repository testing is split by audience:
-
-- `composer test` runs the fast contributor inner loop and excludes repo-policy checks.
-- `composer test:repo` runs repo guardrails such as contract, fixture, playground, and export-policy coverage.
-- `composer test:integration` runs deterministic mocked transport coverage.
-- `composer test:smoke` is an opt-in authenticated canary against `Environment::Test` and requires `CREEM_TEST_API_KEY`.
-
-The full contributor command guide lives in [`CONTRIBUTING.md`](CONTRIBUTING.md). Live and destructive verification against the test environment lives in [`playground/README.md`](playground/README.md).
 
 ## Configuration
 
@@ -244,7 +241,7 @@ $event = Webhook::constructEventForProfile(
 
 `Webhook::verifySignatureForProfile(...)` and `Webhook::constructEventForProfile(...)` resolve exactly one secret from the named profile. The SDK does not iterate across every configured secret for you.
 
-For local webhook development and manual dashboard test sends, the maintainer runbook in [`playground/README.md`](playground/README.md) documents the `php -S` plus `ngrok` flow and the per-route/profile verification checklist.
+For local webhook development and manual dashboard test sends, the maintainer runbook in [the GitHub playground guide](https://github.com/antoniadisio/creem-php/blob/main/playground/README.md) documents the `php -S` plus `ngrok` flow and the per-route/profile verification checklist.
 
 For Laravel-style controllers, use the raw request content instead of decoded request input:
 
@@ -542,14 +539,3 @@ Supported methods:
 Collection-style endpoints return `Antoniadisio\Creem\Dto\Common\Page`, with pagination metadata in `Antoniadisio\Creem\Dto\Common\Pagination`. Resource items are exposed through typed DTO payloads instead of raw decoded arrays.
 
 Closed-set response fields are hydrated to `Antoniadisio\Creem\Enum\*` cases, spec-defined date-time fields are hydrated to `DateTimeImmutable`, and malformed required payloads now raise `Antoniadisio\Creem\Exception\HydrationException` instead of being silently coerced.
-
-## Development
-
-If you are contributing to the SDK, run `composer qa` during implementation and `composer qa:check` before opening a pull request or cutting a release. The canonical contributor workflow, deterministic test matrix, and fixture rules live in [`CONTRIBUTING.md`](CONTRIBUTING.md).
-
-## Contributing
-
-Contributor workflows, fixture maintenance rules, release steps, and the deterministic test command matrix live in [`CONTRIBUTING.md`](CONTRIBUTING.md). The maintainer runbook for live and destructive test-environment verification lives in [`playground/README.md`](playground/README.md).
-Stable releases follow a simple cutover: update `CHANGELOG.md` with the exact version/date, keep the release notes aligned with the unofficial `antoniadisio/creem-php` package identity, then create the matching annotated Git tag and GitHub release.
-
-The package metadata in `composer.json` is suitable for Packagist publication: it includes package name, description, license, keywords, support links, and PSR-4 autoload configuration.

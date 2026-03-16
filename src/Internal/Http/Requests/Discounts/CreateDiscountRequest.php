@@ -7,6 +7,7 @@ namespace Antoniadisio\Creem\Internal\Http\Requests\Discounts;
 use Antoniadisio\Creem\Internal\Http\Requests\JsonRequest;
 use Saloon\Enums\Method;
 
+/** @internal */
 final class CreateDiscountRequest extends JsonRequest
 {
     protected Method $method = Method::POST;

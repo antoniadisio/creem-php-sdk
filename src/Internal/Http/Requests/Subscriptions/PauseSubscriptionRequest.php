@@ -10,6 +10,7 @@ use Saloon\Enums\Method;
 
 use function sprintf;
 
+/** @internal */
 final class PauseSubscriptionRequest extends JsonRequest
 {
     protected Method $method = Method::POST;

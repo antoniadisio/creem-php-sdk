@@ -14,6 +14,7 @@ use Saloon\Http\Response;
 use Saloon\Traits\Plugins\AlwaysThrowOnErrors;
 use Throwable;
 
+/** @internal */
 final class CreemConnector extends Connector
 {
     use AlwaysThrowOnErrors;
