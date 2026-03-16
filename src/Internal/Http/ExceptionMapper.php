@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Antoniadisio\Creem\Internal\Http;
 
 use Antoniadisio\Creem\Exception\AuthenticationException;
+use Antoniadisio\Creem\Exception\ConflictException;
 use Antoniadisio\Creem\Exception\CreemException;
+use Antoniadisio\Creem\Exception\ForbiddenException;
+use Antoniadisio\Creem\Exception\GoneException;
 use Antoniadisio\Creem\Exception\NotFoundException;
 use Antoniadisio\Creem\Exception\RateLimitException;
 use Antoniadisio\Creem\Exception\ServerException;
@@ -51,7 +54,7 @@ final class ExceptionMapper
     /**
      * @var list<string>
      */
-    private const array SAFE_CONTEXT_KEYS = ['message', 'error', 'detail', 'title', 'code', 'type', 'request_id'];
+    private const array SAFE_CONTEXT_KEYS = ['message', 'error', 'detail', 'title', 'code', 'type', 'status', 'request_id', 'trace_id', 'timestamp'];
 
     /**
      * @var list<string>
@@ -74,8 +77,11 @@ final class ExceptionMapper
         }
 
         return match (true) {
-            $statusCode === 401 || $statusCode === 403 => new AuthenticationException($message, $statusCode, $context),
+            $statusCode === 401 => new AuthenticationException($message, $statusCode, $context),
+            $statusCode === 403 => new ForbiddenException($message, $statusCode, $context),
             $statusCode === 404 => new NotFoundException($message, $statusCode, $context),
+            $statusCode === 409 => new ConflictException($message, $statusCode, $context),
+            $statusCode === 410 => new GoneException($message, $statusCode, $context),
             $statusCode === 429 => new RateLimitException($message, $statusCode, $context, null, $retryAfterSeconds),
             $statusCode >= 500 => new ServerException($message, $statusCode, $context),
             default => new CreemException($message, $statusCode, $context),

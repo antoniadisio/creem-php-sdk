@@ -19,6 +19,8 @@ This audit captures the current shape of the committed OpenAPI contract at `test
 
 ## API Shape Risks
 
+- The committed OpenAPI fixture currently under-reports error responses compared with the public docs.
+  The fixture only models `400`, `401`, and `404` on operations today, while the docs also describe `403`, `409`, `410`, `429`, and `500` on specific flows. SDK exception tests should continue covering those documented statuses even when the OpenAPI fixture lags.
 - Several read operations use collection-style paths with query IDs instead of canonical `/{id}` resource paths.
   Examples: `GET /v1/products?product_id=...`, `GET /v1/subscriptions?subscription_id=...`, `GET /v1/transactions?transaction_id=...`.
 - Some endpoint paths encode actions directly in the URL.

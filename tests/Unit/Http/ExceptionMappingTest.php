@@ -6,7 +6,10 @@ namespace Antoniadisio\Creem\Tests\Unit;
 
 use Antoniadisio\Creem\Config;
 use Antoniadisio\Creem\Exception\AuthenticationException;
+use Antoniadisio\Creem\Exception\ConflictException;
 use Antoniadisio\Creem\Exception\CreemException;
+use Antoniadisio\Creem\Exception\ForbiddenException;
+use Antoniadisio\Creem\Exception\GoneException;
 use Antoniadisio\Creem\Exception\NotFoundException;
 use Antoniadisio\Creem\Exception\RateLimitException;
 use Antoniadisio\Creem\Exception\ServerException;
@@ -126,26 +129,54 @@ foreach (connectorResponseFailureMappings() as $dataset => [$response, $expected
     });
 }
 
-test('generic client errors map to the base exception type', function (): void {
+test('synthetic unmapped client errors map to the base exception type', function (): void {
     $connector = new CreemConnector(new Config('sk_test_123'));
     $exception = HttpTestSupport::captureException(
         static fn (): Response => $connector->send(
             HttpTestSupport::pingRequest(),
             new MockClient([
-                MockResponse::make(['detail' => 'Conflict'], 409),
+                MockResponse::make(['detail' => "I'm a teapot"], 418),
             ]),
         ),
     );
 
     expect($exception)->toBeInstanceOf(CreemException::class)
         ->and($exception)->not->toBeInstanceOf(AuthenticationException::class)
+        ->and($exception)->not->toBeInstanceOf(ConflictException::class)
+        ->and($exception)->not->toBeInstanceOf(ForbiddenException::class)
+        ->and($exception)->not->toBeInstanceOf(GoneException::class)
         ->and($exception)->not->toBeInstanceOf(NotFoundException::class)
         ->and($exception)->not->toBeInstanceOf(ValidationException::class)
         ->and($exception)->not->toBeInstanceOf(RateLimitException::class)
         ->and($exception)->not->toBeInstanceOf(ServerException::class)
-        ->and($exception?->getMessage())->toBe('Conflict')
-        ->and($exception?->statusCode())->toBe(409)
-        ->and($exception?->context())->toBe(['detail' => 'Conflict']);
+        ->and($exception?->getMessage())->toBe("I'm a teapot")
+        ->and($exception?->statusCode())->toBe(418)
+        ->and($exception?->context())->toBe(['detail' => "I'm a teapot"]);
+});
+
+test('documented debug metadata is preserved in exception context', function (): void {
+    $connector = new CreemConnector(new Config('sk_test_123'));
+    $exception = HttpTestSupport::captureException(
+        static fn (): Response => $connector->send(
+            HttpTestSupport::pingRequest(),
+            new MockClient([
+                MockResponse::make([
+                    'message' => 'Forbidden',
+                    'status' => 403,
+                    'trace_id' => 'trace_123',
+                    'timestamp' => '2026-03-16T10:00:00Z',
+                ], 403),
+            ]),
+        ),
+    );
+
+    expect($exception)->toBeInstanceOf(ForbiddenException::class)
+        ->and($exception?->context())->toBe([
+            'message' => 'Forbidden',
+            'status' => 403,
+            'trace_id' => 'trace_123',
+            'timestamp' => '2026-03-16T10:00:00Z',
+        ]);
 });
 
 test('array-based top-level messages are preserved and surfaced', function (): void {
@@ -275,7 +306,7 @@ function connectorResponseFailureMappings(): array
         ],
         'forbidden' => [
             MockResponse::make(['message' => 'Forbidden'], 403),
-            AuthenticationException::class,
+            ForbiddenException::class,
             'Forbidden',
             403,
             ['message' => 'Forbidden'],
@@ -286,6 +317,20 @@ function connectorResponseFailureMappings(): array
             'Missing',
             404,
             ['message' => 'Missing'],
+        ],
+        'conflict' => [
+            MockResponse::make(['message' => 'Conflict'], 409),
+            ConflictException::class,
+            'Conflict',
+            409,
+            ['message' => 'Conflict'],
+        ],
+        'gone' => [
+            MockResponse::make(['message' => 'Gone'], 410),
+            GoneException::class,
+            'Gone',
+            410,
+            ['message' => 'Gone'],
         ],
         'validation status' => [
             MockResponse::make(['message' => 'Invalid'], 422),

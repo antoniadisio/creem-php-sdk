@@ -146,7 +146,10 @@ The low-level single-key API remains available when you only need one credential
 
 All SDK exceptions extend `Antoniadisio\Creem\Exception\CreemException`.
 
-- `AuthenticationException` for `401` and `403`
+- `AuthenticationException` for `401`
+- `ForbiddenException` for `403`
+- `ConflictException` for `409`
+- `GoneException` for `410`
 - `ValidationException` for `422` and validation-style client payloads
 - `NotFoundException` for `404`
 - `RateLimitException` for `429` (`retryAfterSeconds()` exposes the parsed `Retry-After` delay when the API sends one)
