@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Antoniadisio\Creem\Dto\Webhook;
 
 use Antoniadisio\Creem\Dto\Common\StructuredObject;
+use Antoniadisio\Creem\Enum\WebhookEventType;
 use Antoniadisio\Creem\Exception\HydrationException;
 use Antoniadisio\Creem\Internal\Hydration\Payload;
 use DateTimeImmutable;
@@ -77,6 +78,11 @@ final readonly class WebhookEvent
     public function eventType(): string
     {
         return $this->eventType;
+    }
+
+    public function eventTypeEnum(): ?WebhookEventType
+    {
+        return WebhookEventType::tryFrom($this->eventType);
     }
 
     public function createdAt(): DateTimeImmutable

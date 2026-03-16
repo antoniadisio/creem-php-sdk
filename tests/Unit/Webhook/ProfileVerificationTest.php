@@ -69,5 +69,5 @@ test('webhook construction builds verified events for named profiles', function 
     $event = Webhook::constructEventForProfile($payload, $signature, 'default', $profiles);
 
     expect($event)->toBeInstanceOf(WebhookEvent::class)
-        ->and($event->id())->toBe('evt_fixture_license_created');
+        ->and($event->id())->toBe('evt_fixture_subscription_active');
 });

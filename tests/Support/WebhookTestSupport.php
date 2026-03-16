@@ -22,12 +22,12 @@ final class WebhookTestSupport
     {
         /** @var array<string, mixed> $payload */
         $payload = array_replace_recursive([
-            'id' => 'evt_fixture_license_created',
-            'eventType' => 'license.created',
+            'id' => 'evt_fixture_subscription_active',
+            'eventType' => 'subscription.active',
             'created_at' => '2026-03-07T06:49:26+00:00',
             'object' => [
-                'id' => 'lk_fixture_primary',
-                'object' => 'license',
+                'id' => 'sub_fixture_primary',
+                'object' => 'subscription',
                 'status' => 'active',
             ],
         ], $overrides);

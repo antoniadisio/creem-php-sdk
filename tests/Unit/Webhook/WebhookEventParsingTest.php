@@ -6,6 +6,7 @@ namespace Antoniadisio\Creem\Tests\Unit;
 
 use Antoniadisio\Creem\Dto\Common\StructuredObject;
 use Antoniadisio\Creem\Dto\Webhook\WebhookEvent;
+use Antoniadisio\Creem\Enum\WebhookEventType;
 use Antoniadisio\Creem\Exception\HydrationException;
 use Antoniadisio\Creem\Exception\InvalidWebhookPayloadException;
 use Antoniadisio\Creem\Exception\InvalidWebhookSignatureException;
@@ -25,11 +26,12 @@ test('webhook event parsing hydrates documented envelopes into typed wrappers', 
     $event = Webhook::parseEvent($payload);
 
     expect($event)->toBeInstanceOf(WebhookEvent::class)
-        ->and($event->id())->toBe('evt_fixture_license_created')
-        ->and($event->eventType())->toBe('license.created')
+        ->and($event->id())->toBe('evt_fixture_subscription_active')
+        ->and($event->eventType())->toBe('subscription.active')
+        ->and($event->eventTypeEnum())->toBe(WebhookEventType::SubscriptionActive)
         ->and($event->createdAt()->format(DATE_ATOM))->toBe('2026-03-07T06:49:26+00:00')
         ->and($event->object())->toBeInstanceOf(StructuredObject::class)
-        ->and($event->object()->get('id'))->toBe('lk_fixture_primary')
+        ->and($event->object()->get('id'))->toBe('sub_fixture_primary')
         ->and($event->payload()->get('object'))->toBeInstanceOf(StructuredObject::class)
         ->and($event->toArray()['object'])->toBeInstanceOf(StructuredObject::class);
 });
@@ -41,7 +43,8 @@ test('webhook event parsing keeps unknown event types as raw strings', function 
 
     $event = Webhook::parseEvent($payload);
 
-    expect($event->eventType())->toBe('license.created.partner_sync');
+    expect($event->eventType())->toBe('license.created.partner_sync')
+        ->and($event->eventTypeEnum())->toBeNull();
 });
 
 test('webhook event parsing accepts subscription scheduled cancel events without special cases', function (): void {
@@ -150,8 +153,8 @@ test('webhook construction builds verified events without a client instance', fu
     $event = Webhook::constructEvent($payload, $signature, 'whsec_test_secret');
 
     expect($event)->toBeInstanceOf(WebhookEvent::class)
-        ->and($event->id())->toBe('evt_fixture_license_created')
-        ->and($event->object()->get('id'))->toBe('lk_fixture_primary');
+        ->and($event->id())->toBe('evt_fixture_subscription_active')
+        ->and($event->object()->get('id'))->toBe('sub_fixture_primary');
 });
 
 test('webhook construction rejects replayed events when the replay callback returns true', function (): void {
@@ -173,5 +176,5 @@ test('webhook construction rejects replayed events when the replay callback retu
     })
         ->toThrow(InvalidWebhookSignatureException::class, 'The Creem webhook event was already processed.');
 
-    expect($receivedEventId)->toBe('evt_fixture_license_created');
+    expect($receivedEventId)->toBe('evt_fixture_subscription_active');
 });

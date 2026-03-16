@@ -182,6 +182,7 @@ Creem currently sends `creem-signature` as the raw HMAC digest of the payload, f
 ```php
 <?php
 
+use Antoniadisio\Creem\Enum\WebhookEventType;
 use Antoniadisio\Creem\Webhook;
 
 $payload = file_get_contents('php://input') ?: '';
@@ -193,8 +194,8 @@ $event = Webhook::constructEvent(
     $_ENV['CREEM_WEBHOOK_SECRET'],
 );
 
-if ($event->eventType() === 'license.created') {
-    $licenseId = $event->object()->get('id');
+if ($event->eventTypeEnum() === WebhookEventType::SubscriptionActive) {
+    $subscriptionId = $event->object()->get('id');
 }
 ```
 
@@ -288,7 +289,7 @@ final class CreemWebhookController
 }
 ```
 
-The returned `WebhookEvent` exposes `id()`, `eventType()`, `createdAt()`, `object()`, `payload()`, and `toArray()`. `object()` returns a `StructuredObject`, so consumers can read nested webhook data without decoding JSON again. Live Creem deliveries currently send `created_at` as a Unix epoch timestamp; the SDK normalizes that to `DateTimeImmutable` for you.
+The returned `WebhookEvent` exposes `id()`, `eventType()`, `eventTypeEnum()`, `createdAt()`, `object()`, `payload()`, and `toArray()`. `eventType()` remains the raw string from Creem for forward compatibility, while `eventTypeEnum()` returns a `WebhookEventType` for currently documented events or `null` for unknown future values. `object()` returns a `StructuredObject`, so consumers can read nested webhook data without decoding JSON again. Live Creem deliveries currently send `created_at` as a Unix epoch timestamp; the SDK normalizes that to `DateTimeImmutable` for you.
 
 ## Resources
 
