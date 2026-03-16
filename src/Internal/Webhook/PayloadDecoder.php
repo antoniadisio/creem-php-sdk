@@ -13,6 +13,7 @@ use function is_array;
 use function json_decode;
 use function strlen;
 
+/** @internal */
 final class PayloadDecoder
 {
     private const int DEFAULT_MAX_DEPTH = 128;

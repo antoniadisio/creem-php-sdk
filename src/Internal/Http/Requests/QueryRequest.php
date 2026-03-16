@@ -10,6 +10,7 @@ use Saloon\Http\Request;
 use function preg_match;
 use function trim;
 
+/** @internal */
 abstract class QueryRequest extends Request
 {
     private readonly ?string $idempotencyKey;

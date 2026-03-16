@@ -7,6 +7,7 @@ namespace Antoniadisio\Creem\Internal\Http\Requests\Stats;
 use Antoniadisio\Creem\Internal\Http\Requests\QueryRequest;
 use Saloon\Enums\Method;
 
+/** @internal */
 final class GetMetricsSummaryRequest extends QueryRequest
 {
     protected Method $method = Method::GET;

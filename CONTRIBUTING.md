@@ -1,8 +1,9 @@
 # Contributing
 
 ## Scope
-This repository is a public unofficial PHP SDK. Keep changes focused on package code and contributor-facing documentation. The consumer entrypoint is the stable typed `Antoniadisio\Creem\Client` facade; avoid turning internal Saloon transport classes into part of the public contract.
+This repository is a public unofficial PHP SDK. This document is the contributor guide only. Keep changes focused on package code and contributor-facing documentation. The consumer entrypoint is the stable typed `Antoniadisio\Creem\Client` facade; avoid turning internal Saloon transport classes into part of the public contract.
 The public repo intentionally keeps maintainer QA files such as `rector.php`, `phpstan.neon.dist`, `phpunit.xml.dist`, and `composer.lock` committed at the root. Lean package archives for SDK consumers are handled with `.gitattributes export-ignore`, not by removing those repo files from git. The exported consumer archive is intentionally limited to the runtime package surface: `src/`, `composer.json`, `README.md`, and `LICENSE`.
+Maintainer-only release and live-verification workflows live in [`docs/maintainers/README.md`](docs/maintainers/README.md) and [`playground/README.md`](playground/README.md).
 
 ## Local Setup
 - Run `composer install` to install PHP dependencies.
@@ -55,15 +56,6 @@ Pull requests should be opened only after `composer qa:check` is green.
 - Keep the tone concise and direct, focused on what changed for the repository or SDK user.
 - Add a `CHANGELOG.md` entry for the next major release when you ship breaking public API changes.
 - In pull requests, describe the user-visible impact, list the validation commands you ran, and link the relevant issue when one exists.
-
-## Release Process
-- Run `composer validate --strict`.
-- Run `composer qa:check`.
-- Update `CHANGELOG.md` with the exact release version and date.
-- Keep release notes and installation guidance aligned with the unofficial `antoniadisio/creem-php` package identity.
-- Create an annotated Git tag for that version (for example `git tag -a v0.3.0 -m "Release v0.3.0"`).
-- Push the tag and publish matching GitHub release notes.
-- Keep the Git tag, GitHub release title, and `CHANGELOG.md` entry identical.
 
 ## Security Reporting
 - Do not file public GitHub issues for vulnerabilities.

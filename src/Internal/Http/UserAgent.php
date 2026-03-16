@@ -10,6 +10,7 @@ use Composer\InstalledVersions;
 use function class_exists;
 use function implode;
 
+/** @internal */
 final class UserAgent
 {
     public static function forConfig(Config $config): string

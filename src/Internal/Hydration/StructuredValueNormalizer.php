@@ -10,6 +10,7 @@ use Antoniadisio\Creem\Dto\Common\StructuredObject;
 use function array_is_list;
 use function is_array;
 
+/** @internal */
 final class StructuredValueNormalizer
 {
     public static function normalize(mixed $value): mixed

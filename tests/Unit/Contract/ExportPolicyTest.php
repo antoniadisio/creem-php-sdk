@@ -29,6 +29,7 @@ test('git archive exports only the runtime package surface', function (): void {
     ]);
 
     expect($entries)->toContain('src/Client.php')
+        ->and($entries)->not->toContain('docs/')
         ->and($entries)->toContain('src/Webhook.php')
         ->and($entries)->not->toContain('AGENTS.md')
         ->and($entries)->not->toContain('CONTRIBUTING.md')

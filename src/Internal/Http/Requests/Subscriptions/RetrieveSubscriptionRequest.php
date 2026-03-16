@@ -7,6 +7,7 @@ namespace Antoniadisio\Creem\Internal\Http\Requests\Subscriptions;
 use Antoniadisio\Creem\Internal\Http\Requests\QueryRequest;
 use Saloon\Enums\Method;
 
+/** @internal */
 final class RetrieveSubscriptionRequest extends QueryRequest
 {
     protected Method $method = Method::GET;

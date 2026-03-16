@@ -10,6 +10,7 @@ use Saloon\Enums\Method;
 
 use function sprintf;
 
+/** @internal */
 final class DeleteDiscountRequest extends QueryRequest
 {
     protected Method $method = Method::DELETE;

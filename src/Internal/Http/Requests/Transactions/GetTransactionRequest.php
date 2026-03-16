@@ -7,6 +7,7 @@ namespace Antoniadisio\Creem\Internal\Http\Requests\Transactions;
 use Antoniadisio\Creem\Internal\Http\Requests\QueryRequest;
 use Saloon\Enums\Method;
 
+/** @internal */
 final class GetTransactionRequest extends QueryRequest
 {
     protected Method $method = Method::GET;

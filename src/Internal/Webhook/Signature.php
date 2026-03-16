@@ -9,6 +9,7 @@ use Antoniadisio\Creem\Exception\InvalidWebhookSignatureException;
 use function hash_hmac;
 use function trim;
 
+/** @internal */
 final class Signature
 {
     public static function compute(string $payload, #[\SensitiveParameter]

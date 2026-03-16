@@ -13,6 +13,7 @@ use function is_array;
 use function json_decode;
 use function trim;
 
+/** @internal */
 final class ResponseDecoder
 {
     /**

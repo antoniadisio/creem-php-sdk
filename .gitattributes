@@ -8,6 +8,8 @@
 /composer.lock export-ignore
 /CONTRIBUTING.md export-ignore
 /creem-php.code-workspace export-ignore
+/docs export-ignore
+/docs/** export-ignore
 /phpstan.neon.dist export-ignore
 /phpunit.xml.dist export-ignore
 /pint.json export-ignore

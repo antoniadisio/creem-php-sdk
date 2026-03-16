@@ -1,7 +1,8 @@
 # Live Harness
 
-`playground/` is the committed contributor harness for real requests against `Antoniadisio\Creem\Enum\Environment::Test` and for local webhook capture during live verification.
+`playground/` is the committed maintainer and contributor harness for real requests against `Antoniadisio\Creem\Enum\Environment::Test` and for local webhook capture during live verification.
 Deterministic repo guardrails such as contract, fixture, playground audit, and export-policy checks stay in `composer test:repo`; this document is only for live and destructive verification.
+Integrators should stay on the public SDK surface documented in the root `README.md`; this workspace is not part of the shipped consumer package.
 
 It stays on the real SDK path:
 

@@ -6,6 +6,7 @@ namespace Antoniadisio\Creem\Internal\Webhook;
 
 use function hash_equals;
 
+/** @internal */
 final class SecureComparer
 {
     public static function equals(string $expected, string $actual): bool
