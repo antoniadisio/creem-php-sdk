@@ -135,6 +135,46 @@ test('playground run reads JSON from stdin and blocks writes without allow_write
     }
 });
 
+test('playground product create omits billing period for one-time payloads', function (): void {
+    $tempDir = playgroundTempDir();
+    $statePath = $tempDir.'/state.local.json';
+
+    try {
+        $result = playgroundRunCli(
+            ['products/create'],
+            json_encode([
+                'profile' => 'cashier',
+                'values' => [
+                    'products' => [
+                        'create' => [
+                            'name' => 'CLI One-Time Product',
+                            'billingType' => 'onetime',
+                            'billingPeriod' => 'once',
+                        ],
+                    ],
+                ],
+            ], JSON_THROW_ON_ERROR),
+            [
+                'CREEM_PLAYGROUND_STATE_PATH' => $statePath,
+                'CREEM_CASHIER_API_KEY' => 'sk_test_cashier_placeholder',
+            ],
+        );
+        $payload = playgroundDecodeJson($result['stdout']);
+        $request = playgroundMapValue($payload, 'request');
+        $requestInputs = playgroundMapValue($request, 'inputs');
+        $requestPayload = playgroundMapValue($request, 'payload');
+
+        expect($result['exitCode'])->toBe(1)
+            ->and(playgroundStringValue($requestInputs, 'billingType'))->toBe('onetime')
+            ->and(array_key_exists('billingPeriod', $requestInputs))->toBeTrue()
+            ->and($requestInputs['billingPeriod'])->toBeNull()
+            ->and(playgroundStringValue($requestPayload, 'billing_type'))->toBe('onetime')
+            ->and($requestPayload)->not->toHaveKey('billing_period');
+    } finally {
+        playgroundRemoveDirectory($tempDir);
+    }
+});
+
 test('playground audit remains machine readable', function (): void {
     $result = playgroundRunCli(['--audit']);
     $payload = playgroundDecodeJson($result['stdout']);

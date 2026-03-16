@@ -12,6 +12,12 @@ use Antoniadisio\Creem\Enum\TaxMode;
 use Playground\Support\Playground;
 
 $request = static function (array $values): CreateProductRequest {
+    $billingType = Playground::enumValue(
+        BillingType::class,
+        Playground::value($values, 'products.create.billingType'),
+        'products.create.billingType',
+    );
+
     return new CreateProductRequest(
         name: Playground::stringValue(
             Playground::value($values, 'products.create.name'),
@@ -26,22 +32,20 @@ $request = static function (array $values): CreateProductRequest {
             Playground::value($values, 'products.create.currency'),
             'products.create.currency',
         ),
-        billingType: Playground::enumValue(
-            BillingType::class,
-            Playground::value($values, 'products.create.billingType'),
-            'products.create.billingType',
-        ),
+        billingType: $billingType,
         description: Playground::nullableString(
             Playground::value($values, 'products.create.description'),
         ),
         imageUrl: Playground::nullableString(
             Playground::value($values, 'products.create.imageUrl'),
         ),
-        billingPeriod: Playground::enumValue(
-            BillingPeriod::class,
-            Playground::value($values, 'products.create.billingPeriod'),
-            'products.create.billingPeriod',
-        ),
+        billingPeriod: $billingType === BillingType::OneTime
+            ? null
+            : Playground::enumValue(
+                BillingPeriod::class,
+                Playground::value($values, 'products.create.billingPeriod'),
+                'products.create.billingPeriod',
+            ),
         taxMode: Playground::enumValue(
             TaxMode::class,
             Playground::value($values, 'products.create.taxMode'),
@@ -99,7 +103,7 @@ return [
         Playground::field('products.create.price', 'Price', 'int'),
         Playground::field('products.create.currency', 'Currency', 'enum', enum: CurrencyCode::class),
         Playground::field('products.create.billingType', 'Billing type', 'enum', enum: BillingType::class),
-        Playground::field('products.create.billingPeriod', 'Billing period', 'enum', enum: BillingPeriod::class),
+        Playground::field('products.create.billingPeriod', 'Billing period', 'enum', nullable: true, enum: BillingPeriod::class),
         Playground::field('products.create.taxMode', 'Tax mode', 'enum', enum: TaxMode::class),
         Playground::field('products.create.taxCategory', 'Tax category', 'enum', enum: TaxCategory::class),
         Playground::field('products.create.defaultSuccessUrl', 'Default success URL', 'nullable-string', nullable: true),
@@ -117,7 +121,9 @@ return [
         'price' => Playground::value($values, 'products.create.price'),
         'currency' => Playground::value($values, 'products.create.currency'),
         'billingType' => Playground::value($values, 'products.create.billingType'),
-        'billingPeriod' => Playground::value($values, 'products.create.billingPeriod'),
+        'billingPeriod' => Playground::value($values, 'products.create.billingType') === BillingType::OneTime->value
+            ? null
+            : Playground::value($values, 'products.create.billingPeriod'),
         'taxMode' => Playground::value($values, 'products.create.taxMode'),
         'taxCategory' => Playground::value($values, 'products.create.taxCategory'),
         'defaultSuccessUrl' => Playground::value($values, 'products.create.defaultSuccessUrl'),

@@ -28,6 +28,7 @@ The automated smoke suite now covers only one authenticated connectivity canary 
 ## Product Creation
 
 - Create one recurring product and one one-time product with unique names.
+- For raw manual requests in Try It or another HTTP client, omit `billing_period` on one-time product creation. The live API currently rejects `billing_period` for one-time creates even though product responses still include `billing_period: "once"`.
 - Verify the returned `Product` DTO fields, especially pricing, billing type, billing period, and tax settings.
 - Confirm the products appear in the Creem test dashboard with the expected metadata.
 - Capture the response if product payload fields changed relative to `product.json`.

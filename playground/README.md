@@ -65,12 +65,16 @@ Example read envelope:
     "stats": {
       "summary": {
         "currency": "USD",
+        "startDate": "2026-03-01T00:00:00+00:00",
+        "endDate": "2026-03-31T23:59:59+00:00",
         "interval": "month"
       }
     }
   }
 }
 ```
+
+When `stats.summary.interval` is set, the live API also requires `startDate` and `endDate`.
 
 Or pipe the same envelope through stdin:
 
