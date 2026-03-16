@@ -75,6 +75,16 @@ test('webhook event parsing accepts epoch timestamps from live deliveries', func
     expect($event->createdAt()->format('Y-m-d\\TH:i:s.vP'))->toBe('2026-03-13T17:16:58.000+00:00');
 });
 
+test('webhook event parsing accepts unix-second timestamps from live deliveries', function (): void {
+    $payload = WebhookTestSupport::eventPayload([
+        'created_at' => 1773422218,
+    ]);
+
+    $event = Webhook::parseEvent($payload);
+
+    expect($event->createdAt()->format(DATE_ATOM))->toBe('2026-03-13T17:16:58+00:00');
+});
+
 test('webhook event parsing throws payload exceptions for malformed json instead of transport exceptions', function (): void {
     $thrown = null;
 
@@ -155,6 +165,38 @@ test('webhook construction builds verified events without a client instance', fu
     expect($event)->toBeInstanceOf(WebhookEvent::class)
         ->and($event->id())->toBe('evt_fixture_subscription_active')
         ->and($event->object()->get('id'))->toBe('sub_fixture_primary');
+});
+
+test('webhook construction keeps unknown event types as raw strings after verification', function (): void {
+    $payload = WebhookTestSupport::eventPayload([
+        'eventType' => 'license.created.partner_sync',
+    ]);
+    $signature = WebhookTestSupport::signatureHeader($payload);
+
+    $event = Webhook::constructEvent($payload, $signature, 'whsec_test_secret');
+
+    expect($event->eventType())->toBe('license.created.partner_sync')
+        ->and($event->eventTypeEnum())->toBeNull();
+});
+
+test('webhook construction returns the event when replay detection does not reject it', function (): void {
+    $payload = WebhookTestSupport::eventPayload();
+    $signature = WebhookTestSupport::signatureHeader($payload);
+    $receivedEventId = null;
+
+    $event = Webhook::constructEvent(
+        $payload,
+        $signature,
+        'whsec_test_secret',
+        static function (WebhookEvent $event) use (&$receivedEventId): bool {
+            $receivedEventId = $event->id();
+
+            return false;
+        },
+    );
+
+    expect($event->id())->toBe('evt_fixture_subscription_active')
+        ->and($receivedEventId)->toBe('evt_fixture_subscription_active');
 });
 
 test('webhook construction rejects replayed events when the replay callback returns true', function (): void {

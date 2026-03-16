@@ -41,7 +41,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Antoniadisio\\Creem\\Tests\\": "tests/"
+            "Antoniadisio\\Creem\\Tests\\": "tests/",
+            "Playground\\Support\\": "playground/Support/"
         }
     },
     "scripts": {

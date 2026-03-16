@@ -40,7 +40,6 @@ use function dirname;
 use function file_exists;
 use function file_get_contents;
 use function file_put_contents;
-use function fwrite;
 use function get_debug_type;
 use function get_object_vars;
 use function glob;
@@ -1134,7 +1133,11 @@ final class Playground
             throw new PlaygroundException('Unable to encode playground JSON output.', previous: $exception);
         }
 
-        fwrite($stream === 'stderr' ? STDERR : STDOUT, $output . "\n");
+        $target = $stream === 'stderr' ? 'php://stderr' : 'php://output';
+
+        if (file_put_contents($target, $output . "\n") === false) {
+            throw new PlaygroundException(sprintf('Unable to write playground JSON output to [%s].', $stream));
+        }
     }
 
     /**

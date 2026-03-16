@@ -75,18 +75,18 @@ test('credential profiles resolve named profiles configs and webhook secrets', f
             environment: Environment::Test,
             webhookSecret: 'whsec_default_1234',
         ),
-        'cashier' => new CredentialProfile(
-            apiKey: 'sk_test_cashier_5678',
+        'playground' => new CredentialProfile(
+            apiKey: 'sk_test_playground_5678',
             environment: Environment::Production,
-            webhookSecret: 'whsec_cashier_5678',
+            webhookSecret: 'whsec_playground_5678',
         ),
     ]);
 
-    expect($profiles->names())->toBe(['default', 'cashier'])
+    expect($profiles->names())->toBe(['default', 'playground'])
         ->and($profiles->hasProfile('default'))->toBeTrue()
         ->and($profiles->config('default')->apiKey())->toBe('sk_test_default_1234')
-        ->and($profiles->config('cashier')->environment())->toBe(Environment::Production)
-        ->and($profiles->webhookSecret('cashier'))->toBe('whsec_cashier_5678');
+        ->and($profiles->config('playground')->environment())->toBe(Environment::Production)
+        ->and($profiles->webhookSecret('playground'))->toBe('whsec_playground_5678');
 });
 
 test('credential profiles use redacted values for debug output string casts and serialization', function (): void {

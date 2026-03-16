@@ -116,16 +116,16 @@ $profiles = new CredentialProfiles([
         environment: Environment::Test,
         webhookSecret: $_ENV['CREEM_WEBHOOK_SECRET'],
     ),
-    'cashier' => new CredentialProfile(
-        apiKey: $_ENV['CREEM_CASHIER_API_KEY'],
+    'playground' => new CredentialProfile(
+        apiKey: $_ENV['CREEM_PLAYGROUND_API_KEY'],
         environment: Environment::Test,
-        webhookSecret: $_ENV['CREEM_CASHIER_WEBHOOK_SECRET'],
+        webhookSecret: $_ENV['CREEM_PLAYGROUND_WEBHOOK_SECRET'],
     ),
 ]);
 
 $factory = new ClientFactory($profiles);
 
-$merchantClient = $factory->forProfile('cashier');
+$merchantClient = $factory->forProfile('playground');
 $product = $merchantClient->products()->get('prod_123');
 ```
 
@@ -225,14 +225,14 @@ $profiles = new CredentialProfiles([
         environment: Environment::Test,
         webhookSecret: $_ENV['CREEM_WEBHOOK_SECRET'],
     ),
-    'cashier' => new CredentialProfile(
-        apiKey: $_ENV['CREEM_CASHIER_API_KEY'],
+    'playground' => new CredentialProfile(
+        apiKey: $_ENV['CREEM_PLAYGROUND_API_KEY'],
         environment: Environment::Test,
-        webhookSecret: $_ENV['CREEM_CASHIER_WEBHOOK_SECRET'],
+        webhookSecret: $_ENV['CREEM_PLAYGROUND_WEBHOOK_SECRET'],
     ),
 ]);
 
-$profile = $request->is('creem/webhook') ? 'cashier' : 'default';
+$profile = $request->is('creem/webhook') ? 'playground' : 'default';
 
 $event = Webhook::constructEventForProfile(
     $payload,
@@ -243,6 +243,8 @@ $event = Webhook::constructEventForProfile(
 ```
 
 `Webhook::verifySignatureForProfile(...)` and `Webhook::constructEventForProfile(...)` resolve exactly one secret from the named profile. The SDK does not iterate across every configured secret for you.
+
+For local webhook development and manual dashboard test sends, the maintainer runbook in [`playground/README.md`](playground/README.md) documents the `php -S` plus `ngrok` flow and the per-route/profile verification checklist.
 
 For Laravel-style controllers, use the raw request content instead of decoded request input:
 

@@ -32,7 +32,10 @@ final class WebhookPlayground
 {
     public static function captureDirectory(string $workspacePath): string
     {
-        return $workspacePath . '/captures/webhooks';
+        return self::workspacePathOverride(
+            'CREEM_PLAYGROUND_WEBHOOK_CAPTURE_PATH',
+            $workspacePath . '/captures/webhooks',
+        );
     }
 
     public static function captureHealth(string $workspacePath): array
@@ -395,5 +398,18 @@ final class WebhookPlayground
         } catch (JsonException $exception) {
             throw new PlaygroundException('Unable to encode webhook capture JSON.', previous: $exception);
         }
+    }
+
+    private static function workspacePathOverride(string $envName, string $default): string
+    {
+        $value = getenv($envName);
+
+        if (! is_string($value)) {
+            return $default;
+        }
+
+        $value = trim($value);
+
+        return $value === '' ? $default : $value;
     }
 }
