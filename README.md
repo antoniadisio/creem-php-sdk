@@ -421,6 +421,7 @@ Supported methods:
 - `resume(string $id)`
 
 For live seat updates, prefer `priceId` on `UpsertSubscriptionItem` and pass the current subscription item `id` when adjusting an existing line item. Creem's API troubleshooting guidance recommends `price_id` as the most specific reference for validation.
+When setting `updateBehavior` on `subscriptions()->update(...)`, `SubscriptionUpdateBehavior::ProrationChargeImmediately` applies the unit change immediately and may generate a proration charge right away. In live testing, `SubscriptionUpdateBehavior::ProrationCharge` and `SubscriptionUpdateBehavior::ProrationNone` left the current item units unchanged until the next billing boundary.
 
 ### Checkouts
 

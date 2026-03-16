@@ -57,7 +57,7 @@ return [
             'update' => [
                 'productId' => null,
                 'units' => 2,
-                'updateBehavior' => 'proration-charge-immediately',
+                'updateBehavior' => null,
             ],
         ],
     ],

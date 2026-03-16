@@ -221,7 +221,7 @@ Suggested flow:
 - Discount flows:
   Create a discount, verify `get(...)` and `getByCode(...)`, redeem it in a checkout, then call `delete(...)` and confirm the returned deleted state.
 - Subscription update, upgrade, and cancel:
-  Create a baseline recurring product and an upgrade target, complete a recurring checkout, then verify `update(...)`, `upgrade(...)`, and `cancel(...)`. For seat updates, prefer `price_id` and include the current subscription item `id`. For immediate seat changes, record the chosen `update_behavior`.
+  Create a baseline recurring product and an upgrade target, complete a recurring checkout, then verify `update(...)`, `upgrade(...)`, and `cancel(...)`. For seat updates, prefer `price_id` and include the current subscription item `id`. Set `update_behavior` explicitly during live verification: `proration-charge-immediately` applies the unit change immediately, while `proration-charge` and `proration-none` leave the current units unchanged until the next billing boundary.
 - License activate, validate, and deactivate:
   Use a license-key product, complete a checkout that yields a fresh license key, then verify `activate(...)`, `validate(...)`, and `deactivate(...)`.
 
