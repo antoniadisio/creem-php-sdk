@@ -1,9 +1,10 @@
+* text=auto eol=lf
+
+# Exclude repository-only files from consumer archives
 /.gitattributes export-ignore
-/.gitmessage.txt export-ignore
 /.github/** export-ignore
 /.github export-ignore
 /.gitignore export-ignore
-/AGENTS.md export-ignore
 /CHANGELOG.md export-ignore
 /composer.lock export-ignore
 /CONTRIBUTING.md export-ignore

@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.2 - 2026-03-17
+
+- Repository hygiene patch release.
+- Removes the unused local Git commit template and hook scaffolding now that commits are handled through Codex.
+- Simplifies root ignore policy to active repo-wide local state only and leaves playground runtime ignores scoped to `playground/.gitignore`.
+- Drops the redundant `tests/Integration/.gitkeep` placeholder and adds LF normalization to `.gitattributes`.
+- Aligns contributor guidance with the cleaned Git workflow and ignore policy.
+- No runtime API changes are included in this release.
+- No code changes are required for existing SDK consumers.
+
 ## 1.0.1 - 2026-03-16
 
 - Documentation-only patch release.
