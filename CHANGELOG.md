@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.1 - 2026-03-17
+
+- Documentation-only patch release.
+- Adds a Beyond Code package banner to the README with the `creem-php` package title and a dark theme.
+- Adds Packagist version and download badges plus GitHub `quality` workflow badges for test and code-style status.
+- No runtime API changes are included in this release.
+- No code changes are required for existing SDK consumers.
+
 ## 2.0.0 - 2026-03-17
 
 - Breaking release that removes unofficial `sk_*` API key compatibility from the public SDK surface.

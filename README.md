@@ -1,3 +1,14 @@
+<p align="center">
+    <img src="https://banners.beyondco.de/creem-php.png?theme=dark&packageManager=composer+require&packageName=antoniadisio%2Fcreem-php&pattern=architect&style=style_1&description=PHP+SDK+to+easily+integrate+a+PHP%2FLaravel+application+with+Creem.io&md=1&showWatermark=0&fontSize=125px" alt="creem-php">
+</p>
+
+<p align="center">
+    <a href="https://packagist.org/packages/antoniadisio/creem-php"><img src="https://img.shields.io/packagist/v/antoniadisio/creem-php?label=Packagist&color=%23f28d1a" alt="Packagist Version"></a>
+    <a href="https://github.com/antoniadisio/creem-php/actions/workflows/quality.yml"><img src="https://img.shields.io/github/actions/workflow/status/antoniadisio/creem-php/quality.yml?branch=main&label=Tests" alt="GitHub Tests Action Status"></a>
+    <a href="https://github.com/antoniadisio/creem-php/actions/workflows/quality.yml"><img src="https://img.shields.io/github/actions/workflow/status/antoniadisio/creem-php/quality.yml?branch=main&label=Code%20Style" alt="GitHub Code Style Action Status"></a>
+    <a href="https://packagist.org/packages/antoniadisio/creem-php"><img src="https://img.shields.io/packagist/dt/antoniadisio/creem-php?label=Downloads" alt="Packagist Downloads"></a>
+</p>
+
 # Creem PHP SDK
 
 Unofficial but passionate PHP SDK for Creem, with a typed client facade, resource DTOs, credential profiles, and webhook verification helpers.
