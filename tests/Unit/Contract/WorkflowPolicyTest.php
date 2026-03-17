@@ -17,7 +17,7 @@ test('quality workflow keeps branch pushes active while excluding release tags',
     expect($workflow)->toContain('push:')
         ->and($workflow)->toContain("branches:\n            - '**'")
         ->and($workflow)->toContain("tags-ignore:\n            - 'v*'")
-        ->and($workflow)->toContain('download-actionlint.bash')
+        ->and($workflow)->toContain('raw.githubusercontent.com/rhysd/actionlint/v1.7.11/scripts/download-actionlint.bash')
         ->and($workflow)->toContain('Lint GitHub Actions workflows');
 
     expect(checkoutWorkflowVersion($workflow))->toBeGreaterThanOrEqual(5);

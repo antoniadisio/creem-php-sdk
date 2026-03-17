@@ -24,7 +24,7 @@ jobs:
             - name: Download actionlint
               if: matrix.php-version == '8.4'
               id: actionlint
-              run: bash <(curl -sSfL https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash) 1.7.11
+              run: bash <(curl -sSfL https://raw.githubusercontent.com/rhysd/actionlint/v1.7.11/scripts/download-actionlint.bash) 1.7.11
               shell: bash
 
             - name: Lint GitHub Actions workflows
