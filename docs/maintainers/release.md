@@ -21,6 +21,16 @@ The release workflow validates that:
 - `CHANGELOG.md` contains the matching version heading
 - the merged `main` commit already has a successful `quality` workflow run
 
+Workflow guardrails:
+
+- The `quality` workflow lint-checks GitHub Actions files with `actionlint` before the PHP QA steps run.
+
+Additional release rules:
+
+- Workflow files such as `.github/workflows/quality.yml` and `.github/workflows/release.yml` are tracked repo files and only become part of a release when they are merged before that release tag is created.
+- If a workflow or release-process fix lands after a version is already published, do not move or recreate the published tag. Prepare the next patch release instead.
+- Do not create release tags manually on topic branches. The published tag must come from the manual `release` workflow running on merged `main`.
+
 ## Human Approval
 
 There is always one human step in this flow: you manually trigger the `release` workflow from GitHub after the PR is merged and checks are green.
