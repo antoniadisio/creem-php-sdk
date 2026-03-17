@@ -4,7 +4,7 @@
 
 - Release-process patch release.
 - Upgrades `actions/checkout` to `v6` in the `quality` and `release` workflows to follow the current Node.js 24 runtime line for that action.
-- Adds `actionlint` to CI plus deterministic repo guardrail coverage for the release workflow and for the `quality` workflow push and tag trigger policy so future workflow edits cannot silently disable merged-`main` quality runs.
+- Adds pinned `actionlint` validation to CI so workflow edits fail before merge instead of silently breaking merged-`main` release prerequisites.
 - Clarifies the maintainer release runbook around merged-`main` tagging, manual release dispatch, and the rule that workflow changes merged after a published tag belong in the next patch release rather than in a retagged existing release.
 - No runtime API changes are included in this release.
 - No code changes are required for existing SDK consumers.

@@ -24,7 +24,6 @@ The release workflow validates that:
 Workflow guardrails:
 
 - The `quality` workflow lint-checks GitHub Actions files with `actionlint` before the PHP QA steps run.
-- Repo guardrail tests also assert the release workflow stays manual, the `quality` workflow keeps merged-`main` push coverage, and release tags stay excluded from normal quality runs.
 
 Additional release rules:
 
