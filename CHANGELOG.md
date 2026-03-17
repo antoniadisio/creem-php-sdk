@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.4 - 2026-03-17
+
+- Documentation and release-process patch release.
+- Adds a manual GitHub Actions release workflow that cuts releases from merged `main` instead of from branch commits.
+- Requires the requested version to exist in `CHANGELOG.md` and requires a successful `quality` workflow run on the merged `main` commit before creating the tag and GitHub release.
+- Stops the normal `quality` workflow from rerunning on release tag pushes and updates the maintainer release runbook to document the new flow and human approval point.
+- No runtime API changes are included in this release.
+- No code changes are required for existing SDK consumers.
+
 ## 1.0.3 - 2026-03-17
 
 - Documentation-only patch release.
