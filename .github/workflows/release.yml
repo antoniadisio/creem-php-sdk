@@ -1,0 +1,117 @@
+name: release
+
+on:
+    workflow_dispatch:
+        inputs:
+            version:
+                description: Release version, with or without a leading v
+                required: true
+                type: string
+
+permissions:
+    actions: read
+    contents: write
+
+concurrency:
+    group: release-${{ inputs.version }}
+    cancel-in-progress: false
+
+jobs:
+    release:
+        runs-on: ubuntu-latest
+        environment: github-release
+
+        steps:
+            - name: Check out repository
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Validate release context
+              id: prep
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  RAW_VERSION: ${{ inputs.version }}
+              run: |
+                  set -euo pipefail
+
+                  version="${RAW_VERSION#v}"
+
+                  if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+                      echo "Version must look like 1.0.3 or v1.0.3." >&2
+                      exit 1
+                  fi
+
+                  if [ "${GITHUB_REF_NAME}" != "main" ]; then
+                      echo "Releases may only be cut from main." >&2
+                      exit 1
+                  fi
+
+                  tag="v$version"
+
+                  git fetch origin main --tags
+
+                  if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]; then
+                      echo "Run this workflow from the latest main commit." >&2
+                      exit 1
+                  fi
+
+                  if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+                      echo "Tag $tag already exists." >&2
+                      exit 1
+                  fi
+
+                  if ! grep -q "^## ${version} - " CHANGELOG.md; then
+                      echo "CHANGELOG.md is missing the ${version} entry." >&2
+                      exit 1
+                  fi
+
+                  quality_runs="$(
+                      gh api "repos/${GITHUB_REPOSITORY}/actions/runs?head_sha=${GITHUB_SHA}&branch=main&event=push&status=completed&per_page=100" \
+                          --jq '[.workflow_runs[] | select(.name == "quality" and .conclusion == "success")] | length'
+                  )"
+
+                  if [ "$quality_runs" -lt 1 ]; then
+                      echo "No successful quality workflow run was found for ${GITHUB_SHA} on main." >&2
+                      exit 1
+                  fi
+
+                  echo "version=$version" >> "$GITHUB_OUTPUT"
+                  echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+            - name: Extract release notes from changelog
+              env:
+                  VERSION: ${{ steps.prep.outputs.version }}
+              run: |
+                  set -euo pipefail
+
+                  awk -v version="$VERSION" '
+                      $0 ~ "^## " version " - " { capture=1; next }
+                      $0 ~ "^## " && capture { exit }
+                      capture { print }
+                  ' CHANGELOG.md > RELEASE_NOTES.md
+
+                  if [ ! -s RELEASE_NOTES.md ]; then
+                      echo "Failed to extract release notes for ${VERSION} from CHANGELOG.md." >&2
+                      exit 1
+                  fi
+
+            - name: Create annotated tag
+              run: |
+                  set -euo pipefail
+
+                  git config user.name "github-actions[bot]"
+                  git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+                  git tag -a "${{ steps.prep.outputs.tag }}" -m "Release ${{ steps.prep.outputs.tag }}"
+                  git push origin "${{ steps.prep.outputs.tag }}"
+
+            - name: Publish GitHub release
+              env:
+                  GH_TOKEN: ${{ github.token }}
+              run: |
+                  set -euo pipefail
+
+                  gh release create "${{ steps.prep.outputs.tag }}" \
+                      --title "${{ steps.prep.outputs.tag }}" \
+                      --notes-file RELEASE_NOTES.md
