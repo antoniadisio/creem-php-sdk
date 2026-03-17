@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.3 - 2026-03-17
+
+- Documentation-only patch release.
+- Refactors the contributor and maintainer docs so `README.md`, `CONTRIBUTING.md`, `playground/README.md`, and `docs/maintainers/README.md` each own one clear audience and responsibility.
+- Reduces duplicated workflow guidance across the repo and keeps the live playground runbook as the single source of truth for destructive and webhook verification.
+- Clarifies contributor expectations around comment discipline, deterministic Pest coverage for new features, and docs-first research for third-party libraries.
+- No runtime API changes are included in this release.
+- No code changes are required for existing SDK consumers.
+
 ## 1.0.2 - 2026-03-17
 
 - Repository hygiene patch release.

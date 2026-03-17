@@ -1,10 +1,10 @@
 # Live Harness
 
 `playground/` is the committed maintainer and contributor harness for real requests against `Antoniadisio\Creem\Enum\Environment::Test` and for local webhook capture during live verification.
-Deterministic repo guardrails such as contract, fixture, playground audit, and export-policy checks stay in `composer test:repo`; this document is only for live and destructive verification.
+Deterministic repo guardrails such as contract, fixture, playground audit, and export-policy checks stay in `composer test:repo`; this document owns live and destructive verification only.
 Integrators should stay on the public SDK surface documented in the root `README.md`; this workspace is not part of the shipped consumer package.
 
-It stays on the real SDK path:
+The harness stays on the real SDK path:
 
 1. instantiate `Antoniadisio\Creem\Client`
 2. call the public resource method
@@ -42,7 +42,7 @@ Audit the committed action definitions against the current public SDK surface:
 php playground/run.php --audit
 ```
 
-All three commands emit JSON to stdout.
+All three commands emit JSON to stdout. Start with `--describe` whenever you need the exact inputs, defaults, write mode, or persisted outputs for one operation.
 
 ## Run Contract
 
@@ -163,8 +163,6 @@ Committed machine-readable schemas live under `playground/schemas/`:
 - `playground/schemas/run-output.schema.json`
 - `playground/schemas/operation-describe.schema.json`
 
-Use `--describe` first when an agent needs the exact input field list, defaults, write mode, or persisted output mappings for one operation.
-
 ## Webhook Commands
 
 Inbound webhook tooling remains separate from `php playground/run.php`.
@@ -205,8 +203,7 @@ Inspect using an explicit webhook profile override:
 php playground/webhooks/inspect.php --latest --profile playground
 ```
 
-Captured webhook payloads stay ignored under `playground/captures/webhooks/`.
-For isolated local runs or deterministic script tests, set `CREEM_PLAYGROUND_WEBHOOK_CAPTURE_PATH` to redirect captures to a temp directory instead of the default ignored path.
+Captured webhook payloads stay ignored under `playground/captures/webhooks/`. For isolated local runs or deterministic script tests, set `CREEM_PLAYGROUND_WEBHOOK_CAPTURE_PATH` to redirect captures to a temp directory instead of the default ignored path.
 
 ## Live Webhook Verification
 

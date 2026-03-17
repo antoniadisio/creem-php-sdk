@@ -2,14 +2,9 @@
 
 These docs are for repository maintainers only. They are committed for repo collaboration and review, but they are excluded from the installable package archive.
 
-Use this entrypoint for:
+Use this directory as the maintainer index:
 
-- release workflow and version cutovers in [`release.md`](release.md)
-- live and destructive SDK verification in [`../../playground/README.md`](../../playground/README.md)
-- contributor-facing rules and deterministic local validation in [`../../CONTRIBUTING.md`](../../CONTRIBUTING.md)
-
-Audience split:
-
-- Integrators: root `README.md` plus the supported public API in `src/`
-- Contributors: `CONTRIBUTING.md`
-- Maintainers: this directory plus `playground/README.md`
+- Release workflow and version cutovers: [`release.md`](release.md)
+- Live and destructive SDK verification: [`../../playground/README.md`](../../playground/README.md)
+- Contributor workflow and deterministic local validation: [`../../CONTRIBUTING.md`](../../CONTRIBUTING.md)
+- Consumer-facing SDK usage: [`../../README.md`](../../README.md)

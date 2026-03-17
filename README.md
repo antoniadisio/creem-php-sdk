@@ -23,6 +23,8 @@ Release history and migration notes live in [the GitHub changelog](https://githu
 - Contributors: use [the GitHub contributor guide](https://github.com/antoniadisio/creem-php/blob/main/CONTRIBUTING.md).
 - Maintainers: use [the maintainer docs](https://github.com/antoniadisio/creem-php/blob/main/docs/maintainers/README.md) and the [live playground runbook](https://github.com/antoniadisio/creem-php/blob/main/playground/README.md).
 
+This README stays consumer-focused. Contributor workflow, QA commands, and live verification procedures live in the linked repo docs.
+
 Everything under `Antoniadisio\Creem\Internal\*` is shipped for runtime support only and is not part of the supported consumer-facing API.
 
 ## Quick Start
