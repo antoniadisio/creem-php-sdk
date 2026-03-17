@@ -65,7 +65,7 @@ test('playground run reads JSON from --input-file and bootstraps local state', f
             null,
             [
                 'CREEM_PLAYGROUND_STATE_PATH' => $statePath,
-                'CREEM_TEST_API_KEY' => 'sk_test_default_placeholder',
+                'CREEM_TEST_API_KEY' => 'creem_test_default_placeholder',
             ],
         );
         $payload = playgroundDecodeJson($result['stdout']);
@@ -110,7 +110,7 @@ test('playground run reads JSON from stdin and blocks writes without allow_write
             ], JSON_THROW_ON_ERROR),
             [
                 'CREEM_PLAYGROUND_STATE_PATH' => $statePath,
-                'CREEM_PLAYGROUND_API_KEY' => 'sk_test_playground_placeholder',
+                'CREEM_PLAYGROUND_API_KEY' => 'creem_test_playground_placeholder',
             ],
         );
         $payload = playgroundDecodeJson($result['stdout']);
@@ -129,7 +129,7 @@ test('playground run reads JSON from stdin and blocks writes without allow_write
             ->and(playgroundStringValue($requestPayload, 'name'))->toBe('CLI Product')
             ->and(playgroundStringValue($error, 'message'))->toBe('Write-capable playground operations require input.allow_write=true.')
             ->and($payload['state_changes'])->toBe([])
-            ->and($bootstrappedStateJson)->not->toContain('sk_test_playground_placeholder');
+            ->and($bootstrappedStateJson)->not->toContain('creem_test_playground_placeholder');
     } finally {
         playgroundRemoveDirectory($tempDir);
     }
@@ -156,7 +156,7 @@ test('playground product create omits billing period for one-time payloads', fun
             ], JSON_THROW_ON_ERROR),
             [
                 'CREEM_PLAYGROUND_STATE_PATH' => $statePath,
-                'CREEM_PLAYGROUND_API_KEY' => 'sk_test_playground_placeholder',
+                'CREEM_PLAYGROUND_API_KEY' => 'creem_test_playground_placeholder',
             ],
         );
         $payload = playgroundDecodeJson($result['stdout']);

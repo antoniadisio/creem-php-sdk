@@ -21,7 +21,7 @@ trait InteractsWithMockRequests
 {
     public function connector(MockClient $mockClient): CreemConnector
     {
-        return new CreemConnector(new Config('sk_test_123'))->withMockClient($mockClient);
+        return new CreemConnector(new Config('creem_test_123', \Antoniadisio\Creem\Enum\Environment::Test))->withMockClient($mockClient);
     }
 
     /**

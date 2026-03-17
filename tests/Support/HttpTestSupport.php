@@ -29,7 +29,7 @@ final class HttpTestSupport
 
     public static function successResponse(MockResponse $mockResponse): Response
     {
-        $connector = new CreemConnector(new Config('sk_test_123'));
+        $connector = new CreemConnector(new Config('creem_test_123', \Antoniadisio\Creem\Enum\Environment::Test));
 
         return $connector->send(self::pingRequest(), new MockClient([$mockResponse]));
     }

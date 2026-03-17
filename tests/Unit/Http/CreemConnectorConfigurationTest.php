@@ -10,7 +10,7 @@ use Antoniadisio\Creem\Internal\Http\CreemConnector;
 use Antoniadisio\Creem\Tests\Support\HttpTestSupport;
 
 test('connector builds expected headers and hardened request configuration', function (): void {
-    $connector = new CreemConnector(new Config('sk_test_123', Environment::Test, null, 12.5, 'integration-suite'));
+    $connector = new CreemConnector(new Config('creem_test_123', Environment::Test, null, 12.5, 'integration-suite'));
     $pendingRequest = $connector->createPendingRequest(HttpTestSupport::pingRequest());
     $psrRequest = $pendingRequest->createPsrRequest();
     $requestConfig = $pendingRequest->config()->all();
@@ -18,7 +18,7 @@ test('connector builds expected headers and hardened request configuration', fun
     expect((string) $psrRequest->getUri())->toBe('https://test-api.creem.io/v1/ping')
         ->and($psrRequest->getHeaderLine('Accept'))->toBe('application/json')
         ->and($psrRequest->getHeaderLine('Content-Type'))->toBe('application/json')
-        ->and($psrRequest->getHeaderLine('x-api-key'))->toBe('sk_test_123')
+        ->and($psrRequest->getHeaderLine('x-api-key'))->toBe('creem_test_123')
         ->and($psrRequest->getHeaderLine('User-Agent'))->toStartWith('creem-php/')
         ->and($psrRequest->getHeaderLine('User-Agent'))->toContain('integration-suite')
         ->and($requestConfig['allow_redirects'])->toBeFalse()
@@ -30,7 +30,7 @@ test('connector builds expected headers and hardened request configuration', fun
 });
 
 test('connector applies the default timeout when none is configured', function (): void {
-    $connector = new CreemConnector(new Config('sk_test_123'));
+    $connector = new CreemConnector(new Config('creem_123'));
     $pendingRequest = $connector->createPendingRequest(HttpTestSupport::pingRequest());
     $requestConfig = $pendingRequest->config()->all();
 

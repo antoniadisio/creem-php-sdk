@@ -30,7 +30,9 @@ final readonly class Config implements \Stringable
 {
     public const float DEFAULT_TIMEOUT_SECONDS = 30.0;
 
-    private const string API_KEY_PATTERN = '/^(?:sk|creem)_[A-Za-z0-9][A-Za-z0-9._-]*$/';
+    private const string API_KEY_PATTERN = '/^(?:creem_test|creem)_[A-Za-z0-9][A-Za-z0-9._-]*$/';
+    private const string CREEM_TEST_API_KEY_PREFIX = 'creem_test_';
+    private const string CREEM_PRODUCTION_API_KEY_PREFIX = 'creem_';
 
     /**
      * @var array<int, string>
@@ -158,11 +160,7 @@ final readonly class Config implements \Stringable
     {
         $visibleSuffix = strlen($this->apiKey) > 7 ? substr($this->apiKey, -4) : '';
 
-        if (str_starts_with($this->apiKey, 'creem_')) {
-            return 'creem_****' . $visibleSuffix;
-        }
-
-        return 'sk_****' . $visibleSuffix;
+        return 'creem_****' . $visibleSuffix;
     }
 
     private function normalizeApiKey(#[\SensitiveParameter] string $apiKey): string
@@ -174,10 +172,31 @@ final readonly class Config implements \Stringable
         }
 
         if (! preg_match(self::API_KEY_PATTERN, $apiKey)) {
-            throw new InvalidArgumentException('The Creem API key must start with "sk_" or "creem_".');
+            throw new InvalidArgumentException('The Creem API key must start with "creem_test_" or "creem_".');
         }
 
+        $this->assertApiKeyMatchesEnvironment($apiKey);
+
         return $apiKey;
+    }
+
+    private function assertApiKeyMatchesEnvironment(#[\SensitiveParameter] string $apiKey): void
+    {
+        if (str_starts_with($apiKey, self::CREEM_TEST_API_KEY_PREFIX) && $this->environment !== Environment::Test) {
+            throw new InvalidArgumentException(
+                'Creem test API keys starting with "creem_test_" require Environment::Test.',
+            );
+        }
+
+        if (
+            str_starts_with($apiKey, self::CREEM_PRODUCTION_API_KEY_PREFIX)
+            && ! str_starts_with($apiKey, self::CREEM_TEST_API_KEY_PREFIX)
+            && $this->environment !== Environment::Production
+        ) {
+            throw new InvalidArgumentException(
+                'Creem production API keys starting with "creem_" require Environment::Production.',
+            );
+        }
     }
 
     private function normalizeBaseUrl(?string $baseUrl, bool $allowUnsafeBaseUrlOverride): ?string

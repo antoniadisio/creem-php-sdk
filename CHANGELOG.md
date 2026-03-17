@@ -1,13 +1,12 @@
 # Changelog
 
-## 1.0.6 - 2026-03-17
+## 2.0.0 - 2026-03-17
 
-- Documentation-only patch release.
-- Simplifies the repository workflow docs around the real solo-maintainer flow while keeping pull requests required for all changes.
-- Replaces the `docs/maintainers/` structure with a single root `RELEASING.md` guide and keeps `CONTRIBUTING.md` as the tracked source of truth for normal branch, pull request, and validation flow.
-- Keeps `README.md` consumer-focused while updating repo-documentation links to the new structure.
-- No runtime API changes are included in this release.
-- No code changes are required for existing SDK consumers.
+- Breaking release that removes unofficial `sk_*` API key compatibility from the public SDK surface.
+- Restricts accepted API keys to official Creem prefixes: `creem_test_...` for `Environment::Test` and `creem_...` for `Environment::Production`.
+- Fails fast during `Config` construction when a Creem test key is paired with production or a production key is paired with the test environment.
+- Updates the README, playground placeholders, and deterministic tests to use only official Creem key formats.
+- Existing integrations using `sk_*` keys must migrate to official Creem-prefixed keys before upgrading.
 
 ## 1.0.5 - 2026-03-17
 

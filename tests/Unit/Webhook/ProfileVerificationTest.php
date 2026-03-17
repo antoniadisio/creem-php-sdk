@@ -17,7 +17,7 @@ test('webhook profile verification accepts the configured profile secret', funct
     $signature = WebhookTestSupport::signatureHeader($payload, 'whsec_default_secret');
     $profiles = new CredentialProfiles([
         'default' => new CredentialProfile(
-            apiKey: 'sk_test_123',
+            apiKey: 'creem_123',
             webhookSecret: 'whsec_default_secret',
         ),
     ]);
@@ -32,7 +32,7 @@ test('webhook profile verification rejects unknown profiles', function (): void 
     $signature = WebhookTestSupport::signatureHeader($payload, 'whsec_default_secret');
     $profiles = new CredentialProfiles([
         'default' => new CredentialProfile(
-            apiKey: 'sk_test_123',
+            apiKey: 'creem_123',
             webhookSecret: 'whsec_default_secret',
         ),
     ]);
@@ -47,7 +47,7 @@ test('webhook profile verification rejects profiles without secrets', function (
     $signature = WebhookTestSupport::signatureHeader($payload, 'whsec_default_secret');
     $profiles = new CredentialProfiles([
         'default' => new CredentialProfile(
-            apiKey: 'sk_test_123',
+            apiKey: 'creem_123',
         ),
     ]);
 
@@ -61,7 +61,7 @@ test('webhook construction builds verified events for named profiles', function 
     $signature = WebhookTestSupport::signatureHeader($payload, 'whsec_default_secret');
     $profiles = new CredentialProfiles([
         'default' => new CredentialProfile(
-            apiKey: 'sk_test_123',
+            apiKey: 'creem_123',
             webhookSecret: 'whsec_default_secret',
         ),
     ]);

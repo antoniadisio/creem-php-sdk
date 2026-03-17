@@ -13,7 +13,7 @@ use LogicException;
 
 test('credential profile exposes config-backed values and normalizes blank webhook secrets', function (): void {
     $profile = new CredentialProfile(
-        apiKey: '  sk_test_123  ',
+        apiKey: '  creem_test_123  ',
         environment: Environment::Test,
         baseUrl: 'https://test-api.creem.io/',
         timeout: 15,
@@ -22,7 +22,7 @@ test('credential profile exposes config-backed values and normalizes blank webho
     );
 
     expect($profile->config())->toBeInstanceOf(Config::class)
-        ->and($profile->apiKey())->toBe('sk_test_123')
+        ->and($profile->apiKey())->toBe('creem_test_123')
         ->and($profile->environment())->toBe(Environment::Test)
         ->and($profile->baseUrl())->toBe('https://test-api.creem.io')
         ->and($profile->timeout())->toBe(15.0)
@@ -33,7 +33,7 @@ test('credential profile exposes config-backed values and normalizes blank webho
 
 test('credential profile uses redacted values for debug output string casts and serialization', function (): void {
     $profile = new CredentialProfile(
-        apiKey: 'sk_test_secret_1234',
+        apiKey: 'creem_secret_1234',
         webhookSecret: 'whsec_test_secret_9876',
     );
     $debugInfo = $profile->__debugInfo();
@@ -46,21 +46,21 @@ test('credential profile uses redacted values for debug output string casts and 
         return;
     }
 
-    expect($configDebugInfo['apiKey'] ?? null)->toBe('sk_****1234')
+    expect($configDebugInfo['apiKey'] ?? null)->toBe('creem_****1234')
         ->and($debugInfo['webhookSecret'] ?? null)->toBe('whsec_****9876')
-        ->and((string) $profile)->toContain('sk_****1234')
+        ->and((string) $profile)->toContain('creem_****1234')
         ->and((string) $profile)->toContain('whsec_****9876')
-        ->and((string) $profile)->not->toContain('sk_test_secret_1234')
+        ->and((string) $profile)->not->toContain('creem_secret_1234')
         ->and((string) $profile)->not->toContain('whsec_test_secret_9876')
-        ->and($serialized)->toContain('sk_****1234')
+        ->and($serialized)->toContain('creem_****1234')
         ->and($serialized)->toContain('whsec_****9876')
-        ->and($serialized)->not->toContain('sk_test_secret_1234')
+        ->and($serialized)->not->toContain('creem_secret_1234')
         ->and($serialized)->not->toContain('whsec_test_secret_9876');
 });
 
 test('credential profile rejects unserialization to avoid restoring redacted credentials', function (): void {
     $profile = new CredentialProfile(
-        apiKey: 'sk_test_secret_1234',
+        apiKey: 'creem_secret_1234',
         webhookSecret: 'whsec_test_secret_9876',
     );
 
@@ -71,12 +71,12 @@ test('credential profile rejects unserialization to avoid restoring redacted cre
 test('credential profiles resolve named profiles configs and webhook secrets', function (): void {
     $profiles = new CredentialProfiles([
         'default' => new CredentialProfile(
-            apiKey: 'sk_test_default_1234',
+            apiKey: 'creem_test_default_1234',
             environment: Environment::Test,
             webhookSecret: 'whsec_default_1234',
         ),
         'playground' => new CredentialProfile(
-            apiKey: 'sk_test_playground_5678',
+            apiKey: 'creem_playground_5678',
             environment: Environment::Production,
             webhookSecret: 'whsec_playground_5678',
         ),
@@ -84,7 +84,7 @@ test('credential profiles resolve named profiles configs and webhook secrets', f
 
     expect($profiles->names())->toBe(['default', 'playground'])
         ->and($profiles->hasProfile('default'))->toBeTrue()
-        ->and($profiles->config('default')->apiKey())->toBe('sk_test_default_1234')
+        ->and($profiles->config('default')->apiKey())->toBe('creem_test_default_1234')
         ->and($profiles->config('playground')->environment())->toBe(Environment::Production)
         ->and($profiles->webhookSecret('playground'))->toBe('whsec_playground_5678');
 });
@@ -92,7 +92,7 @@ test('credential profiles resolve named profiles configs and webhook secrets', f
 test('credential profiles use redacted values for debug output string casts and serialization', function (): void {
     $profiles = new CredentialProfiles([
         'default' => new CredentialProfile(
-            apiKey: 'sk_test_secret_1234',
+            apiKey: 'creem_secret_1234',
             webhookSecret: 'whsec_test_secret_9876',
         ),
     ]);
@@ -102,16 +102,16 @@ test('credential profiles use redacted values for debug output string casts and 
     expect($debugInfo['count'] ?? null)->toBe(1)
         ->and($debugInfo['names'] ?? null)->toBe(['default'])
         ->and((string) $profiles)->toContain('default')
-        ->and($serialized)->toContain('sk_****1234')
+        ->and($serialized)->toContain('creem_****1234')
         ->and($serialized)->toContain('whsec_****9876')
-        ->and($serialized)->not->toContain('sk_test_secret_1234')
+        ->and($serialized)->not->toContain('creem_secret_1234')
         ->and($serialized)->not->toContain('whsec_test_secret_9876');
 });
 
 test('credential profiles reject unserialization to avoid restoring redacted credentials', function (): void {
     $profiles = new CredentialProfiles([
         'default' => new CredentialProfile(
-            apiKey: 'sk_test_secret_1234',
+            apiKey: 'creem_secret_1234',
             webhookSecret: 'whsec_test_secret_9876',
         ),
     ]);
@@ -138,20 +138,20 @@ function invalidCredentialProfileSets(): array
         ],
         'blank name' => [
             static fn(): CredentialProfiles => new CredentialProfiles([
-                '   ' => new CredentialProfile('sk_test_123'),
+                '   ' => new CredentialProfile('creem_123'),
             ]),
             'Credential profile names cannot be blank.',
         ],
         'invalid characters' => [
             static fn(): CredentialProfiles => new CredentialProfiles([
-                'merchant/main' => new CredentialProfile('sk_test_123'),
+                'merchant/main' => new CredentialProfile('creem_123'),
             ]),
             'Credential profile names must start with an alphanumeric character and contain only letters, numbers, dots, underscores, and dashes.',
         ],
         'unknown profile lookup' => [
             static function (): CredentialProfiles {
                 $profiles = new CredentialProfiles([
-                    'default' => new CredentialProfile('sk_test_123'),
+                    'default' => new CredentialProfile('creem_123'),
                 ]);
 
                 $profiles->profile('missing');
@@ -163,7 +163,7 @@ function invalidCredentialProfileSets(): array
         'missing webhook secret' => [
             static function (): CredentialProfiles {
                 $profiles = new CredentialProfiles([
-                    'default' => new CredentialProfile('sk_test_123'),
+                    'default' => new CredentialProfile('creem_123'),
                 ]);
 
                 $profiles->webhookSecret('default');

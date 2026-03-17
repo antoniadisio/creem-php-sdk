@@ -52,7 +52,7 @@ Product responses expose `custom_fields` as typed `Antoniadisio\Creem\Dto\Common
 
 `Antoniadisio\Creem\Config` is immutable and accepts:
 
-- `apiKey` (required, must start with `sk_` or `creem_`)
+- `apiKey` (required; current Creem keys use `creem_test_...` for `Environment::Test` and `creem_...` for `Environment::Production`)
 - `environment` (`Antoniadisio\Creem\Enum\Environment::Production` by default)
 - `baseUrl` (optional override, must be a valid `https://` URL)
 - `timeout` (optional request timeout in seconds, defaults to `30`)
@@ -78,6 +78,8 @@ Environments resolve to:
 
 - `Environment::Production` -> `https://api.creem.io`
 - `Environment::Test` -> `https://test-api.creem.io`
+
+The SDK validates Creem-prefixed keys against the configured environment. `creem_test_...` keys are only accepted with `Environment::Test`, and `creem_...` production keys are only accepted with `Environment::Production`.
 
 When `baseUrl` is provided, `Config` now enforces trusted-host mode by default and only allows official Creem hosts (`api.creem.io`, `test-api.creem.io`). To target a non-official host (for example a local proxy), you must opt in explicitly with `allowUnsafeBaseUrlOverride: true`.
 

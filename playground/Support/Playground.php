@@ -1376,7 +1376,7 @@ final class Playground
         }
 
         if ($allowPlaceholder) {
-            return 'sk_test_profile_' . $profileName;
+            return 'creem_test_profile_' . $profileName;
         }
 
         throw new PlaygroundException(

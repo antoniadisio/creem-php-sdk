@@ -217,7 +217,7 @@ function webhookPlaygroundEnvironment(string $tempDir): array
         'CREEM_PLAYGROUND_STATE_PATH' => $tempDir . '/state.local.json',
         'CREEM_PLAYGROUND_STATE_EXAMPLE_PATH' => PlaygroundTestSupport::stateExamplePath(),
         'CREEM_PLAYGROUND_WEBHOOK_CAPTURE_PATH' => $tempDir . '/captures/webhooks',
-        'CREEM_PLAYGROUND_API_KEY' => 'sk_test_playground_placeholder',
+        'CREEM_PLAYGROUND_API_KEY' => 'creem_test_playground_placeholder',
         'CREEM_TEST_WEBHOOK_SECRET' => 'whsec_test_secret',
         'CREEM_PLAYGROUND_WEBHOOK_SECRET' => 'whsec_playground_secret',
     ];

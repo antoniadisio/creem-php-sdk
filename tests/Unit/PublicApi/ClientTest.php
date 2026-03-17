@@ -16,7 +16,7 @@ use Antoniadisio\Creem\Resource\SubscriptionsResource;
 use Antoniadisio\Creem\Resource\TransactionsResource;
 
 test('client exposes expected resource accessors', function (): void {
-    $client = new Client(new Config('sk_test_123'));
+    $client = new Client(new Config('creem_123'));
 
     expect($client->products())->toBeInstanceOf(ProductsResource::class)
         ->and($client->customers())->toBeInstanceOf(CustomersResource::class)
@@ -30,7 +30,7 @@ test('client exposes expected resource accessors', function (): void {
 });
 
 test('client retains the supplied config', function (): void {
-    $config = new Config('sk_test_123');
+    $config = new Config('creem_123');
     $client = new Client($config);
 
     expect($client->config())->toBe($config);

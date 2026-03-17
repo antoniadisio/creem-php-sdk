@@ -27,10 +27,10 @@ use Saloon\Http\Response;
 use function array_key_exists;
 
 test('transport failures are wrapped without leaking sender exception internals', function (): void {
-    $connector = new CreemConnector(new Config('sk_test_very_secret_123'));
+    $connector = new CreemConnector(new Config('creem_test_very_secret_123', \Antoniadisio\Creem\Enum\Environment::Test));
     $mockResponse = MockResponse::make()->throw(
         static fn(PendingRequest $pendingRequest): FatalRequestException => new FatalRequestException(
-            new RuntimeException('Socket closed for sk_test_very_secret_123'),
+            new RuntimeException('Socket closed for creem_test_very_secret_123'),
             $pendingRequest,
         ),
     );
@@ -41,19 +41,19 @@ test('transport failures are wrapped without leaking sender exception internals'
 
     expect($exception)->toBeInstanceOf(TransportException::class)
         ->and($exception?->getMessage())->toBe('The Creem API request could not be completed.')
-        ->and($exception?->getMessage())->not->toContain('sk_test_very_secret_123')
+        ->and($exception?->getMessage())->not->toContain('creem_test_very_secret_123')
         ->and($exception?->statusCode())->toBeNull()
         ->and($exception?->context())->toBe([])
         ->and($exception?->getPrevious())->toBeNull();
 });
 
 test('plain text error bodies redact sensitive token patterns', function (): void {
-    $connector = new CreemConnector(new Config('sk_test_123'));
+    $connector = new CreemConnector(new Config('creem_test_123', \Antoniadisio\Creem\Enum\Environment::Test));
     $exception = HttpTestSupport::captureException(
         static fn(): Response => $connector->send(
             HttpTestSupport::pingRequest(),
             new MockClient([
-                MockResponse::make('Rejected sk_live_secret creem_live_secret whsec_secret', 500),
+                MockResponse::make('Rejected creem_test_secret creem_live_secret whsec_secret', 500),
             ]),
         ),
     );
@@ -61,20 +61,20 @@ test('plain text error bodies redact sensitive token patterns', function (): voi
     expect($exception)->toBeInstanceOf(ServerException::class)
         ->and($exception?->getMessage())->toBe('Rejected [redacted] [redacted] [redacted]')
         ->and($exception?->context())->toBe(['body' => 'Rejected [redacted] [redacted] [redacted]'])
-        ->and($exception?->getMessage())->not->toContain('sk_live_secret')
+        ->and($exception?->getMessage())->not->toContain('creem_test_secret')
         ->and($exception?->getMessage())->not->toContain('creem_live_secret')
         ->and($exception?->getMessage())->not->toContain('whsec_secret')
         ->and($exception?->getPrevious())->toBeNull();
 });
 
 test('json error messages and context redact sensitive token patterns', function (): void {
-    $connector = new CreemConnector(new Config('sk_test_123'));
+    $connector = new CreemConnector(new Config('creem_test_123', \Antoniadisio\Creem\Enum\Environment::Test));
     $exception = HttpTestSupport::captureException(
         static fn(): Response => $connector->send(
             HttpTestSupport::pingRequest(),
             new MockClient([
                 MockResponse::make([
-                    'message' => 'Invalid key sk_live_secret',
+                    'message' => 'Invalid key creem_test_secret',
                     'detail' => 'Credential creem_live_secret is invalid',
                     'errors' => [
                         [
@@ -108,7 +108,7 @@ foreach (connectorResponseFailureMappings() as $dataset => [$response, $expected
         $expectedStatus,
         $expectedContext,
     ): void {
-        $connector = new CreemConnector(new Config('sk_test_123'));
+        $connector = new CreemConnector(new Config('creem_test_123', \Antoniadisio\Creem\Enum\Environment::Test));
         $exception = HttpTestSupport::captureException(
             static fn(): Response => $connector->send(HttpTestSupport::pingRequest(), new MockClient([$response])),
         );
@@ -130,7 +130,7 @@ foreach (connectorResponseFailureMappings() as $dataset => [$response, $expected
 }
 
 test('synthetic unmapped client errors map to the base exception type', function (): void {
-    $connector = new CreemConnector(new Config('sk_test_123'));
+    $connector = new CreemConnector(new Config('creem_test_123', \Antoniadisio\Creem\Enum\Environment::Test));
     $exception = HttpTestSupport::captureException(
         static fn(): Response => $connector->send(
             HttpTestSupport::pingRequest(),
@@ -155,7 +155,7 @@ test('synthetic unmapped client errors map to the base exception type', function
 });
 
 test('documented debug metadata is preserved in exception context', function (): void {
-    $connector = new CreemConnector(new Config('sk_test_123'));
+    $connector = new CreemConnector(new Config('creem_test_123', \Antoniadisio\Creem\Enum\Environment::Test));
     $exception = HttpTestSupport::captureException(
         static fn(): Response => $connector->send(
             HttpTestSupport::pingRequest(),
@@ -180,7 +180,7 @@ test('documented debug metadata is preserved in exception context', function ():
 });
 
 test('array-based top-level messages are preserved and surfaced', function (): void {
-    $connector = new CreemConnector(new Config('sk_test_123'));
+    $connector = new CreemConnector(new Config('creem_test_123', \Antoniadisio\Creem\Enum\Environment::Test));
     $exception = HttpTestSupport::captureException(
         static fn(): Response => $connector->send(
             HttpTestSupport::pingRequest(),
@@ -203,7 +203,7 @@ test('array-based top-level messages are preserved and surfaced', function (): v
 });
 
 test('nested validation errors resolve useful messages', function (): void {
-    $connector = new CreemConnector(new Config('sk_test_123'));
+    $connector = new CreemConnector(new Config('creem_test_123', \Antoniadisio\Creem\Enum\Environment::Test));
     $errors = [
         [
             'meta' => [
@@ -231,7 +231,7 @@ test('nested validation errors resolve useful messages', function (): void {
 });
 
 test('deeply nested validation errors stop traversing after the recursion guard', function (): void {
-    $connector = new CreemConnector(new Config('sk_test_123'));
+    $connector = new CreemConnector(new Config('creem_test_123', \Antoniadisio\Creem\Enum\Environment::Test));
     $errors = ['level_1' => ['level_2' => ['level_3' => ['level_4' => ['level_5' => ['level_6' => ['detail' => 'Too deep']]]]]]];
     $exception = HttpTestSupport::captureException(
         static fn(): Response => $connector->send(
@@ -258,7 +258,7 @@ test('deeply nested validation errors stop traversing after the recursion guard'
 });
 
 test('error contexts are sanitized before they are attached to exceptions', function (): void {
-    $connector = new CreemConnector(new Config('sk_test_123'));
+    $connector = new CreemConnector(new Config('creem_test_123', \Antoniadisio\Creem\Enum\Environment::Test));
     $exception = HttpTestSupport::captureException(
         static fn(): Response => $connector->send(
             HttpTestSupport::pingRequest(),
